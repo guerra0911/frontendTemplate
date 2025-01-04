@@ -1,12 +1,16 @@
 import axios, { AxiosInstance } from "axios";
-import { BASE_URL_LAPTOP } from "@env";
+
+// BASE_URL_LOCAL=http://127.0.0.1:8000
+// BASE_URL_LAPTOP=http://192.168.2.211:8000
+// BASE_URL_MOBILE=http://172.20.10.5:8000
+// BASE_URL_PRODUCTION=http://18.119.118.178:8000
 
 interface CustomAxiosInstance extends AxiosInstance {
   setAuthToken: (token: string) => void;
 }
 
 const api: CustomAxiosInstance = axios.create({
-  baseURL: BASE_URL_LAPTOP,
+  baseURL: 'http://192.168.2.211:8000',
   headers: {
     "Content-Type": "application/json",
   },
@@ -17,7 +21,7 @@ api.setAuthToken = (token: string) => {
 };
 
 export const apiWithoutAuth = axios.create({
-  baseURL: BASE_URL_LAPTOP,
+  baseURL: 'http://192.168.2.211:8000',
   headers: {
     "Content-Type": "application/json",
   },
