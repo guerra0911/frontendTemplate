@@ -20,6 +20,9 @@ import ThemedDateTimeSelectorExamples from "@/components/examples/dateTime/Theme
 import ThemedCalendarSelectorExamples from "@/components/examples/dateTime/ThemedCalendarSelectorExamples";
 import ThemedContextMenuExamples from "@/components/examples/containers/ThemedContextMenuExamples";
 import ThemedDropDownPickerExamples from "@/components/examples/buttons/ThemedDropDownPickerExamples";
+import ThemedSurfaceExamples from "@/components/examples/containers/ThemedSurfaceExamples";
+import ThemedTouchableRippleExamples from "@/components/examples/buttons/ThemedTouchableRippleExamples";
+import ThemedActivityIndicatorExamples from "@/components/examples/loaders/ThemedActivityIndicatorExamples";
 
 export default function MessagesScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -83,6 +86,15 @@ export default function MessagesScreen() {
 
       {/* Themed Calendar Selector Examples */}
       <ThemedCalendarSelectorExamples />
+
+      {/* Themed Surface Examples */}
+      <ThemedSurfaceExamples />
+
+      {/* Themed Touchable Ripple Examples */}
+      <ThemedTouchableRippleExamples />
+
+      {/* Themed Activity Indicator Examples */}
+      <ThemedActivityIndicatorExamples />
 
     </ThemedScrollContainer>
   );

@@ -18,6 +18,9 @@ import ThemedCalendarSelectorColors from "./templates/dateTime/ThemedCalendarSel
 import ThemedContextMenuColors from "./templates/containers/ThemedContextMenuColors";
 import ThemedDropDownPickerColors from "./templates/buttons/ThemedDropDownPickerColors";
 import ThemedCardColors from "./templates/cards/ThemedCardColors";
+import ThemedSurfaceColors from "./templates/containers/ThemedSurfaceColors";
+import ThemedTouchableRippleColors from "./templates/buttons/ThemedTouchableRippleColors";
+import ThemedActivityIndicatorColors from "./templates/loaders/ThemedActivityIndicatorColors";
 
 
 const tintColorLight = "#0a7ea4";
@@ -81,7 +84,16 @@ export const Colors = {
     ...ThemedDropDownPickerColors.light,
 
     // Card Colors
-    ...ThemedCardColors.light
+    ...ThemedCardColors.light,
+
+    // Surface Colors
+    ...ThemedSurfaceColors.light,
+
+    // Touchable Ripple Colors
+    ...ThemedTouchableRippleColors.light,
+
+    // Activity Indicator Colors
+    ...ThemedActivityIndicatorColors.light,
   },
   dark: {
     text: "#ECEDEE",
@@ -140,6 +152,15 @@ export const Colors = {
     ...ThemedDropDownPickerColors.dark,
 
     // Card Colors
-    ...ThemedCardColors.dark
+    ...ThemedCardColors.dark,
+
+     // Surface Colors
+     ...ThemedSurfaceColors.dark,
+     
+    // Touchable Ripple Colors
+    ...ThemedTouchableRippleColors.dark,
+
+    // Activity Indicator Colors
+    ...ThemedActivityIndicatorColors.dark,
   },
 };
