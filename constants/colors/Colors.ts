@@ -21,6 +21,7 @@ import ThemedCardColors from "./templates/cards/ThemedCardColors";
 import ThemedSurfaceColors from "./templates/containers/ThemedSurfaceColors";
 import ThemedTouchableRippleColors from "./templates/buttons/ThemedTouchableRippleColors";
 import ThemedActivityIndicatorColors from "./templates/loaders/ThemedActivityIndicatorColors";
+import ThemedCrossFadeIconColors from "./templates/icons/ThemedCrossFadeIconColors";
 
 
 const tintColorLight = "#0a7ea4";
@@ -40,6 +41,9 @@ export const Colors = {
 
     // Icon Colors
     ...ThemedIconColors.light,
+
+    // Cross Fade Icon Colors
+    ...ThemedCrossFadeIconColors.light,
 
     // Button Colors
     ...ThemedButtonColors.light,
@@ -108,6 +112,9 @@ export const Colors = {
 
     // Icon Colors
     ...ThemedIconColors.dark,
+
+    // Cross Fade Icon Colors
+    ...ThemedCrossFadeIconColors.dark,
 
     // Button Colors
     ...ThemedButtonColors.dark,

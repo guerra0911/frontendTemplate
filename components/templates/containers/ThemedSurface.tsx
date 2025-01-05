@@ -13,6 +13,7 @@ import {
   StyleProp,
   Animated,
   Platform,
+  View,
 } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor"; // Your custom theme color hook
 
@@ -36,6 +37,9 @@ export interface ThemedSurfaceProps {
 
   /** Additional styles for the container (padding, margin, etc.). */
   style?: StyleProp<ViewStyle>;
+
+  /** If you want to specify a testID for automation tests. */
+  testID?: string;
 
   /**
    * Surface mode:
@@ -77,6 +81,7 @@ export interface ThemedSurfaceProps {
 const ThemedSurface: React.FC<ThemedSurfaceProps> = ({
   children,
   style,
+  testID,
   mode = "flat",
   elevation = 0,
   backgroundColor,
@@ -92,7 +97,8 @@ const ThemedSurface: React.FC<ThemedSurfaceProps> = ({
    * - `surfaceBackgroundElevated` for elevated surfaces
    * - `surfaceShadowColor` for shadow color
    */
-  const bgColorKey = mode === "flat" ? "surfaceBackgroundFlat" : "surfaceBackgroundElevated";
+  const bgColorKey =
+    mode === "flat" ? "surfaceBackgroundFlat" : "surfaceBackgroundElevated";
 
   const resolvedBackgroundColor = useThemeColor(
     {
@@ -128,12 +134,12 @@ const ThemedSurface: React.FC<ThemedSurfaceProps> = ({
       shadowRadius: elevation,
     };
 
-    // Android uses elevation prop directly
+    // For Android
     const androidShadow = {
       elevation,
     };
 
-    // Combine, RN will ignore platform-irrelevant keys
+    // Combine, RN will ignore platform-irrelevant keys automatically
     return { ...iosShadow, ...androidShadow };
   }, [mode, elevation, resolvedShadowColor]);
 
@@ -143,6 +149,7 @@ const ThemedSurface: React.FC<ThemedSurfaceProps> = ({
 
   return (
     <Animated.View
+      testID={testID}
       style={[
         styles.container,
         { backgroundColor: resolvedBackgroundColor },
@@ -163,7 +170,7 @@ const styles = StyleSheet.create({
   container: {
     // By default, let shadow be visible outside the container
     overflow: "visible",
-    // For a clipped surface, set overflow to 'hidden', but that cuts the shadow
+    // If you want to clip child content, set overflow to 'hidden', but that cuts the shadow
   },
 });
 

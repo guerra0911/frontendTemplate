@@ -23,6 +23,10 @@ import ThemedDropDownPickerExamples from "@/components/examples/buttons/ThemedDr
 import ThemedSurfaceExamples from "@/components/examples/containers/ThemedSurfaceExamples";
 import ThemedTouchableRippleExamples from "@/components/examples/buttons/ThemedTouchableRippleExamples";
 import ThemedActivityIndicatorExamples from "@/components/examples/loaders/ThemedActivityIndicatorExamples";
+import ThemedCrossFadeIconExamples from "@/components/examples/icons/ThemedCrossFadeIconExamples";
+import ThemedFABExamples from "@/components/examples/buttons/ThemedFABExamples";
+import ThemedCardExamples from "@/components/examples/cards/ThemedCardExamples";
+import ThemedFABExamples2 from "@/components/examples/buttons/ThemedFABExamples2";
 
 export default function MessagesScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -50,6 +54,9 @@ export default function MessagesScreen() {
 
       {/* Themed Icon Examples */}
       <ThemedIconExamples />
+
+      {/* Themed Cross Fade Icon Examples */}
+      <ThemedCrossFadeIconExamples />
 
       {/* Themed Image Button Examples */}
       <ThemedImageButtonExamples />
@@ -90,11 +97,20 @@ export default function MessagesScreen() {
       {/* Themed Surface Examples */}
       <ThemedSurfaceExamples />
 
+      {/* Themed Card Examples */}
+      <ThemedCardExamples />
+
       {/* Themed Touchable Ripple Examples */}
       <ThemedTouchableRippleExamples />
 
       {/* Themed Activity Indicator Examples */}
       <ThemedActivityIndicatorExamples />
+
+      {/* Themed FAB Examples */}
+      <ThemedFABExamples />
+
+      {/* Themed FAB Examples 2 */}
+      <ThemedFABExamples2 />
 
     </ThemedScrollContainer>
   );
