@@ -4,10 +4,11 @@
  * A custom Pressable component adhering to your standards.
  * It handles hovered, pressed, and focused states (especially for web).
  * If you prefer, you can extend from React Native's default Pressable
- * and wrap the logic. For demonstration, we're doing everything manually.
+ * and wrap the logic. For demonstration, we're doing everything manually,
+ * including manual delayLongPress logic.
  */
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from 'react';
 import {
   Platform,
   View,
@@ -16,7 +17,7 @@ import {
   ViewStyle,
   StyleProp,
   GestureResponderEvent,
-} from "react-native";
+} from 'react-native';
 
 ////////////////////////////////////////////////////////////////////////////////
 // TYPES
@@ -29,8 +30,12 @@ export interface PressableState {
 }
 
 export interface PressableProps {
-  children?: React.ReactNode | ((state: PressableState) => React.ReactNode);
-  style?: StyleProp<ViewStyle> | ((state: PressableState) => StyleProp<ViewStyle>);
+  children?:
+    | React.ReactNode
+    | ((state: PressableState) => React.ReactNode);
+  style?:
+    | StyleProp<ViewStyle>
+    | ((state: PressableState) => StyleProp<ViewStyle>);
   disabled?: boolean;
 
   // Touch handlers
@@ -39,7 +44,10 @@ export interface PressableProps {
   onPressIn?: (event: GestureResponderEvent) => void;
   onPressOut?: (event: GestureResponderEvent) => void;
 
-  // Web-specific
+  // Additional support for a delayed long press
+  delayLongPress?: number;
+
+  // Web-specific (hover)
   onMouseEnter?: (event: React.MouseEvent) => void;
   onMouseLeave?: (event: React.MouseEvent) => void;
 }
@@ -56,12 +64,15 @@ const Pressable: React.FC<PressableProps> = ({
   onLongPress,
   onPressIn,
   onPressOut,
+  delayLongPress,
   onMouseEnter,
   onMouseLeave,
 }) => {
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [focused, setFocused] = useState(false);
+
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Web: handle hover
   const handleMouseEnter = useCallback(
@@ -86,9 +97,20 @@ const Pressable: React.FC<PressableProps> = ({
       if (!disabled) {
         setPressed(true);
         onPressIn?.(e);
+
+        // If user wants onLongPress and a delay
+        if (delayLongPress != null && onLongPress) {
+          // Start a timer to call onLongPress after the delay
+          longPressTimer.current = setTimeout(() => {
+            // Only invoke onLongPress if still pressed and not disabled
+            if (pressed && !disabled) {
+              onLongPress?.(e);
+            }
+          }, delayLongPress);
+        }
       }
     },
-    [disabled, onPressIn]
+    [disabled, onPressIn, onLongPress, delayLongPress, pressed]
   );
 
   const handlePressOut = useCallback(
@@ -96,6 +118,12 @@ const Pressable: React.FC<PressableProps> = ({
       if (!disabled) {
         setPressed(false);
         onPressOut?.(e);
+
+        // Cancel any pending long-press timer
+        if (longPressTimer.current) {
+          clearTimeout(longPressTimer.current);
+          longPressTimer.current = null;
+        }
       }
     },
     [disabled, onPressOut]
@@ -105,18 +133,15 @@ const Pressable: React.FC<PressableProps> = ({
     (e: GestureResponderEvent) => {
       if (!disabled) {
         onPress?.(e);
+
+        // If user tapped quickly, we also need to clear the timer
+        if (longPressTimer.current) {
+          clearTimeout(longPressTimer.current);
+          longPressTimer.current = null;
+        }
       }
     },
     [disabled, onPress]
-  );
-
-  const handleLongPress = useCallback(
-    (e: GestureResponderEvent) => {
-      if (!disabled) {
-        onLongPress?.(e);
-      }
-    },
-    [disabled, onLongPress]
   );
 
   // Build current state
@@ -128,38 +153,35 @@ const Pressable: React.FC<PressableProps> = ({
 
   // Resolve style
   const resolvedStyle: StyleProp<ViewStyle> =
-    typeof style === "function" ? style(pressableState) : style;
+    typeof style === 'function' ? style(pressableState) : style;
 
   return (
     <TouchableWithoutFeedback
       onPress={handlePress}
-      onLongPress={handleLongPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={disabled}
       accessible={!disabled}
       onFocus={() => !disabled && setFocused(true)}
       onBlur={() => setFocused(false)}
-      {...(Platform.OS === "web"
-        ? { onMouseEnter: handleMouseEnter, onMouseLeave: handleMouseLeave }
+      {...(Platform.OS === 'web'
+        ? {
+            onMouseEnter: handleMouseEnter as any,
+            onMouseLeave: handleMouseLeave as any,
+          }
         : {})}
     >
-      <View style={[styles.container, resolvedStyle]}>{renderChildren()}</View>
+      <View style={[styles.container, resolvedStyle]}>
+        {typeof children === 'function' ? children(pressableState) : children}
+      </View>
     </TouchableWithoutFeedback>
   );
-
-  function renderChildren() {
-    if (typeof children === "function") {
-      return children(pressableState);
-    }
-    return children;
-  }
 };
 
 const styles = StyleSheet.create({
   container: {
     // This ensures the container can show background changes on web
-    cursor: Platform.OS === "web" ? "pointer" : undefined,
+    cursor: Platform.OS === 'web' ? 'pointer' : undefined,
   },
 });
 

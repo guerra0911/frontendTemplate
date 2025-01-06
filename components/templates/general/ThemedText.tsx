@@ -2,12 +2,24 @@ import { Text, type TextProps, StyleSheet } from 'react-native';
 
 import { useThemeColor } from '@/hooks/useThemeColor';
 
+/**
+ * ThemedTextProps type, extending React Native's TextProps and adding
+ * optional color overrides and text "type" styles.
+ */
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
   type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
 };
 
+/**
+ * ThemedText
+ *
+ * Renders text adhering to React Native Paper's Text approach:
+ * - Keeps text color from your color files, using `useThemeColor`
+ * - Provides different style "types" if needed
+ * - Matches Paper's text component for color and text baseline
+ */
 export function ThemedText({
   style,
   lightColor,

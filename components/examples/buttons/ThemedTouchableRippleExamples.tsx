@@ -31,7 +31,9 @@ const ThemedTouchableRippleExamples: React.FC = () => {
         onPress={handlePress}
         style={styles.rippleExample}
       >
-        <ThemedText style={styles.textLabel}>Tap Me (Presses: {pressCount})</ThemedText>
+        <ThemedText style={styles.textLabel}>
+          Tap Me (Presses: {pressCount})
+        </ThemedText>
       </ThemedTouchableRipple>
 
       {/* Borderless = false => default overflow */}
@@ -94,5 +96,10 @@ const styles = StyleSheet.create({
   },
   textLabel: {
     fontSize: 16,
+  },
+  fullScreenLabel: {
+    fontSize: 18,
+    color: "#fff",
+    fontWeight: "bold",
   },
 });

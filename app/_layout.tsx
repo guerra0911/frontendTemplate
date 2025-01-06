@@ -13,6 +13,8 @@ import { useEffect } from "react";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import GlobalProvider from "@/contexts/GlobalProvider";
 
+import PortalHost from "@/components/templates/portal/PortalHost";
+
 // Prevent splash screen auto-hide
 SplashScreen.preventAutoHideAsync();
 
@@ -37,22 +39,26 @@ export default function RootLayout() {
 
   return (
     <GlobalProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
+      <PortalHost>
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
         >
-          {/* Main App Screens */}
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
+            {/* Main App Screens */}
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
 
-          {/* Global Settings Stack */}
-          <Stack.Screen name="settings" options={{ headerShown: false }} />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
+            {/* Global Settings Stack */}
+            <Stack.Screen name="settings" options={{ headerShown: false }} />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </PortalHost>
     </GlobalProvider>
   );
 }

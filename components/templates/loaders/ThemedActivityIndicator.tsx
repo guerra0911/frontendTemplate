@@ -1,12 +1,14 @@
 /**
- * ThemedActivityIndicator.tsx
+ * ThemedActivityIndicator
  *
- * A custom loading indicator with a "stutter loop" or slow–fast–slow effect.
- * It uses your global Colors + useThemeColor for default ring color,
- * then adds a scale interpolation to simulate an accelerate–decelerate pattern.
+ * Updated to match React Native Paper's ActivityIndicator:
+ * - Spinning loop
+ * - Hides when stopped, with fade out
+ * - Same ring-based approach, but still uses your custom "activityIndicatorColor"
+ *   from your color file
  */
 
-import React from "react";
+import React from 'react';
 import {
   View,
   StyleSheet,
@@ -14,49 +16,18 @@ import {
   Easing,
   StyleProp,
   ViewStyle,
-} from "react-native";
-import { useThemeColor } from "@/hooks/useThemeColor";
-
-////////////////////////////////////////////////////////////////////////////////
-// TYPES
-////////////////////////////////////////////////////////////////////////////////
+} from 'react-native';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 export interface ThemedActivityIndicatorProps {
-  /** Whether to show (spin) the indicator or hide/stop it. @default true */
   animating?: boolean;
-
-  /** Override ring color: { light?: string; dark?: string } */
   color?: { light?: string; dark?: string };
-
-  /** Diameter of the indicator ring. @default 24 */
   size?: number;
-
-  /**
-   * Whether to fade out the ring when not animating.
-   * If false, ring remains visible but not spinning.
-   * @default true
-   */
   hidesWhenStopped?: boolean;
-
-  /** Additional style for the container. */
   style?: StyleProp<ViewStyle>;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// CONSTANTS
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * For a "stutter" animation, you can tweak these to find the right feel:
- * - ROTATION_DURATION: How long one full spin takes (in ms).
- * - EASING: A custom function for slow–fast–slow motion.
- */
-const ROTATION_DURATION = 1200;
-const EASING = Easing.inOut(Easing.quad); // or try Easing.bezier(0.5, 0, 0.5, 1)
-
-////////////////////////////////////////////////////////////////////////////////
-// COMPONENT
-////////////////////////////////////////////////////////////////////////////////
+const DURATION = 2400;
 
 const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
   animating = true,
@@ -65,114 +36,75 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
   hidesWhenStopped = true,
   style,
 }) => {
-  //////////////////////////////////////////////////////////////////////////
-  // ANIMATION STATES
-  //////////////////////////////////////////////////////////////////////////
-
-  // Spin animation value, 0 -> 1 repeated
-  const spinAnim = React.useRef(new Animated.Value(0)).current;
-
-  // Fade animation to hide/show indicator
+  const spinnerAnim = React.useRef(new Animated.Value(0)).current;
   const fadeAnim = React.useRef(new Animated.Value(animating ? 1 : 0)).current;
 
-  //////////////////////////////////////////////////////////////////////////
-  // THEME COLOR
-  //////////////////////////////////////////////////////////////////////////
-
-  // If user provided a color override, use it; else fallback to "activityIndicatorColor"
   const ringColor = useThemeColor(
     {
       light: color?.light,
       dark: color?.dark,
     },
-    "activityIndicatorColor"
+    'activityIndicatorColor'
   );
 
-  //////////////////////////////////////////////////////////////////////////
-  // START/STOP ANIMATIONS
-  //////////////////////////////////////////////////////////////////////////
+  const rotationRef = React.useRef<Animated.CompositeAnimation>();
+  const startRotation = React.useCallback(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
 
-  const startSpinning = React.useCallback(() => {
-    // Reset spinAnim to 0 to start fresh each loop
-    spinAnim.setValue(0);
+    if (rotationRef.current) {
+      spinnerAnim.setValue(0);
+      Animated.loop(rotationRef.current).start();
+    }
+  }, [fadeAnim, spinnerAnim]);
 
-    // Loop the rotation forever with our custom EASING
-    Animated.loop(
-      Animated.timing(spinAnim, {
-        toValue: 1,
-        duration: ROTATION_DURATION,
-        easing: EASING,
-        useNativeDriver: true,
-      })
-    ).start();
-  }, [spinAnim]);
-
-  const stopSpinning = React.useCallback(() => {
-    spinAnim.stopAnimation();
-  }, [spinAnim]);
-
-  //////////////////////////////////////////////////////////////////////////
-  // FADE & SPIN LOGIC
-  //////////////////////////////////////////////////////////////////////////
+  const stopRotation = React.useCallback(() => {
+    if (rotationRef.current) {
+      rotationRef.current.stop();
+    }
+  }, []);
 
   React.useEffect(() => {
-    if (animating) {
-      // Fade in if hidesWhenStopped
-      if (hidesWhenStopped) {
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }).start(() => {
-          startSpinning();
-        });
-      } else {
-        startSpinning();
-      }
-    } else {
-      // Not animating
-      if (hidesWhenStopped) {
-        // Fade out, then stop spinning
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }).start(() => {
-          stopSpinning();
-        });
-      } else {
-        stopSpinning();
-      }
+    if (!rotationRef.current) {
+      rotationRef.current = Animated.timing(spinnerAnim, {
+        toValue: 1,
+        duration: DURATION,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      });
     }
 
-    // Cleanup when unmounting
-    return () => stopSpinning();
-  }, [animating, hidesWhenStopped, fadeAnim, startSpinning, stopSpinning]);
+    if (animating) {
+      startRotation();
+    } else if (hidesWhenStopped) {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(stopRotation);
+    } else {
+      stopRotation();
+    }
+  }, [animating, hidesWhenStopped, fadeAnim, stopRotation, startRotation, spinnerAnim]);
 
-  //////////////////////////////////////////////////////////////////////////
-  // INTERPOLATIONS
-  //////////////////////////////////////////////////////////////////////////
-
-  // Map spinAnim [0..1] -> rotation degrees
-  const spinInterpolate = spinAnim.interpolate({
+  const spinInterpolate = spinnerAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ["0deg", "360deg"],
+    outputRange: ['0deg', '360deg'],
   });
 
-  // A subtle "shrink–grow" effect to enhance stutter feeling
-  // e.g. 1.0 -> 0.85 -> 1.0
-  const scaleInterpolate = spinAnim.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [1, 0.85, 1],
-  });
-
-  //////////////////////////////////////////////////////////////////////////
-  // RENDER
-  //////////////////////////////////////////////////////////////////////////
+  const containerStyle = {
+    width: size,
+    height: size / 2,
+    overflow: 'hidden' as const,
+  };
 
   return (
     <View
       style={[styles.container, style]}
+      accessible
       accessibilityRole="progressbar"
       accessibilityState={{ busy: animating }}
     >
@@ -182,38 +114,46 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
             width: size,
             height: size,
             opacity: fadeAnim,
-            transform: [
-              { rotate: spinInterpolate },
-              { scale: scaleInterpolate },
-            ],
+            transform: [{ rotate: spinInterpolate }],
           },
         ]}
       >
-        <View
-          style={[
-            {
-              width: size,
-              height: size,
-              borderWidth: size / 10, // thickness
-              borderColor: ringColor,
-              borderRadius: size / 2,
-              borderTopColor: "transparent", // create a gap
-            },
-          ]}
-        />
+        {[0, 1].map((_, index) => {
+          return (
+            <Animated.View key={index} style={[styles.layer]}>
+              <Animated.View style={{ width: size, height: size }}>
+                <View style={containerStyle}>
+                  <View
+                    style={[
+                      {
+                        width: size,
+                        height: size,
+                        borderWidth: size / 10,
+                        borderRadius: size / 2,
+                        borderColor: ringColor,
+                        borderTopColor: 'transparent',
+                      },
+                    ]}
+                  />
+                </View>
+              </Animated.View>
+            </Animated.View>
+          );
+        })}
       </Animated.View>
     </View>
   );
 };
 
-////////////////////////////////////////////////////////////////////////////////
-// STYLES
-////////////////////////////////////////////////////////////////////////////////
-
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  layer: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

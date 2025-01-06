@@ -8,24 +8,24 @@
  * - Integrates with your global Colors + useThemeColor hook
  */
 
-import React, { useMemo } from "react";
+import React, { useCallback } from 'react';
 import {
   Platform,
   StyleSheet,
   View,
-  Animated,
   StyleProp,
   ViewStyle,
   GestureResponderEvent,
-} from "react-native";
-import Pressable, { PressableState, PressableProps } from "./Pressable";
-import { useThemeColor } from "@/hooks/useThemeColor";
+} from 'react-native';
+import Pressable, { PressableState, PressableProps } from './Pressable';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 ////////////////////////////////////////////////////////////////////////////////
 // TYPES
 ////////////////////////////////////////////////////////////////////////////////
 
-export interface ThemedTouchableRippleProps extends Omit<PressableProps, "style" | "children"> {
+export interface ThemedTouchableRippleProps
+  extends Omit<PressableProps, 'style' | 'children'> {
   /** Content of the ripple. Accepts function or static nodes. */
   children?: React.ReactNode | ((state: PressableState) => React.ReactNode);
 
@@ -36,7 +36,6 @@ export interface ThemedTouchableRippleProps extends Omit<PressableProps, "style"
 
   /**
    * If true, the ripple effect can extend outside its bounds on Android.
-   * On iOS/web, we simply apply overflow: 'hidden' or not, if you wish.
    */
   borderless?: boolean;
 
@@ -73,7 +72,15 @@ export interface ThemedTouchableRippleProps extends Omit<PressableProps, "style"
   /** onPressOut event */
   onPressOut?: (e: GestureResponderEvent) => void;
 
-  /** Elevation or styling can be controlled via style if desired */
+  /** 
+   * Delay in ms before `onLongPress` is called.
+   */
+  delayLongPress?: number;
+
+  /**
+   * If true, positions this ripple absolutely to cover the entire screen.
+   */
+  fullScreen?: boolean;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,25 +94,22 @@ const ThemedTouchableRipple: React.FC<ThemedTouchableRippleProps> = ({
   rippleColor,
   underlayColor,
   hoverColor,
-
   disabled = false,
   onPress,
   onLongPress,
   onPressIn,
   onPressOut,
+  delayLongPress,
+  fullScreen = false,
   ...rest
 }) => {
-  //////////////////////////////////////////////////////////////////////////
   // THEME COLORS
-  //////////////////////////////////////////////////////////////////////////
-
-  // Use your theme color hook to get default ripple, underlay, and hover colors
   const defaultRippleColor = useThemeColor(
     {
       light: rippleColor?.light,
       dark: rippleColor?.dark,
     },
-    "touchableRippleColor" // e.g., from ThemedTouchableRippleColors merged into Colors
+    'touchableRippleColor'
   );
 
   const defaultUnderlayColor = useThemeColor(
@@ -113,7 +117,7 @@ const ThemedTouchableRipple: React.FC<ThemedTouchableRippleProps> = ({
       light: underlayColor?.light,
       dark: underlayColor?.dark,
     },
-    "touchableUnderlayColor"
+    'touchableUnderlayColor'
   );
 
   const defaultHoverColor = useThemeColor(
@@ -121,59 +125,50 @@ const ThemedTouchableRipple: React.FC<ThemedTouchableRippleProps> = ({
       light: hoverColor?.light,
       dark: hoverColor?.dark,
     },
-    "touchableHoverColor"
+    'touchableHoverColor'
   );
 
-  //////////////////////////////////////////////////////////////////////////
-  // PLATFORM-SPECIFIC LOGIC
-  //////////////////////////////////////////////////////////////////////////
+  const isAndroid = Platform.OS === 'android';
 
-  // If Android, we might use an actual ripple approach. Otherwise, we do an underlay.
-  // For simplicity, we’ll do a single approach: change background color on press or hover
-  // (though you can absolutely add real `android_ripple` props if you prefer).
-  const isAndroid = Platform.OS === "android";
-
-  //////////////////////////////////////////////////////////////////////////
   // DYNAMIC STYLES
-  //////////////////////////////////////////////////////////////////////////
+  const combinedStyle = useCallback(
+    (pressableState: PressableState) => {
+      const { hovered, pressed } = pressableState;
 
-  // We can define how the Pressable style changes based on hovered/pressed states
-  const combinedStyle = (pressableState: PressableState) => {
-    const { hovered, pressed } = pressableState;
-
-    // We’ll simulate an underlay for iOS or Android pre-Lollipop
-    // and a hover color for web
-    let backgroundColor: string | undefined;
-
-    if (hovered && !pressed) {
-      // Hover but not pressed
-      backgroundColor = defaultHoverColor;
-    } else if (pressed) {
-      // Pressed (ripple or highlight)
-      if (isAndroid) {
-        // Could do a real ripple if you want, but let's just do a tinted BG
-        backgroundColor = defaultRippleColor;
-      } else {
-        backgroundColor = defaultUnderlayColor;
+      let backgroundColor: string | undefined;
+      if (hovered && !pressed) {
+        backgroundColor = defaultHoverColor;
+      } else if (pressed) {
+        if (isAndroid) {
+          backgroundColor = defaultRippleColor;
+        } else {
+          backgroundColor = defaultUnderlayColor;
+        }
       }
-    }
 
-    // Evaluate any user-supplied style
-    const userStyle =
-      typeof style === "function" ? style(pressableState) : style;
+      const userStyle =
+        typeof style === 'function' ? style(pressableState) : style;
 
-    return [
-      styles.container,
-      borderless && styles.borderless,
-      userStyle,
-      { backgroundColor },
-    ];
-  };
+      return [
+        styles.container,
+        borderless && styles.borderless,
+        fullScreen && styles.fullScreenContainer,
+        userStyle,
+        { backgroundColor },
+      ];
+    },
+    [
+      style,
+      borderless,
+      fullScreen,
+      defaultHoverColor,
+      defaultRippleColor,
+      defaultUnderlayColor,
+      isAndroid,
+    ]
+  );
 
-  //////////////////////////////////////////////////////////////////////////
   // RENDER
-  //////////////////////////////////////////////////////////////////////////
-
   return (
     <Pressable
       {...rest}
@@ -183,6 +178,7 @@ const ThemedTouchableRipple: React.FC<ThemedTouchableRippleProps> = ({
       onLongPress={onLongPress}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
+      delayLongPress={delayLongPress}
     >
       {children}
     </Pressable>
@@ -195,11 +191,18 @@ const ThemedTouchableRipple: React.FC<ThemedTouchableRippleProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: "relative",
-    overflow: "visible", // If you want ripple to extend beyond the container
+    position: 'relative',
+    overflow: 'visible',
   },
   borderless: {
-    overflow: "hidden", // If you want to clip the ripple
+    overflow: 'hidden',
+  },
+  fullScreenContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 });
 

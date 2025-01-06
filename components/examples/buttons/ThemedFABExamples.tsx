@@ -1,46 +1,42 @@
 /**
  * ThemedFABExamples.tsx
  *
- * Demonstrates usage of ThemedFABGroup with two examples:
- * 1) A basic speed-dial (default appearance).
- * 2) A customized speed-dial showing main FAB color changes, different labels, custom spacing, etc.
+ * Demonstrates usage of ThemedFABGroup with examples analogous to
+ * React Native Paper’s official FAB.Group docs.
  */
 
-import React, { useState } from "react";
-import { StyleSheet, View, Alert } from "react-native";
-import ThemedFABGroup from "@/components/templates/buttons/ThemedFABGroup";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import React, { useState } from 'react';
+import { StyleSheet, View, Alert } from 'react-native';
+import ThemedFABGroup from '@/components/templates/buttons/ThemedFABGroup';
+import { ThemedText } from '@/components/templates/general/ThemedText';
 
-import type { IconName } from "@/components/templates/icons/ThemedIcon";
-import type { ThemedFABGroupAction } from "@/components/templates/buttons/ThemedFABGroup";
+import type { IconName } from '@/components/templates/icons/ThemedIcon';
+import type { ThemedFABGroupAction } from '@/components/templates/buttons/ThemedFABGroup';
 
 export default function ThemedFABExamples() {
-  // For our first speed-dial
   const [open, setOpen] = useState(false);
-  // Show or hide the entire group
   const [visible, setVisible] = useState(true);
 
-  // Speed dial actions
   const actions1: ThemedFABGroupAction[] = [
     {
-      iconName: "home" as IconName,
-      label: "Home",
-      onPress: () => Alert.alert("Home pressed"),
+      iconName: 'home' as IconName,
+      label: 'Home',
+      onPress: () => Alert.alert('Home pressed'),
     },
     {
-      iconName: "star" as IconName,
-      label: "Star",
-      onPress: () => Alert.alert("Star pressed"),
+      iconName: 'star' as IconName,
+      label: 'Star',
+      onPress: () => Alert.alert('Star pressed'),
     },
     {
-      iconName: "mail" as IconName,
-      label: "Email",
-      onPress: () => Alert.alert("Email pressed"),
+      iconName: 'mail' as IconName,
+      label: 'Email',
+      onPress: () => Alert.alert('Email pressed'),
     },
     {
-      iconName: "notifications" as IconName,
-      label: "Remind",
-      onPress: () => Alert.alert("Remind pressed"),
+      iconName: 'notifications' as IconName,
+      label: 'Remind',
+      onPress: () => Alert.alert('Remind pressed'),
     },
   ];
 
@@ -48,37 +44,38 @@ export default function ThemedFABExamples() {
     <View style={styles.container}>
       <ThemedText style={styles.title}>ThemedFABGroup Examples</ThemedText>
 
-      {/* ---------- 1) Basic Speed Dial ---------- */}
       <ThemedText style={{ marginVertical: 10 }}>
-        Speed-dial is{" "}
-        <ThemedText style={{ fontWeight: "bold" }}>
-          {open ? "OPEN" : "CLOSED"}
+        Speed-dial is{' '}
+        <ThemedText style={{ fontWeight: 'bold' }}>
+          {open ? 'OPEN' : 'CLOSED'}
         </ThemedText>
       </ThemedText>
 
+      {/* Main speed-dial group */}
       <ThemedFABGroup
         actions={actions1}
         open={open}
         onStateChange={({ open }) => setOpen(open)}
-        iconName={open ? ("close" as IconName) : ("add" as IconName)}
+        iconName={open ? ('close' as IconName) : ('add' as IconName)}
         onPress={() => {
           if (open) {
-            Alert.alert("Main FAB pressed while open!");
+            Alert.alert('Main FAB pressed while speed-dial is open!');
           }
         }}
         visible={visible}
-        label={open ? "Close" : "Open"}
+        label={open ? 'Close' : 'Open'}
       />
 
       <View style={{ marginTop: 40 }}>
+        {/* A second FAB used to toggle the "visible" state of the above group */}
         <ThemedFABGroup
           actions={[]}
           open={false}
           onStateChange={() => {}}
-          iconName={visible ? ("eye-off" as IconName) : ("eye" as IconName)}
+          iconName={visible ? ('eye-off' as IconName) : ('eye' as IconName)}
           onPress={() => setVisible(!visible)}
           visible
-          label={visible ? "Hide Speed-Dial" : "Show Speed-Dial"}
+          label={visible ? 'Hide Speed-Dial' : 'Show Speed-Dial'}
         />
       </View>
     </View>
@@ -88,13 +85,13 @@ export default function ThemedFABExamples() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
     padding: 16,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   title: {
     marginBottom: 10,
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });
