@@ -27,6 +27,7 @@ import ThemedCrossFadeIconExamples from "@/components/examples/icons/ThemedCross
 import ThemedFABExamples from "@/components/examples/buttons/ThemedFABExamples";
 import ThemedCardExamples from "@/components/examples/cards/ThemedCardExamples";
 import ThemedFABExamples2 from "@/components/examples/buttons/ThemedFABExamples2";
+import ThemedChasingDotLoadingIndicatorExamples from "@/components/examples/loaders/ChasingDotLoadingIndicatorExamples";
 
 export default function MessagesScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -105,6 +106,9 @@ export default function MessagesScreen() {
 
       {/* Themed Activity Indicator Examples */}
       <ThemedActivityIndicatorExamples />
+
+      {/* Themed Chasing Dot Loading Indicator Examples */}
+      <ThemedChasingDotLoadingIndicatorExamples />
 
       {/* Themed FAB Examples */}
       <ThemedFABExamples />

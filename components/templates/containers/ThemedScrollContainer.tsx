@@ -5,13 +5,11 @@ import {
   StyleSheet,
   RefreshControl,
   View,
-  ActivityIndicator,
   StyleProp,
   ViewStyle,
   ScrollViewProps,
 } from 'react-native';
 import Animated, { useAnimatedScrollHandler } from 'react-native-reanimated';
-
 import { ThemedView } from '@/components/templates/containers/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { BOTTOM_FOOTER_HEIGHT } from '@/constants/Layouts';

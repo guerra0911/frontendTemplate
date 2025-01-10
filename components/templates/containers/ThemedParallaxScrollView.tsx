@@ -1,14 +1,8 @@
 // components/ThemedParallaxScrollContainer.tsx
 
-import React, { useState, useEffect } from 'react';
-import type { PropsWithChildren, ReactElement } from 'react';
-import {
-  StyleSheet,
-  RefreshControl,
-  View,
-  ActivityIndicator,
-  Text,
-} from 'react-native';
+import React, { useState, useEffect } from "react";
+import type { PropsWithChildren, ReactElement } from "react";
+import { StyleSheet, RefreshControl, View, Text } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -17,11 +11,11 @@ import Animated, {
   useSharedValue,
   withTiming,
   runOnJS,
-} from 'react-native-reanimated';
-
-import { ThemedView } from '@/components/templates/containers/ThemedView';
-import { useBottomTabOverflow } from '@/components/ui/TabBarBackground';
-import { useColorScheme } from '@/hooks/useColorScheme';
+} from "react-native-reanimated";
+import ThemedActivityIndicator from "../loaders/ThemedActivityIndicator";
+import { ThemedView } from "@/components/templates/containers/ThemedView";
+import { useBottomTabOverflow } from "@/components/ui/TabBarBackground";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 ////////////////////////////////////////////////////////////////////////////////
 // CONSTANTS
@@ -63,7 +57,7 @@ const ThemedParallaxScrollContainer: React.FC<Props> = ({
   // THEME COLORS
   // ############################################################################
 
-  const colorScheme = useColorScheme() ?? 'light';
+  const colorScheme = useColorScheme() ?? "light";
   const backgroundColor = headerBackgroundColor[colorScheme];
 
   // ############################################################################
@@ -183,8 +177,15 @@ const ThemedParallaxScrollContainer: React.FC<Props> = ({
             Custom Refresh Indicator
         ########################################################################## */}
         {showRefreshIndicator && (
-          <Animated.View style={[styles.refreshIndicator, refreshAnimatedStyle]}>
-            <ActivityIndicator size="small" color="#000" />
+          <Animated.View
+            style={[styles.refreshIndicator, refreshAnimatedStyle]}
+          >
+            <ThemedActivityIndicator
+              animating={true} // Ensure this aligns with your loading state
+              color={{ light: "#ff0000", dark: "#ff0000" }}
+              size={16} // Adjust the size as needed (ThemedActivityIndicator expects a number)
+              hidesWhenStopped={true} // Optional, defaults to true
+            />
             <Text style={styles.refreshText}>Refreshing...</Text>
           </Animated.View>
         )}
@@ -193,11 +194,7 @@ const ThemedParallaxScrollContainer: React.FC<Props> = ({
             Header with Parallax Effect
         ########################################################################## */}
         <Animated.View
-          style={[
-            styles.header,
-            { backgroundColor },
-            headerAnimatedStyle,
-          ]}
+          style={[styles.header, { backgroundColor }, headerAnimatedStyle]}
         >
           {headerImage}
         </Animated.View>
@@ -223,25 +220,25 @@ const styles = StyleSheet.create({
   },
   header: {
     height: HEADER_HEIGHT,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   content: {
     flex: 1,
     padding: 32,
     gap: 16,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   refreshIndicator: {
-    position: 'absolute',
+    position: "absolute",
     top: -80,
-    alignSelf: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
   },
   refreshText: {
     marginLeft: 10,
     fontSize: 14,
-    color: '#000',
+    color: "#000",
   },
 });
 

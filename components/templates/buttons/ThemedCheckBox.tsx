@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   Animated,
   Easing,
-  ActivityIndicator,
   View,
 } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedIcon from "../icons/ThemedIcon";
+import ThemedActivityIndicator from "../loaders/ThemedActivityIndicator";
 import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 // ################################################################################
@@ -23,11 +23,9 @@ type ThemeColorType =
   | "checkBoxBackgroundPrimary"
   | "checkBoxIconColorPrimary"
   | "checkBoxBorderColorPrimary"
-
   | "checkBoxBackgroundSecondary"
   | "checkBoxIconColorSecondary"
   | "checkBoxBorderColorSecondary"
-
   | "checkBoxBackgroundTertiary"
   | "checkBoxIconColorTertiary"
   | "checkBoxBorderColorTertiary"
@@ -36,11 +34,9 @@ type ThemeColorType =
   | "checkBoxCheckedBackgroundPrimary"
   | "checkBoxCheckedIconColorPrimary"
   | "checkBoxCheckedBorderColorPrimary"
-
   | "checkBoxCheckedBackgroundSecondary"
   | "checkBoxCheckedIconColorSecondary"
   | "checkBoxCheckedBorderColorSecondary"
-
   | "checkBoxCheckedBackgroundTertiary"
   | "checkBoxCheckedIconColorTertiary"
   | "checkBoxCheckedBorderColorTertiary"
@@ -49,11 +45,9 @@ type ThemeColorType =
   | "checkBoxDisabledBackgroundPrimary"
   | "checkBoxDisabledIconColorPrimary"
   | "checkBoxDisabledBorderColorPrimary"
-
   | "checkBoxDisabledBackgroundSecondary"
   | "checkBoxDisabledIconColorSecondary"
   | "checkBoxDisabledBorderColorSecondary"
-
   | "checkBoxDisabledBackgroundTertiary"
   | "checkBoxDisabledIconColorTertiary"
   | "checkBoxDisabledBorderColorTertiary"
@@ -107,7 +101,10 @@ export interface ThemedCheckBoxProps {
 
   // ICONS (CHECKMARK)
   // Default will be a standard "checkmark" icon if none provided
-  iconName?: keyof typeof Ionicons.glyphMap | keyof typeof MaterialIcons.glyphMap | keyof typeof FontAwesome.glyphMap;
+  iconName?:
+    | keyof typeof Ionicons.glyphMap
+    | keyof typeof MaterialIcons.glyphMap
+    | keyof typeof FontAwesome.glyphMap;
   iconLibrary?: SupportedIconLibraries;
   iconSize?: number;
 
@@ -192,7 +189,9 @@ const ThemedCheckBox: React.FC<ThemedCheckBoxProps> = ({
     base: string,
     theme: "primary" | "secondary" | "tertiary"
   ): ThemeColorType => {
-    return `${base}${theme.charAt(0).toUpperCase() + theme.slice(1)}` as ThemeColorType;
+    return `${base}${
+      theme.charAt(0).toUpperCase() + theme.slice(1)
+    }` as ThemeColorType;
   };
 
   const isChecked = value;
@@ -272,10 +271,7 @@ const ThemedCheckBox: React.FC<ThemedCheckBoxProps> = ({
   // ############################################################################
   // BORDERS
   // ############################################################################
-  const {
-    width: borderWidth = 1,
-    style: borderStyle = "solid",
-  } = borders;
+  const { width: borderWidth = 1, style: borderStyle = "solid" } = borders;
 
   // ############################################################################
   // SHADOWS
@@ -369,7 +365,7 @@ const ThemedCheckBox: React.FC<ThemedCheckBoxProps> = ({
   // ############################################################################
   // ICON
   // ############################################################################
-  const defaultIconName = iconName || (isChecked ? "checkmark" : ""); 
+  const defaultIconName = iconName || (isChecked ? "checkmark" : "");
   // If not checked, we might show no icon. Or you can choose a faint icon for unchecked state.
   // Let's show no icon when unchecked.
   const showIcon = isChecked && defaultIconName !== "";
@@ -413,7 +409,12 @@ const ThemedCheckBox: React.FC<ThemedCheckBoxProps> = ({
         ]}
       >
         {loading.isLoading ? (
-          <ActivityIndicator size="small" color={resolvedLoadingColor} />
+          <ThemedActivityIndicator
+            animating={loading.isLoading}
+            color={{ light: resolvedLoadingColor, dark: resolvedLoadingColor }} // Customize based on your theme
+            size={16} // Adjust the size as needed (ThemedActivityIndicator expects a number)
+            hidesWhenStopped={true} // Optional, defaults to true
+          />
         ) : (
           showIcon && (
             <ThemedIcon

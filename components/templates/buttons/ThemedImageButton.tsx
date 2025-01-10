@@ -9,13 +9,13 @@ import {
   Animated,
   Easing,
   TextStyle,
-  ActivityIndicator,
   View,
   ImageSourcePropType,
   ImageBackground,
 } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedIcon from "../icons/ThemedIcon";
+import ThemedActivityIndicator from "../loaders/ThemedActivityIndicator";
 import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 /* ================================================================== */
@@ -76,11 +76,11 @@ type SupportedIconLibraries = "Ionicons" | "MaterialIcons" | "FontAwesome";
 /* ================================================================== */
 export interface ThemedImageButtonProps {
   /* FUNCTIONALITY */
-  title?: string;                     // Button label
-  children?: React.ReactNode;         // Alternative to title
-  onPress: () => void;                // Press callback
-  disabled?: boolean;                 // Disable the button
-  style?: StyleProp<ViewStyle>;       // Custom outer styles
+  title?: string; // Button label
+  children?: React.ReactNode; // Alternative to title
+  onPress: () => void; // Press callback
+  disabled?: boolean; // Disable the button
+  style?: StyleProp<ViewStyle>; // Custom outer styles
   themeType?: "primary" | "secondary" | "tertiary";
   hapticFeedbackStyle?: Haptics.ImpactFeedbackStyle | null;
 
@@ -224,7 +224,9 @@ const ThemedImageButton: React.FC<ThemedImageButtonProps> = ({
     base: string,
     theme: "primary" | "secondary" | "tertiary"
   ): ThemeColorType => {
-    return `${base}${theme.charAt(0).toUpperCase() + theme.slice(1)}` as ThemeColorType;
+    return `${base}${
+      theme.charAt(0).toUpperCase() + theme.slice(1)
+    }` as ThemeColorType;
   };
 
   /* ================================================================== */
@@ -469,18 +471,18 @@ const ThemedImageButton: React.FC<ThemedImageButtonProps> = ({
         {
           height: customHeight,
           width: customWidth,
-  
+
           // 1) Remove any undesired background color or set it to "transparent"
           backgroundColor: disabled ? disabledBackgroundColor : "transparent",
-  
+
           borderRadius: effectiveBorderRadius,
           borderColor: disabled ? "transparent" : resolvedBorderColor,
           borderWidth: disabled ? 0 : borderWidth,
           borderStyle: borderStyle,
-  
+
           // 2) Hide any content that goes outside the container's rounded corners
           overflow: "hidden", // IMPORTANT
-  
+
           transform: [{ scale: animatedPress ? scaleAnim : 1 }],
         },
       ]}
@@ -511,19 +513,18 @@ const ThemedImageButton: React.FC<ThemedImageButtonProps> = ({
         >
           {loading.isLoading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator
-                size="small"
-                color={resolvedLoadingColor}
-                style={styles.loadingIndicator}
+              <ThemedActivityIndicator
+                animating={loading.isLoading}
+                color={{
+                  light: resolvedLoadingColor,
+                  dark: resolvedLoadingColor,
+                }} // Customize based on your theme
+                size={16} // Adjust the size as needed (ThemedActivityIndicator expects a number)
+                hidesWhenStopped={true} // Optional, defaults to true
+                style={styles.loadingIndicator} // Retain existing styling
               />
               {loading.text ? (
-                <Text
-                  style={[
-                    styles.text,
-                    { color: textColor },
-                    textStyle,
-                  ]}
-                >
+                <Text style={[styles.text, { color: textColor }, textStyle]}>
                   {loading.text}
                 </Text>
               ) : null}
@@ -531,7 +532,9 @@ const ThemedImageButton: React.FC<ThemedImageButtonProps> = ({
           ) : (
             <View style={contentFlexStyle}>
               {iconElement && (
-                <View style={textElement ? iconContainerStyle : styles.iconOnly}>
+                <View
+                  style={textElement ? iconContainerStyle : styles.iconOnly}
+                >
                   {iconElement}
                 </View>
               )}

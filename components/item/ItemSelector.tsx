@@ -1,8 +1,7 @@
-// ItemSelector.tsx
-
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
+import ThemedActivityIndicator from '@/components/templates/loaders/ThemedActivityIndicator';
 import api from '@/api';
 
 interface ItemSelectorProps {
@@ -51,7 +50,7 @@ const ItemSelector: React.FC<ItemSelectorProps> = ({ onItemSelected }) => {
   };
 
   if (loading) {
-    return <ActivityIndicator />;
+    return <ThemedActivityIndicator size={24} />;
   }
 
   if (items.length === 0) {
@@ -76,7 +75,7 @@ const ItemSelector: React.FC<ItemSelectorProps> = ({ onItemSelected }) => {
           inputAndroid: styles.inputAndroid,
           iconContainer: styles.iconContainer,
         }}
-        useNativeAndroidPickerStyle={false} // Disables default Android styles
+        useNativeAndroidPickerStyle={false}
         Icon={() => {
           return (
             <View

@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   Animated,
   Easing,
-  ActivityIndicator,
   View,
 } from "react-native";
+import ThemedActivityIndicator from "../loaders/ThemedActivityIndicator";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
 // ################################################################################
@@ -49,7 +49,7 @@ export interface ThemedTextButtonProps {
   hapticFeedbackStyle?: Haptics.ImpactFeedbackStyle | null;
 
   // TEXT
-  title?: string;             // The label for the text button
+  title?: string; // The label for the text button
   children?: React.ReactNode; // Alternative to title
   style?: StyleProp<TextStyle>; // Custom text styling
   text?: {
@@ -72,8 +72,8 @@ export interface ThemedTextButtonProps {
   // LOADING
   loading?: {
     isLoading: boolean; // Indicates if the button is in loading state
-    text?: string;      // Text to display during loading
-    color?: string;     // Optional: override the loading spinner color
+    text?: string; // Text to display during loading
+    color?: string; // Optional: override the loading spinner color
   };
 }
 
@@ -219,10 +219,15 @@ const ThemedTextButton: React.FC<ThemedTextButtonProps> = ({
       >
         {loading.isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator
-              size="small"
-              color={resolvedLoadingColor}
-              style={styles.loadingIndicator}
+            <ThemedActivityIndicator
+              animating={loading.isLoading}
+              color={{
+                light: resolvedLoadingColor,
+                dark: resolvedLoadingColor,
+              }} // Customize based on your theme
+              size={16} // Adjust the size as needed (ThemedActivityIndicator expects a number)
+              hidesWhenStopped={true} // Optional, defaults to true
+              style={styles.loadingIndicator} // Retain existing styling
             />
             {loading.text ? (
               <Text

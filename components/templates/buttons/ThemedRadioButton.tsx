@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   Animated,
   Easing,
-  ActivityIndicator,
   View,
 } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedIcon from "../icons/ThemedIcon";
+import ThemedActivityIndicator from "../loaders/ThemedActivityIndicator";
 import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 // ################################################################################
@@ -415,7 +415,12 @@ const ThemedRadioButton: React.FC<ThemedRadioButtonProps> = ({
         ]}
       >
         {loading.isLoading ? (
-          <ActivityIndicator size="small" color={resolvedLoadingColor} />
+          <ThemedActivityIndicator
+          animating={loading.isLoading}
+          color={{ light: resolvedLoadingColor, dark: resolvedLoadingColor }} // Customize based on your theme
+          size={16} // Adjust the size as needed (ThemedActivityIndicator expects a number)
+          hidesWhenStopped={true} // Optional, defaults to true
+        />
         ) : showIcon ? (
           <ThemedIcon
             iconName={iconName!}

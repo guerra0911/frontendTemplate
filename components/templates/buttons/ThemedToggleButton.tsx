@@ -9,11 +9,11 @@ import {
   Animated,
   Easing,
   TextStyle,
-  ActivityIndicator,
   View,
 } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedIcon from "../icons/ThemedIcon";
+import ThemedActivityIndicator from "../loaders/ThemedActivityIndicator";
 import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 // ################################################################################
@@ -25,11 +25,9 @@ type ThemeColorType =
   | "toggleButtonBackgroundPrimary"
   | "toggleButtonTextPrimary"
   | "toggleButtonIconColorPrimary"
-
   | "toggleButtonBackgroundSecondary"
   | "toggleButtonTextSecondary"
   | "toggleButtonIconColorSecondary"
-
   | "toggleButtonBackgroundTertiary"
   | "toggleButtonTextTertiary"
   | "toggleButtonIconColorTertiary"
@@ -38,11 +36,9 @@ type ThemeColorType =
   | "toggleButtonToggledBackgroundPrimary"
   | "toggleButtonToggledTextPrimary"
   | "toggleButtonToggledIconColorPrimary"
-
   | "toggleButtonToggledBackgroundSecondary"
   | "toggleButtonToggledTextSecondary"
   | "toggleButtonToggledIconColorSecondary"
-
   | "toggleButtonToggledBackgroundTertiary"
   | "toggleButtonToggledTextTertiary"
   | "toggleButtonToggledIconColorTertiary"
@@ -51,11 +47,9 @@ type ThemeColorType =
   | "toggleButtonDisabledBackgroundPrimary"
   | "toggleButtonDisabledTextPrimary"
   | "toggleButtonDisabledIconColorPrimary"
-
   | "toggleButtonDisabledBackgroundSecondary"
   | "toggleButtonDisabledTextSecondary"
   | "toggleButtonDisabledIconColorSecondary"
-
   | "toggleButtonDisabledBackgroundTertiary"
   | "toggleButtonDisabledTextTertiary"
   | "toggleButtonDisabledIconColorTertiary"
@@ -235,7 +229,9 @@ const ThemedToggleButton: React.FC<ThemedToggleButtonProps> = ({
     base: string,
     theme: "primary" | "secondary" | "tertiary"
   ): ThemeColorType => {
-    return `${base}${theme.charAt(0).toUpperCase() + theme.slice(1)}` as ThemeColorType;
+    return `${base}${
+      theme.charAt(0).toUpperCase() + theme.slice(1)
+    }` as ThemeColorType;
   };
 
   // ############################################################################
@@ -392,19 +388,31 @@ const ThemedToggleButton: React.FC<ThemedToggleButtonProps> = ({
   switch (iconPosition) {
     case "left":
       contentStyle = styles.row;
-      if (iconElement) iconContainerStyle = { marginRight: textElement ? iconPadding.right ?? 8 : 0 };
+      if (iconElement)
+        iconContainerStyle = {
+          marginRight: textElement ? iconPadding.right ?? 8 : 0,
+        };
       break;
     case "right":
       contentStyle = styles.rowReverse;
-      if (iconElement) iconContainerStyle = { marginLeft: textElement ? iconPadding.left ?? 8 : 0 };
+      if (iconElement)
+        iconContainerStyle = {
+          marginLeft: textElement ? iconPadding.left ?? 8 : 0,
+        };
       break;
     case "top":
       contentStyle = styles.column;
-      if (iconElement) iconContainerStyle = { marginBottom: textElement ? iconPadding.bottom ?? 8 : 0 };
+      if (iconElement)
+        iconContainerStyle = {
+          marginBottom: textElement ? iconPadding.bottom ?? 8 : 0,
+        };
       break;
     case "bottom":
       contentStyle = styles.columnReverse;
-      if (iconElement) iconContainerStyle = { marginTop: textElement ? iconPadding.top ?? 8 : 0 };
+      if (iconElement)
+        iconContainerStyle = {
+          marginTop: textElement ? iconPadding.top ?? 8 : 0,
+        };
       break;
     default:
       contentStyle = styles.row;
@@ -554,10 +562,15 @@ const ThemedToggleButton: React.FC<ThemedToggleButtonProps> = ({
       >
         {loading.isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator
-              size="small"
-              color={resolvedLoadingColor}
-              style={styles.loadingIndicator}
+            <ThemedActivityIndicator
+              animating={loading.isLoading}
+              color={{
+                light: resolvedLoadingColor,
+                dark: resolvedLoadingColor,
+              }} // Customize based on your theme
+              size={16} // Adjust the size as needed (ThemedActivityIndicator expects a number)
+              hidesWhenStopped={true} // Optional, defaults to true
+              style={styles.loadingIndicator} // Retain existing styling
             />
             {loading.text && (
               <Text
@@ -580,7 +593,9 @@ const ThemedToggleButton: React.FC<ThemedToggleButtonProps> = ({
                 {iconElement}
               </View>
             )}
-            {textElement && <View style={styles.textSpacing}>{textElement}</View>}
+            {textElement && (
+              <View style={styles.textSpacing}>{textElement}</View>
+            )}
           </View>
         )}
       </TouchableOpacity>

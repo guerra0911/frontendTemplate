@@ -11,11 +11,11 @@ import {
   Animated,
   Easing,
   TextStyle,
-  ActivityIndicator,
   View,
 } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedIcon from "../icons/ThemedIcon";
+import ThemedActivityIndicator from "../loaders/ThemedActivityIndicator";
 import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -558,9 +558,7 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
         {
           height: customHeight,
           width: customWidth,
-          backgroundColor: disabled
-            ? disabledBackgroundColor
-            : backgroundColor,
+          backgroundColor: disabled ? disabledBackgroundColor : backgroundColor,
           borderRadius: effectiveBorderRadius,
           borderColor: disabled ? "transparent" : resolvedBorderColor,
           borderWidth: disabled ? 0 : borderWidth,
@@ -587,9 +585,14 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
       >
         {loading.isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator
-              size="small"
-              color={resolvedLoadingColor}
+            <ThemedActivityIndicator
+              animating={loading.isLoading}
+              color={{
+                light: resolvedLoadingColor,
+                dark: resolvedLoadingColor,
+              }} // You can customize colors based on your theme
+              size={16} // Adjust the size as needed (ThemedActivityIndicator expects a number)
+              hidesWhenStopped={true} // Optional, defaults to true
               style={styles.loadingIndicator}
             />
             {loading.text && (

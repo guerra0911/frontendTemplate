@@ -1,13 +1,3 @@
-/**
- * ThemedActivityIndicator
- *
- * Updated to match React Native Paper's ActivityIndicator:
- * - Spinning loop
- * - Hides when stopped, with fade out
- * - Same ring-based approach, but still uses your custom "activityIndicatorColor"
- *   from your color file
- */
-
 import React from 'react';
 import {
   View,
@@ -16,6 +6,7 @@ import {
   Easing,
   StyleProp,
   ViewStyle,
+  Platform,
 } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 
@@ -36,8 +27,10 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
   hidesWhenStopped = true,
   style,
 }) => {
-  const spinnerAnim = React.useRef(new Animated.Value(0)).current;
-  const fadeAnim = React.useRef(new Animated.Value(animating ? 1 : 0)).current;
+  const timer = React.useRef(new Animated.Value(0)).current;
+  const fadeAnim = React.useRef(
+    new Animated.Value(!animating && hidesWhenStopped ? 0 : 1)
+  ).current;
 
   const ringColor = useThemeColor(
     {
@@ -47,33 +40,34 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
     'activityIndicatorColor'
   );
 
-  const rotationRef = React.useRef<Animated.CompositeAnimation>();
+  const rotation = React.useRef<Animated.CompositeAnimation>();
+
   const startRotation = React.useCallback(() => {
     Animated.timing(fadeAnim, {
-      toValue: 1,
       duration: 200,
+      toValue: 1,
       useNativeDriver: true,
     }).start();
 
-    if (rotationRef.current) {
-      spinnerAnim.setValue(0);
-      Animated.loop(rotationRef.current).start();
+    if (rotation.current) {
+      timer.setValue(0);
+      Animated.loop(rotation.current).start();
     }
-  }, [fadeAnim, spinnerAnim]);
+  }, [fadeAnim, timer]);
 
   const stopRotation = React.useCallback(() => {
-    if (rotationRef.current) {
-      rotationRef.current.stop();
+    if (rotation.current) {
+      rotation.current.stop();
     }
   }, []);
 
   React.useEffect(() => {
-    if (!rotationRef.current) {
-      rotationRef.current = Animated.timing(spinnerAnim, {
-        toValue: 1,
+    if (rotation.current === undefined) {
+      rotation.current = Animated.timing(timer, {
         duration: DURATION,
         easing: Easing.linear,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
+        toValue: 1,
       });
     }
 
@@ -81,24 +75,22 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
       startRotation();
     } else if (hidesWhenStopped) {
       Animated.timing(fadeAnim, {
-        toValue: 0,
         duration: 200,
+        toValue: 0,
         useNativeDriver: true,
       }).start(stopRotation);
     } else {
       stopRotation();
     }
-  }, [animating, hidesWhenStopped, fadeAnim, stopRotation, startRotation, spinnerAnim]);
+  }, [animating, hidesWhenStopped, fadeAnim, startRotation, stopRotation, timer]);
 
-  const spinInterpolate = spinnerAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
+  const frames = (60 * DURATION) / 1000;
+  const easing = Easing.bezier(0.4, 0.0, 0.7, 1.0);
 
-  const containerStyle = {
+  const containerStyle: ViewStyle = {
     width: size,
     height: size / 2,
-    overflow: 'hidden' as const,
+    overflow: 'hidden',
   };
 
   return (
@@ -109,33 +101,76 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
       accessibilityState={{ busy: animating }}
     >
       <Animated.View
-        style={[
-          {
+        style={[{ width: size, height: size, opacity: fadeAnim }]}
+        collapsable={false}
+      >
+        {[0, 1].map((index) => {
+          const inputRange = Array.from(
+            new Array(frames),
+            (_, frameIndex) => frameIndex / (frames - 1)
+          );
+          const outputRange = Array.from(new Array(frames), (_, frameIndex) => {
+            let progress = (2 * frameIndex) / (frames - 1);
+            const rotation = index ? +(360 - 15) : -(180 - 15);
+
+            if (progress > 1.0) {
+              progress = 2.0 - progress;
+            }
+
+            const direction = index ? -1 : +1;
+
+            return `${direction * (180 - 30) * easing(progress) + rotation}deg`;
+          });
+
+          const layerStyle = {
             width: size,
             height: size,
-            opacity: fadeAnim,
-            transform: [{ rotate: spinInterpolate }],
-          },
-        ]}
-      >
-        {[0, 1].map((_, index) => {
+            transform: [
+              {
+                rotate: timer.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [`${0 + 30 + 15}deg`, `${2 * 360 + 30 + 15}deg`],
+                }),
+              },
+            ],
+          };
+
+          const viewportStyle = {
+            width: size,
+            height: size,
+            transform: [
+              {
+                translateY: index ? -size / 2 : 0,
+              },
+              {
+                rotate: timer.interpolate({ inputRange, outputRange }),
+              },
+            ],
+          };
+
+          const offsetStyle: ViewStyle | null = index ? { top: size / 2 } : null;
+
+          const lineStyle = {
+            width: size,
+            height: size,
+            borderColor: ringColor,
+            borderWidth: size / 10,
+            borderRadius: size / 2,
+          };
+
           return (
             <Animated.View key={index} style={[styles.layer]}>
-              <Animated.View style={{ width: size, height: size }}>
-                <View style={containerStyle}>
-                  <View
-                    style={[
-                      {
-                        width: size,
-                        height: size,
-                        borderWidth: size / 10,
-                        borderRadius: size / 2,
-                        borderColor: ringColor,
-                        borderTopColor: 'transparent',
-                      },
-                    ]}
-                  />
-                </View>
+              <Animated.View style={layerStyle}>
+                <Animated.View
+                  style={[containerStyle as any, offsetStyle]}
+                  collapsable={false}
+                >
+                  <Animated.View style={viewportStyle}>
+                    <Animated.View style={containerStyle as any} collapsable={false}>
+                      <Animated.View style={lineStyle} />
+                    </Animated.View>
+                  </Animated.View>
+                </Animated.View>
               </Animated.View>
             </Animated.View>
           );
@@ -147,13 +182,13 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   layer: {
     ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
