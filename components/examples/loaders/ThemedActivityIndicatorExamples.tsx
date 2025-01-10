@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 40,
-    paddingBottom: 200,
+    paddingBottom: 20,
   },
   sectionTitle: {
     fontSize: 20,

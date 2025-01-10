@@ -29,7 +29,7 @@ const ChasingDotLoadingIndicator: React.FC<ChasingDotLoadingIndicatorProps> = ({
 }) => {
   const dotCount = DEFAULT_DOT_COUNT;
   const dotSize = size / 10; // Reduced dot size for better proportions with more dots
-  const radius = (size / 2) - (dotSize / 2); // Adjusted radius calculation
+  const radius = size / 2 - dotSize / 2; // Adjusted radius calculation
 
   const ringColor = useThemeColor(
     {
@@ -132,24 +132,31 @@ const ChasingDotLoadingIndicator: React.FC<ChasingDotLoadingIndicatorProps> = ({
 
   return (
     <View
-      style={[styles.container, { width: size, height: size }, style]}
+      style={[styles.outerContainer, style]}
       accessible
       accessibilityRole="progressbar"
       accessibilityState={{ busy: animating }}
     >
-      <Animated.View style={{ opacity: fadeAnim }}>
-        {dots.map((_, index) => (
-          <Animated.View key={index} style={getDotStyle(index)} />
-        ))}
-      </Animated.View>
+      <View style={[styles.innerContainer, { width: size, height: size }]}>
+        <Animated.View style={{ opacity: fadeAnim }}>
+          {dots.map((_, index) => (
+            <Animated.View key={index} style={getDotStyle(index)} />
+          ))}
+        </Animated.View>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  outerContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    // Optionally add a background color for debugging
+    // backgroundColor: 'rgba(0, 255, 0, 0.1)',
+  },
+  innerContainer: {
+    position: 'relative',
   },
 });
 
