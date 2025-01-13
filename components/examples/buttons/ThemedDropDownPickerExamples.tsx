@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Alert, ScrollView, Text } from "react-native";
 import ThemedDropDownPicker from "@/components/templates/buttons/ThemedDropDownPicker";
-import { ThemedText } from "@/components/templates/general/ThemedText"; // Assuming you have a ThemedText component
+import { ThemedText } from "@/components/templates/typography/ThemedText"; // Assuming you have a ThemedText component
 
 const ThemedDropDownPickerExamples: React.FC = () => {
   // States for each dropdown example

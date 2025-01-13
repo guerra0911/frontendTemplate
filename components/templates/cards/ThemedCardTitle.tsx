@@ -13,7 +13,7 @@ import {
   ViewStyle,
   TextStyle,
 } from "react-native";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 export interface ThemedCardTitleProps {
   /** Title text (string). */

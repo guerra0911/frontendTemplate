@@ -7,7 +7,7 @@
  *  - optional onPress / onLongPress for pressable cards
  *  - custom styles
  *
- * It uses `ThemedSurface` for background/elevation, and
+ * Uses `ThemedSurface` for background/elevation and
  * `ThemedTouchableRipple` for press handling (if onPress is present).
  */
 
@@ -46,6 +46,11 @@ type CardBorderColorType =
   | "cardBorderSecondary"
   | "cardBorderTertiary";
 
+/**
+ * Props for ThemedCard.
+ * - Accepts optional color overrides for background/border
+ *   but defaults to your theming system if not provided.
+ */
 export interface ThemedCardProps {
   /** The card's children (e.g. <ThemedCardTitle/>, <ThemedCardContent/>, etc.) */
   children?: React.ReactNode;
@@ -72,6 +77,13 @@ export interface ThemedCardProps {
 
   /** An optional testID for testing. @default "themed-card" */
   testID?: string;
+
+  /**
+   * Optional color overrides for the background or border.
+   * If not provided, defaults come from ThemedCardColors.ts
+   */
+  backgroundColor?: { light?: string; dark?: string };
+  borderColor?: { light?: string; dark?: string };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,14 +94,14 @@ function getBackgroundColorKey(
   base: "cardBackground",
   type: ThemedCardType
 ): CardBackgroundColorType {
-  return `${base}${type.charAt(0).toUpperCase()}${type.slice(1)}` as CardBackgroundColorType;
+  return `${base}${type.charAt(0).toUpperCase() + type.slice(1)}` as CardBackgroundColorType;
 }
 
 function getBorderColorKey(
   base: "cardBorder",
   type: ThemedCardType
 ): CardBorderColorType {
-  return `${base}${type.charAt(0).toUpperCase()}${type.slice(1)}` as CardBorderColorType;
+  return `${base}${type.charAt(0).toUpperCase() + type.slice(1)}` as CardBorderColorType;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,6 +119,10 @@ const ThemedCardBase: React.FC<ThemedCardProps> = ({
   style,
   contentStyle,
   testID = "themed-card",
+
+  // NEW color override props
+  backgroundColor = {},
+  borderColor = {},
 }) => {
   // Animated value for "pressed" elevation if mode=elevated
   const elevationAnim = useRef(new Animated.Value(elevation)).current;
@@ -133,19 +149,21 @@ const ThemedCardBase: React.FC<ThemedCardProps> = ({
   };
 
   // THEME COLORS
+  // Use the color override if provided, else default from color file
   const bgColorKey = getBackgroundColorKey("cardBackground", type);
-  const resolvedBackgroundColor = useThemeColor({}, bgColorKey);
+  const resolvedBackgroundColor = useThemeColor(backgroundColor, bgColorKey);
 
   const borderKey = getBorderColorKey("cardBorder", type);
-  const resolvedBorderColor = useThemeColor({}, borderKey);
+  const resolvedBorderColor = useThemeColor(borderColor, borderKey);
 
-  // Style if "outlined"
+  // Outline style if mode=outlined
   const outlineStyle =
-    mode === "outlined" ? { borderWidth: 1, borderColor: resolvedBorderColor } : {};
+    mode === "outlined"
+      ? { borderWidth: 1, borderColor: resolvedBorderColor }
+      : {};
 
-  // Elevation if "elevated"
-  const containerElevation =
-    mode === "elevated" ? (elevationAnim as unknown as number) : 0;
+  // Elevation if mode=elevated
+  const containerElevation = mode === "elevated" ? elevationAnim : 0;
 
   // The card content
   const renderContent = () => (
@@ -158,11 +176,12 @@ const ThemedCardBase: React.FC<ThemedCardProps> = ({
     <ThemedSurface
       testID={testID}
       style={[
-        { backgroundColor: resolvedBackgroundColor },
+        {
+          backgroundColor: resolvedBackgroundColor,
+          elevation: containerElevation as unknown as number, // Animated.Value => cast
+        },
         outlineStyle,
         style,
-        // For "elevated" mode, apply the animated elevation
-        { elevation: containerElevation },
       ]}
     >
       {onPress || onLongPress ? (

@@ -1,6 +1,6 @@
 // components/ThemedParallaxScrollContainer.tsx
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import type { PropsWithChildren, ReactElement } from "react";
 import { StyleSheet, RefreshControl, View, Text } from "react-native";
 import Animated, {
@@ -9,43 +9,89 @@ import Animated, {
   useAnimatedStyle,
   useScrollViewOffset,
   useSharedValue,
-  withTiming,
   runOnJS,
 } from "react-native-reanimated";
+
 import ThemedActivityIndicator from "../loaders/ThemedActivityIndicator";
 import { ThemedView } from "@/components/templates/containers/ThemedView";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { useBottomTabOverflow } from "@/components/ui/TabBarBackground";
-import { useColorScheme } from "@/hooks/useColorScheme";
 
-////////////////////////////////////////////////////////////////////////////////
+// ################################################################################
+// THEME COLOR TYPE
+// ################################################################################
+
+/**
+ * Enumerates possible color keys for ThemedParallaxScrollContainer across
+ * primary, secondary, and tertiary for both the header and container background.
+ */
+type ThemeColorType =
+  // Container background
+  | "parallaxScrollContainerBackgroundPrimary"
+  | "parallaxScrollContainerBackgroundSecondary"
+  | "parallaxScrollContainerBackgroundTertiary"
+
+  // Header background
+  | "parallaxScrollHeaderBackgroundPrimary"
+  | "parallaxScrollHeaderBackgroundSecondary"
+  | "parallaxScrollHeaderBackgroundTertiary";
+
+// ################################################################################
 // CONSTANTS
-////////////////////////////////////////////////////////////////////////////////
+// ################################################################################
 
 const HEADER_HEIGHT = 250;
+const REFRESH_TRIGGER_OFFSET = -100;
 
-////////////////////////////////////////////////////////////////////////////////
-// INTERFACES
-////////////////////////////////////////////////////////////////////////////////
+// ################################################################################
+// PROPS
+// ################################################################################
 
-type Props = PropsWithChildren<{
+/**
+ * This interface extends your original Props, adding:
+ * - themeType for the container’s background
+ * - headerThemeType for the parallax header’s background
+ * - optional backgroundColor/headerBackgroundColor overrides
+ */
+export interface ThemedParallaxScrollContainerProps extends PropsWithChildren {
   headerImage: ReactElement;
-  headerBackgroundColor: { dark: string; light: string };
+
+  // Theming for container body
+  themeType?: "primary" | "secondary" | "tertiary";
+  backgroundColor?: { dark?: string; light?: string };
+
+  // Theming for the parallax header
+  headerThemeType?: "primary" | "secondary" | "tertiary";
+  headerBackgroundColor?: { dark?: string; light?: string };
+
+  // Refresh logic
   onRefresh?: () => void;
   refreshing?: boolean;
-  showRefreshIndicator?: boolean; // Indicates whether to show the refresh indicator
-}>;
+  showRefreshIndicator?: boolean;
 
-////////////////////////////////////////////////////////////////////////////////
+  // (Inherited from your existing code)
+}
+
+// ################################################################################
 // COMPONENT
-////////////////////////////////////////////////////////////////////////////////
+// ################################################################################
 
-const ThemedParallaxScrollContainer: React.FC<Props> = ({
+const ThemedParallaxScrollContainer: React.FC<ThemedParallaxScrollContainerProps> = ({
   children,
   headerImage,
-  headerBackgroundColor,
+
+  // Theming for container
+  themeType = "primary",
+  backgroundColor = {},
+
+  // Theming for header
+  headerThemeType = "primary",
+  headerBackgroundColor = {},
+
+  // Refresh logic
   onRefresh,
   refreshing = false,
-  showRefreshIndicator = true, // Defaults to true if not provided
+  showRefreshIndicator = true,
 }) => {
   // ############################################################################
   // STATE
@@ -57,8 +103,23 @@ const ThemedParallaxScrollContainer: React.FC<Props> = ({
   // THEME COLORS
   // ############################################################################
 
-  const colorScheme = useColorScheme() ?? "light";
-  const backgroundColor = headerBackgroundColor[colorScheme];
+  /**
+   * Helper to generate color keys for container & header background.
+   */
+  const getColorKey = (
+    base: string,
+    variant: "primary" | "secondary" | "tertiary"
+  ): ThemeColorType => {
+    return `${base}${variant.charAt(0).toUpperCase() + variant.slice(1)}` as ThemeColorType;
+  };
+
+  // Container background
+  const containerBgKey = getColorKey("parallaxScrollContainerBackground", themeType);
+  const resolvedContainerBgColor = useThemeColor(backgroundColor, containerBgKey);
+
+  // Header background
+  const headerBgKey = getColorKey("parallaxScrollHeaderBackground", headerThemeType);
+  const resolvedHeaderBgColor = useThemeColor(headerBackgroundColor, headerBgKey);
 
   // ############################################################################
   // REFERENCES AND ANIMATIONS
@@ -72,35 +133,24 @@ const ThemedParallaxScrollContainer: React.FC<Props> = ({
   // HANDLERS
   // ############################################################################
 
-  /**
-   * Triggers the refresh action.
-   * Sets the refreshing state and calls the onRefresh callback if provided.
-   */
-  const triggerRefresh = () => {
+  const triggerRefresh = useCallback(() => {
     if (onRefresh) {
       setIsRefreshing(true);
       onRefresh();
     }
-  };
+  }, [onRefresh]);
 
-  /**
-   * Handles the end of the scroll drag.
-   * If the scroll offset is beyond the threshold and not already refreshing, triggers refresh.
-   */
-  const handleScrollEndDrag = () => {
-    if (scrollOffset.value < -100 && !isRefreshing) {
+  const handleScrollEndDrag = useCallback(() => {
+    // If scrolled beyond threshold and not already refreshing, trigger refresh
+    if (scrollOffset.value < REFRESH_TRIGGER_OFFSET && !isRefreshing) {
       runOnJS(triggerRefresh)();
     }
-  };
+  }, [scrollOffset, isRefreshing, triggerRefresh]);
 
   // ############################################################################
   // EFFECTS
   // ############################################################################
 
-  /**
-   * Effect to handle the refreshing state.
-   * Resets the isRefreshing state when the refreshing prop changes to false.
-   */
   useEffect(() => {
     if (!refreshing && isRefreshing) {
       setIsRefreshing(false);
@@ -111,41 +161,30 @@ const ThemedParallaxScrollContainer: React.FC<Props> = ({
   // ANIMATED STYLES
   // ############################################################################
 
-  /**
-   * Animated style for the custom refresh indicator.
-   * Adjusts opacity and position based on the scroll offset.
-   */
+  // Custom refresh indicator (optional) – fade in near threshold
   const refreshAnimatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(scrollOffset.value, [-100, 0], [1, 0]);
-    const translateY = interpolate(scrollOffset.value, [-100, 0], [0, -50]);
+    const opacity = interpolate(scrollOffset.value, [REFRESH_TRIGGER_OFFSET, 0], [1, 0]);
+    const translateY = interpolate(scrollOffset.value, [REFRESH_TRIGGER_OFFSET, 0], [0, -50]);
     return {
       opacity,
       transform: [{ translateY }],
     };
   });
 
-  /**
-   * Animated style for the header image.
-   * Applies parallax effect by translating and scaling the header based on scroll offset.
-   */
+  // Header parallax effect
   const headerAnimatedStyle = useAnimatedStyle(() => {
+    const translateY = interpolate(
+      scrollOffset.value,
+      [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
+      [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT * 0.75]
+    );
+    const scale = interpolate(
+      scrollOffset.value,
+      [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
+      [2, 1, 1]
+    );
     return {
-      transform: [
-        {
-          translateY: interpolate(
-            scrollOffset.value,
-            [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
-            [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT * 0.75]
-          ),
-        },
-        {
-          scale: interpolate(
-            scrollOffset.value,
-            [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
-            [2, 1, 1]
-          ),
-        },
-      ],
+      transform: [{ translateY }, { scale }],
     };
   });
 
@@ -154,16 +193,17 @@ const ThemedParallaxScrollContainer: React.FC<Props> = ({
   // ############################################################################
 
   return (
-    <ThemedView style={styles.container}>
-      {/* ##########################################################################
-          Parallax Scrollable Content
-      ########################################################################## */}
+    <ThemedView
+      // Use container background for the entire screen
+      style={[styles.container, { backgroundColor: resolvedContainerBgColor }]}
+    >
       <Animated.ScrollView
         ref={scrollRef}
         scrollEventThrottle={16}
         scrollIndicatorInsets={{ bottom }}
         contentContainerStyle={{ paddingBottom: bottom }}
         onScrollEndDrag={handleScrollEndDrag}
+        // Native RefreshControl if user wants the default OS spinner:
         refreshControl={
           onRefresh && showRefreshIndicator ? (
             <RefreshControl
@@ -173,35 +213,31 @@ const ThemedParallaxScrollContainer: React.FC<Props> = ({
           ) : undefined
         }
       >
-        {/* ##########################################################################
-            Custom Refresh Indicator
-        ########################################################################## */}
+        {/* Custom Refresh Indicator */}
         {showRefreshIndicator && (
-          <Animated.View
-            style={[styles.refreshIndicator, refreshAnimatedStyle]}
-          >
+          <Animated.View style={[styles.refreshIndicator, refreshAnimatedStyle]}>
             <ThemedActivityIndicator
-              animating={true} // Ensure this aligns with your loading state
-              color={{ light: "#ff0000", dark: "#ff0000" }}
-              size={16} // Adjust the size as needed (ThemedActivityIndicator expects a number)
-              hidesWhenStopped={true} // Optional, defaults to true
+              animating
+              color={{ light: "#ff0000", dark: "#ff0000" }} // You can unify this or use theme
+              size={16}
+              hidesWhenStopped
             />
             <Text style={styles.refreshText}>Refreshing...</Text>
           </Animated.View>
         )}
 
-        {/* ##########################################################################
-            Header with Parallax Effect
-        ########################################################################## */}
+        {/* Parallax Header */}
         <Animated.View
-          style={[styles.header, { backgroundColor }, headerAnimatedStyle]}
+          style={[
+            styles.header,
+            { backgroundColor: resolvedHeaderBgColor },
+            headerAnimatedStyle,
+          ]}
         >
           {headerImage}
         </Animated.View>
 
-        {/* ##########################################################################
-            Main Content
-        ########################################################################## */}
+        {/* Main Content */}
         <ThemedView style={styles.content}>{children}</ThemedView>
       </Animated.ScrollView>
     </ThemedView>
@@ -210,9 +246,9 @@ const ThemedParallaxScrollContainer: React.FC<Props> = ({
 
 export default ThemedParallaxScrollContainer;
 
-////////////////////////////////////////////////////////////////////////////////
+// ############################################################################
 // STYLES
-////////////////////////////////////////////////////////////////////////////////
+// ############################################################################
 
 const styles = StyleSheet.create({
   container: {
@@ -241,7 +277,3 @@ const styles = StyleSheet.create({
     color: "#000",
   },
 });
-
-////////////////////////////////////////////////////////////////////////////////
-// EXPORT
-////////////////////////////////////////////////////////////////////////////////

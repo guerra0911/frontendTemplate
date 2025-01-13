@@ -8,10 +8,9 @@
  * - Loading state with ActivityIndicator
  * - Press ripple, disabled state, onPress + onLongPress, etc.
  *
- * We keep your color usage via `useThemeColor`.
+ * Uses your new color approach via `useThemeColor`.
  */
-
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -19,97 +18,149 @@ import {
   StyleProp,
   ViewStyle,
   GestureResponderEvent,
-} from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import ThemedSurface from '@/components/templates/containers/ThemedSurface';
-import ThemedTouchableRipple from '@/components/templates/buttons/ThemedTouchableRipple';
-import { ThemedText } from '../general/ThemedText';
+} from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import ThemedSurface from "@/components/templates/containers/ThemedSurface";
+import ThemedTouchableRipple from "@/components/templates/buttons/ThemedTouchableRipple";
+import { ThemedText } from "../typography/ThemedText";
 import ThemedIcon, {
   IconName,
   SupportedIconLibraries,
-} from '@/components/templates/icons/ThemedIcon';
-import ThemedCrossFadeIcon from '@/components/templates/icons/ThemedCrossFadeIcon';
-import ThemedActivityIndicator from '../loaders/ThemedActivityIndicator';
+} from "@/components/templates/icons/ThemedIcon";
+import ThemedCrossFadeIcon from "@/components/templates/icons/ThemedCrossFadeIcon";
+import ThemedActivityIndicator from "../loaders/ThemedActivityIndicator";
 
+// ################################################################################
+// THEME COLOR TYPE
+// ################################################################################
+
+/**
+ * Possible color keys for a FAB across primary, secondary, tertiary:
+ * - fabBackgroundXxx
+ * - fabTextXxx
+ * - fabRippleXxx
+ * - fabBorderXxx
+ */
 type FABThemeColorType =
-  | 'fabBackgroundPrimary'
-  | 'fabBackgroundSecondary'
-  | 'fabBackgroundTertiary'
-  | 'fabTextPrimary'
-  | 'fabTextSecondary'
-  | 'fabTextTertiary'
-  | 'fabRipplePrimary'
-  | 'fabRippleSecondary'
-  | 'fabRippleTertiary'
-  | 'fabBorderPrimary'
-  | 'fabBorderSecondary'
-  | 'fabBorderTertiary';
+  | "fabBackgroundPrimary"
+  | "fabBackgroundSecondary"
+  | "fabBackgroundTertiary"
+  | "fabTextPrimary"
+  | "fabTextSecondary"
+  | "fabTextTertiary"
+  | "fabRipplePrimary"
+  | "fabRippleSecondary"
+  | "fabRippleTertiary"
+  | "fabBorderPrimary"
+  | "fabBorderSecondary"
+  | "fabBorderTertiary";
 
-export type FABType = 'primary' | 'secondary' | 'tertiary';
-export type FABMode = 'flat' | 'elevated';
-export type FABSize = 'small' | 'medium' | 'large';
+// ################################################################################
+// FAB TYPES
+// ################################################################################
+
+export type FABType = "primary" | "secondary" | "tertiary";
+export type FABMode = "flat" | "elevated";
+export type FABSize = "small" | "medium" | "large";
+
+// ################################################################################
+// PROPS
+// ################################################################################
 
 export interface ThemedFABProps {
+  // ICON + LABEL
   iconName?: IconName;
   iconLibrary?: SupportedIconLibraries;
   animatedIcon?: boolean;
   label?: string;
   uppercase?: boolean;
+
+  // THEME
   type?: FABType;
   mode?: FABMode;
+
+  // DIMENSIONS
   size?: FABSize;
   customSize?: number;
+
+  // STATE
   loading?: boolean;
   disabled?: boolean;
+
+  // COLORS (overrides)
   color?: { light?: string; dark?: string };
   rippleColor?: { light?: string; dark?: string };
   backgroundColor?: { light?: string; dark?: string };
   borderColor?: { light?: string; dark?: string };
   borderWidth?: number;
-  borderStyle?: 'solid' | 'dotted' | 'dashed';
+  borderStyle?: "solid" | "dotted" | "dashed";
+
+  // ELEVATION
   elevation?: number;
 
-  /**
-   * Called when the user taps on the FAB.
-   */
+  // EVENTS
   onPress?: (event: GestureResponderEvent) => void;
-
-  /**
-   * Called when the user long-presses the FAB.
-   */
   onLongPress?: (event: GestureResponderEvent) => void;
 
+  // STYLES
   style?: StyleProp<ViewStyle>;
+
+  // VISIBILITY
   visible?: boolean;
+
+  // MISC
   testID?: string;
 }
 
+// ################################################################################
+// COMPONENT
+// ################################################################################
+
 const ThemedFAB: React.FC<ThemedFABProps> = ({
+  // ICON + LABEL
   iconName,
-  iconLibrary = 'Ionicons',
+  iconLibrary = "Ionicons",
   animatedIcon = false,
   label,
   uppercase = false,
-  type = 'primary',
-  mode = 'elevated',
-  size = 'medium',
+
+  // THEME
+  type = "primary",
+  mode = "elevated",
+
+  // DIMENSIONS
+  size = "medium",
   customSize,
+
+  // STATE
   loading = false,
   disabled = false,
-  color,
-  rippleColor,
-  backgroundColor,
-  borderColor,
+
+  // COLORS (overrides)
+  color = {}, // default to empty object to avoid undefined
+  rippleColor = {},
+  backgroundColor = {},
+  borderColor = {},
   borderWidth = 0,
-  borderStyle = 'solid',
+  borderStyle = "solid",
+
+  // ELEVATION
   elevation,
+
+  // EVENTS
   onPress,
   onLongPress,
+
+  // STYLES
   style,
   visible = true,
-  testID = 'themed-fab',
+
+  // MISC
+  testID = "themed-fab",
 }) => {
-  // Animated scale/opacity for appear/disappear
+  // ===========================================================================
+  // ANIMATION: VISIBILITY
+  // ===========================================================================
   const visibilityAnim = useRef(new Animated.Value(visible ? 1 : 0)).current;
   useEffect(() => {
     Animated.timing(visibilityAnim, {
@@ -119,48 +170,58 @@ const ThemedFAB: React.FC<ThemedFABProps> = ({
     }).start();
   }, [visible, visibilityAnim]);
 
-  // Helper to build typed color keys
-  function getBackgroundColorKey(base: string, fabType: FABType): FABThemeColorType {
-    return `${base}${fabType.charAt(0).toUpperCase()}${fabType.slice(1)}` as FABThemeColorType;
-  }
-  function getTextColorKey(base: string, fabType: FABType): FABThemeColorType {
-    return `${base}${fabType.charAt(0).toUpperCase()}${fabType.slice(1)}` as FABThemeColorType;
-  }
-  function getRippleColorKey(base: string, fabType: FABType): FABThemeColorType {
-    return `${base}${fabType.charAt(0).toUpperCase()}${fabType.slice(1)}` as FABThemeColorType;
-  }
-  function getBorderColorKey(base: string, fabType: FABType): FABThemeColorType {
-    return `${base}${fabType.charAt(0).toUpperCase()}${fabType.slice(1)}` as FABThemeColorType;
+  // ===========================================================================
+  // THEME COLOR HELPERS
+  // ===========================================================================
+  function getColorKey(base: string, fabType: FABType): FABThemeColorType {
+    // e.g. "fabBackgroundPrimary"
+    return `${base}${fabType.charAt(0).toUpperCase() + fabType.slice(1)}` as FABThemeColorType;
   }
 
-  // Resolve main background color
-  const backgroundKey = getBackgroundColorKey('fabBackground', type);
-  const resolvedBackgroundColor = useThemeColor(backgroundColor ?? {}, backgroundKey);
+  // Background color
+  const backgroundKey = getColorKey("fabBackground", type);
+  const resolvedBackgroundColor = useThemeColor(
+    backgroundColor,
+    backgroundKey
+  );
 
-  // Resolve text/icon color
-  const textKey = getTextColorKey('fabText', type);
-  const resolvedTextColor = useThemeColor(color ?? {}, textKey);
+  // Text/Icon color
+  const textKey = getColorKey("fabText", type);
+  const resolvedTextColor = useThemeColor(color, textKey);
 
-  // Resolve ripple color
-  const rippleKey = getRippleColorKey('fabRipple', type);
-  const resolvedRippleColor = useThemeColor(rippleColor ?? {}, rippleKey);
+  // Ripple color
+  const rippleKey = getColorKey("fabRipple", type);
+  const resolvedRippleColor = useThemeColor(rippleColor, rippleKey);
 
-  // Resolve border color
-  const borderKey = getBorderColorKey('fabBorder', type);
-  const resolvedBorderColor = useThemeColor(borderColor ?? {}, borderKey);
+  // Border color
+  const borderKey = getColorKey("fabBorder", type);
+  const resolvedBorderColor = useThemeColor(borderColor, borderKey);
 
-  // Decide elevation if not specified
+  // ===========================================================================
+  // ELEVATION LOGIC
+  // ===========================================================================
   const finalElevation =
-    elevation !== undefined ? elevation : mode === 'elevated' && !disabled ? 6 : 0;
+    elevation !== undefined
+      ? elevation
+      : mode === "elevated" && !disabled
+      ? 6
+      : 0;
 
-  // Compute size
+  // ===========================================================================
+  // DIMENSIONS LOGIC
+  // ===========================================================================
   const fabSizeStyle = getFabSizeStyle({ size, customSize });
   const isExtended = !!label;
   const borderRadius = fabSizeStyle.borderRadius;
 
+  // Decide which icon component to render
   const IconComponent = animatedIcon ? ThemedCrossFadeIcon : ThemedIcon;
+  // Calculate icon size for the FAB
   const iconSz = iconSizeForFAB({ size, customSize });
 
+  // ===========================================================================
+  // RENDER
+  // ===========================================================================
   return (
     <Animated.View
       testID={`${testID}-container`}
@@ -172,7 +233,7 @@ const ThemedFAB: React.FC<ThemedFABProps> = ({
         styles.container,
         style,
       ]}
-      pointerEvents={visible ? 'auto' : 'none'}
+      pointerEvents={visible ? "auto" : "none"}
     >
       <ThemedSurface
         style={[
@@ -192,12 +253,16 @@ const ThemedFAB: React.FC<ThemedFABProps> = ({
             { borderRadius },
             isExtended ? { paddingHorizontal: 12 } : {},
           ]}
-          rippleColor={{ light: resolvedRippleColor, dark: resolvedRippleColor }}
+          rippleColor={{
+            light: resolvedRippleColor,
+            dark: resolvedRippleColor,
+          }}
           disabled={disabled}
           onPress={onPress}
           onLongPress={onLongPress}
         >
           <View style={[styles.content, fabSizeStyle]}>
+            {/* Icon or loading indicator */}
             {!loading && iconName ? (
               <IconComponent
                 iconName={iconName}
@@ -215,6 +280,7 @@ const ThemedFAB: React.FC<ThemedFABProps> = ({
               />
             ) : null}
 
+            {/* Label (extended FAB) */}
             {label ? (
               <ThemedText
                 style={[
@@ -222,7 +288,7 @@ const ThemedFAB: React.FC<ThemedFABProps> = ({
                   {
                     color: resolvedTextColor,
                     marginLeft: iconName || loading ? 8 : 0,
-                    textTransform: uppercase ? 'uppercase' : 'none',
+                    textTransform: uppercase ? "uppercase" : "none",
                   },
                 ]}
                 type="defaultSemiBold"
@@ -237,11 +303,16 @@ const ThemedFAB: React.FC<ThemedFABProps> = ({
   );
 };
 
+// ################################################################################
+// HELPER FUNCTIONS
+// ################################################################################
+
 interface FabSizeParams {
   size: FABSize;
   customSize?: number;
 }
 
+/** Returns width/height/borderRadius for the FAB */
 function getFabSizeStyle({ size, customSize }: FabSizeParams) {
   if (customSize) {
     return {
@@ -251,44 +322,49 @@ function getFabSizeStyle({ size, customSize }: FabSizeParams) {
     };
   }
   switch (size) {
-    case 'small':
+    case "small":
       return { width: 40, height: 40, borderRadius: 20 };
-    case 'large':
+    case "large":
       return { width: 64, height: 64, borderRadius: 32 };
-    case 'medium':
+    case "medium":
     default:
       return { width: 56, height: 56, borderRadius: 28 };
   }
 }
 
+/** Decides icon size based on FAB size */
 function iconSizeForFAB({ size, customSize }: FabSizeParams): number {
   if (customSize) {
     return Math.floor(customSize / 2.5);
   }
   switch (size) {
-    case 'small':
+    case "small":
       return 20;
-    case 'large':
+    case "large":
       return 28;
-    case 'medium':
+    case "medium":
     default:
       return 24;
   }
 }
 
+// ################################################################################
+// STYLES
+// ################################################################################
+
 const styles = StyleSheet.create({
   container: {},
   rippleContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
   },
   content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   label: {
     fontSize: 16,

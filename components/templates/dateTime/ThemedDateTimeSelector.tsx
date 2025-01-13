@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { StyleSheet, View, TouchableOpacity, StyleProp, ViewStyle } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { ThemedText } from "@/components/templates/general/ThemedText"; // If you have a ThemedText
+import { ThemedText } from "@/components/templates/typography/ThemedText"; // If you have a ThemedText
 import DateTimePickerModal from "react-native-modal-datetime-picker"; // Example library
 import { FontAwesome } from "@expo/vector-icons";
 

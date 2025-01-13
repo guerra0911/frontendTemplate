@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { ThemedView } from '@/components/templates/containers/ThemedView';
-import { ThemedText } from '@/components/templates/general/ThemedText';
+import { ThemedText } from '@/components/templates/typography/ThemedText';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useRouter } from 'expo-router';
 import { Routes } from '@/routes';

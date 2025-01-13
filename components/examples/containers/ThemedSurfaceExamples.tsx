@@ -2,13 +2,12 @@
  * ThemedSurfaceExamples.tsx
  *
  * Demonstrates various ways to use ThemedSurface
- * without directly importing any color constants.
+ * with the new theming approach.
  */
-
 import React from "react";
 import { StyleSheet, ScrollView } from "react-native";
 import ThemedSurface from "@/components/templates/containers/ThemedSurface";
-import { ThemedText } from "@/components/templates/general/ThemedText"; // Adjust path as needed
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedSurfaceExamples: React.FC = () => {
   return (
@@ -56,6 +55,18 @@ const ThemedSurfaceExamples: React.FC = () => {
       >
         <ThemedText style={styles.exampleLabel}>
           Custom Shadow (Red in Light / Green in Dark)
+        </ThemedText>
+      </ThemedSurface>
+
+      {/* ThemeType = "secondary", just to show usage */}
+      <ThemedSurface
+        mode="elevated"
+        elevation={4}
+        themeType="secondary"
+        style={styles.surfaceExample}
+      >
+        <ThemedText style={styles.exampleLabel}>
+          Elevated (Secondary Theme)
         </ThemedText>
       </ThemedSurface>
     </ScrollView>

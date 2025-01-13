@@ -5,7 +5,7 @@ import { StyleSheet, View, Text, ScrollView } from "react-native";
 import ThemedCalendarSelector from "@/components/templates/dateTime/ThemedCalendarSelector"; 
 import dayjs from "dayjs";
 import { DateType } from "react-native-ui-datepicker";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedCalendarSelectorExamples: React.FC = () => {
   // SINGLE MODE

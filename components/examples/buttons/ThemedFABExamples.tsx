@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
 import ThemedFABGroup from '@/components/templates/buttons/ThemedFABGroup';
-import { ThemedText } from '@/components/templates/general/ThemedText';
+import { ThemedText } from '@/components/templates/typography/ThemedText';
 
 import type { IconName } from '@/components/templates/icons/ThemedIcon';
 import type { ThemedFABGroupAction } from '@/components/templates/buttons/ThemedFABGroup';

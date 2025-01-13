@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View, ScrollView } from "react-native";
 import ThemedRadioButton from "@/components/templates/buttons/ThemedRadioButton";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedRadioButtonExamples: React.FC = () => {
   // STATES

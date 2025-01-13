@@ -16,7 +16,7 @@ import {
   Platform,
 } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { ThemedText } from "@/components/templates/general/ThemedText"; // If desired
+import { ThemedText } from "@/components/templates/typography/ThemedText"; // If desired
 
 // ################################################################################
 // THEME COLOR TYPE

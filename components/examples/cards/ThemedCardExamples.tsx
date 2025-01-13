@@ -1,11 +1,10 @@
 /**
  * ThemedCardExamples.tsx
  */
-
 import React from "react";
 import { StyleSheet, View, Alert } from "react-native";
 import ThemedCard from "@/components/templates/cards/ThemedCard";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedCardExamples: React.FC = () => {
   return (
@@ -19,10 +18,7 @@ const ThemedCardExamples: React.FC = () => {
         type="primary"
         onPress={() => Alert.alert("Elevated Primary Card pressed")}
       >
-        <ThemedCard.Title
-          title="Elevated Primary"
-          subtitle="Tap me!"
-        />
+        <ThemedCard.Title title="Elevated Primary" subtitle="Tap me!" />
         <ThemedCard.Content>
           <ThemedText>
             This is an elevated primary card with default elevation.
@@ -49,11 +45,7 @@ const ThemedCardExamples: React.FC = () => {
       </ThemedCard>
 
       {/* 3. Contained Tertiary (not pressable) */}
-      <ThemedCard
-        style={styles.card}
-        mode="contained"
-        type="tertiary"
-      >
+      <ThemedCard style={styles.card} mode="contained" type="tertiary">
         <ThemedCard.Title
           title="Contained Tertiary"
           subtitle="Not pressable"
@@ -66,15 +58,30 @@ const ThemedCardExamples: React.FC = () => {
       </ThemedCard>
 
       {/* 4. Card with Cover Image */}
-      <ThemedCard
-        style={styles.card}
-        mode="elevated"
-        type="primary"
-      >
+      <ThemedCard style={styles.card} mode="elevated" type="primary">
         <ThemedCard.Cover source={{ uri: "https://picsum.photos/700" }} />
         <ThemedCard.Title title="Card with Cover" subtitle="Image on top" />
         <ThemedCard.Content>
           <ThemedText>A sample image is shown above.</ThemedText>
+        </ThemedCard.Content>
+      </ThemedCard>
+
+      {/* 5. Override Color Example */}
+      <ThemedCard
+        style={styles.card}
+        mode="outlined"
+        type="primary"
+        backgroundColor={{ light: "#ffeecc", dark: "#4d3214" }}
+        borderColor={{ light: "#ff5733", dark: "#c70039" }}
+      >
+        <ThemedCard.Title
+          title="Custom Override"
+          subtitle="Light=ffeecc / Dark=4d3214"
+        />
+        <ThemedCard.Content>
+          <ThemedText>
+            This card uses a custom background + border in light/dark mode.
+          </ThemedText>
         </ThemedCard.Content>
       </ThemedCard>
     </View>

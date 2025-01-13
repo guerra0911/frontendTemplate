@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View, ScrollView } from "react-native";
 import ThemedToggleButton from "@/components/templates/buttons/ThemedToggleButton";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedToggleButtonExamples: React.FC = () => {
   const [defaultToggle, setDefaultToggle] = useState(false);

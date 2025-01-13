@@ -4,9 +4,8 @@
  * Defines color keys for a FAB in light/dark mode,
  * supporting primary, secondary, and tertiary variants.
  *
- * Now includes border color keys as well (fabBorderPrimary, etc.).
+ * Includes border color keys as well (fabBorderPrimary, etc.).
  */
-
 const ThemedFABColors = {
   light: {
     // Background
@@ -24,8 +23,7 @@ const ThemedFABColors = {
     fabRippleSecondary: "rgba(255, 255, 255, 0.2)",
     fabRippleTertiary: "rgba(255, 255, 255, 0.2)",
 
-    // NEW: Border
-    // By default we set them to "transparent". You can override in props.
+    // Border
     fabBorderPrimary: "transparent",
     fabBorderSecondary: "transparent",
     fabBorderTertiary: "transparent",
@@ -46,7 +44,7 @@ const ThemedFABColors = {
     fabRippleSecondary: "rgba(255, 255, 255, 0.2)",
     fabRippleTertiary: "rgba(255, 255, 255, 0.2)",
 
-    // NEW: Border
+    // Border
     fabBorderPrimary: "transparent",
     fabBorderSecondary: "transparent",
     fabBorderTertiary: "transparent",

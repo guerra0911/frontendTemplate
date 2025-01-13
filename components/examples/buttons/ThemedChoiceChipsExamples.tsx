@@ -3,7 +3,7 @@ import { StyleSheet, View, ScrollView } from "react-native";
 import ThemedChoiceChips, {
   ChoiceChipItem,
 } from "@/components/templates/buttons/ThemedChoiceChips";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 // Import icon libraries for icon usage in chips
 import { Ionicons, MaterialIcons, FontAwesome } from "@expo/vector-icons";
@@ -89,23 +89,34 @@ const ThemedChoiceChipsExample: React.FC = () => {
     { title: "5" },
   ];
 
+  // Example 8: Container Theming Override
+  const [selectedIndices8, setSelectedIndices8] = useState<number[]>([]);
+  const items8: ChoiceChipItem[] = [
+    { title: "Iron" },
+    { title: "Nickel" },
+    { title: "Zinc" },
+    { title: "Copper" },
+  ];
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* ----------------------------------------------------------- */}
       {/* Example 1: Default Choice Chips */}
       <ThemedText style={styles.sectionTitle}>Default Choice Chips</ThemedText>
       <ThemedChoiceChips
-        containerStyle={styles.choiceChips}
         items={items1}
         selectedIndices={selectedIndices1}
         onSelectedChange={setSelectedIndices1}
         accessibilityLabel="Default Choice Chips"
         customWidth={70}
+        container={{
+          // For demonstration, show that you can specify container props
+          style: styles.choiceChips,
+        }}
       />
       <ThemedText style={styles.selectedText}>
         Selected:{" "}
-        {selectedIndices1.map((index) => items1[index].title).join(", ") ||
-          "None"}
+        {selectedIndices1.map((index) => items1[index].title).join(", ") || "None"}
       </ThemedText>
 
       {/* ----------------------------------------------------------- */}
@@ -114,17 +125,19 @@ const ThemedChoiceChipsExample: React.FC = () => {
         Multiple Rows with Custom Spacing
       </ThemedText>
       <ThemedChoiceChips
-        containerStyle={styles.choiceChips}
         items={items2}
         selectedIndices={selectedIndices2}
         onSelectedChange={setSelectedIndices2}
         numberOfRows={5}
         verticalRowSpacing={15}
         horizontalChipSpacing={12}
-        containerInternalPadding={15}
         accessibilityLabel="Multiple Rows Choice Chips"
         themeType="secondary"
         stagger={15}
+        container={{
+          style: styles.choiceChips,
+          internalPadding: 15,
+        }}
       />
       <ThemedText style={styles.selectedText}>
         Selected:{" "}
@@ -138,7 +151,6 @@ const ThemedChoiceChipsExample: React.FC = () => {
         Custom Dimensions and Radius
       </ThemedText>
       <ThemedChoiceChips
-        containerStyle={styles.choiceChips}
         items={items3}
         selectedIndices={selectedIndices3}
         onSelectedChange={setSelectedIndices3}
@@ -164,6 +176,9 @@ const ThemedChoiceChipsExample: React.FC = () => {
           light: "#0f5132",
           dark: "#ffffff",
         }}
+        container={{
+          style: styles.choiceChips,
+        }}
       />
       <ThemedText style={styles.selectedText}>
         Selected:{" "}
@@ -177,7 +192,6 @@ const ThemedChoiceChipsExample: React.FC = () => {
         Choice Chips with Icons
       </ThemedText>
       <ThemedChoiceChips
-        containerStyle={styles.choiceChips}
         items={items4}
         selectedIndices={selectedIndices4}
         onSelectedChange={setSelectedIndices4}
@@ -189,6 +203,9 @@ const ThemedChoiceChipsExample: React.FC = () => {
         }}
         accessibilityLabel="Choice Chips with Icons"
         themeType="primary"
+        container={{
+          style: styles.choiceChips,
+        }}
       />
       <ThemedText style={styles.selectedText}>
         Selected:{" "}
@@ -200,7 +217,6 @@ const ThemedChoiceChipsExample: React.FC = () => {
       {/* Example 5: Borders and Shadows */}
       <ThemedText style={styles.sectionTitle}>Borders and Shadows</ThemedText>
       <ThemedChoiceChips
-        containerStyle={styles.choiceChips}
         items={items5}
         selectedIndices={selectedIndices5}
         onSelectedChange={setSelectedIndices5}
@@ -218,6 +234,9 @@ const ThemedChoiceChipsExample: React.FC = () => {
         }}
         accessibilityLabel="Borders and Shadows Choice Chips"
         themeType="secondary"
+        container={{
+          style: styles.choiceChips,
+        }}
       />
       <ThemedText style={styles.selectedText}>
         Selected:{" "}
@@ -231,7 +250,6 @@ const ThemedChoiceChipsExample: React.FC = () => {
         Transparent Background and Custom Padding
       </ThemedText>
       <ThemedChoiceChips
-        containerStyle={styles.choiceChips}
         items={items6}
         selectedIndices={selectedIndices6}
         onSelectedChange={setSelectedIndices6}
@@ -257,6 +275,9 @@ const ThemedChoiceChipsExample: React.FC = () => {
         }}
         accessibilityLabel="Transparent Background Choice Chips"
         themeType="primary"
+        container={{
+          style: styles.choiceChips,
+        }}
       />
       <ThemedText style={styles.selectedText}>
         Selected:{" "}
@@ -270,7 +291,6 @@ const ThemedChoiceChipsExample: React.FC = () => {
         iOS Native-like Choice Chips (MAX.3)
       </ThemedText>
       <ThemedChoiceChips
-        containerStyle={styles.choiceChips}
         items={items7}
         maxSelected={3}
         selectedIndices={selectedIndices7}
@@ -278,7 +298,6 @@ const ThemedChoiceChipsExample: React.FC = () => {
         numberOfRows={1}
         verticalRowSpacing={10}
         horizontalChipSpacing={10}
-        containerInternalPadding={10}
         customHeight={40}
         customWidth={60}
         customRadius="factor" // Pill-shaped
@@ -305,10 +324,51 @@ const ThemedChoiceChipsExample: React.FC = () => {
         textStyle={{
           style: { fontWeight: "bold", fontSize: 16 },
         }}
+        container={{
+          style: styles.choiceChips,
+          internalPadding: 10,
+        }}
       />
       <ThemedText style={styles.selectedText}>
         Selected:{" "}
         {selectedIndices7.map((index) => items7[index].title).join(", ") ||
+          "None"}
+      </ThemedText>
+
+      {/* ----------------------------------------------------------- */}
+      {/* Example 8: Container Theming Override */}
+      <ThemedText style={styles.sectionTitle}>
+        Container Theming Override
+      </ThemedText>
+      <ThemedChoiceChips
+        items={items8}
+        selectedIndices={selectedIndices8}
+        onSelectedChange={setSelectedIndices8}
+        container={{
+          // Force a tertiary container theme that is "disabled", for demonstration
+          themeType: "tertiary",
+          disabled: true,
+          style: styles.choiceChips,
+          internalPadding: 10,
+          borderRadius: 12,
+          borderWidth: 2,
+          borderStyle: "dotted",
+
+          // Override container background color
+          background: {
+            light: "#fdeef8",
+            dark: "#3e2b35",
+          },
+          borderColor: {
+            light: "#ffb3da",
+            dark: "#c87aa2",
+          },
+        }}
+        themeType="secondary" // Note: chips themselves can be a different theme
+      />
+      <ThemedText style={styles.selectedText}>
+        Selected:{" "}
+        {selectedIndices8.map((index) => items8[index].title).join(", ") ||
           "None"}
       </ThemedText>
     </ScrollView>
@@ -334,7 +394,7 @@ const styles = StyleSheet.create({
     color: "#333333",
   },
   choiceChips: {
-    width: "100%", // ensures each ThemedChoiceChips row is truly centered
+    width: "100%",
     marginBottom: 10,
   },
   selectedText: {

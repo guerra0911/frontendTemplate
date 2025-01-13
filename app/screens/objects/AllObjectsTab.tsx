@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { ThemedText } from '@/components/templates/general/ThemedText';
+import { ThemedText } from '@/components/templates/typography/ThemedText';
 
 export default function AllObjectsTab() {
   return (

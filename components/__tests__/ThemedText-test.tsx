@@ -1,7 +1,7 @@
 import * as React from 'react';
 import renderer from 'react-test-renderer';
 
-import { ThemedText } from '../templates/general/ThemedText';
+import { ThemedText } from '../templates/typography/ThemedText';
 
 it(`renders correctly`, () => {
   const tree = renderer.create(<ThemedText>Snapshot test!</ThemedText>).toJSON();

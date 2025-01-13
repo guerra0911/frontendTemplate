@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Alert, ScrollView } from "react-native";
 import ThemedButton from "@/components/templates/buttons/ThemedButton";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedButtonExamples: React.FC = () => {
   const [customColorsPressed, setCustomColorsPressed] = useState(false);

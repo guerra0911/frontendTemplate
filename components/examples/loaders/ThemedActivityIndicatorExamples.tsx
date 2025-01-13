@@ -3,11 +3,10 @@
  *
  * Demonstrates usage of the ThemedActivityIndicator.
  */
-
 import React, { useState } from "react";
 import { StyleSheet, View, Button } from "react-native";
 import ThemedActivityIndicator from "@/components/templates/loaders/ThemedActivityIndicator";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedActivityIndicatorExamples: React.FC = () => {
   const [animating, setAnimating] = useState(true);
@@ -35,6 +34,14 @@ const ThemedActivityIndicatorExamples: React.FC = () => {
         hidesWhenStopped={false}
         size={50}
         color={{ light: "#f1c40f", dark: "#f39c12" }}
+        style={styles.indicator}
+      />
+
+      {/* Demonstration of "secondary" themeType */}
+      <ThemedActivityIndicator
+        animating={animating}
+        themeType="secondary"
+        size={36}
         style={styles.indicator}
       />
 

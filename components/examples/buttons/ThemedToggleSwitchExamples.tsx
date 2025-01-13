@@ -1,9 +1,7 @@
-// ThemedToggleSwitchExamples.tsx
-
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import ThemedToggleSwitch from "@/components/templates/buttons/ThemedToggleSwitch";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedToggleSwitchExamples: React.FC = () => {
   // Each toggle has its own state to operate independently
@@ -19,6 +17,7 @@ const ThemedToggleSwitchExamples: React.FC = () => {
       <ThemedToggleSwitch
         value={defaultToggle}
         onValueChange={setDefaultToggle}
+        themeType="primary"
       />
       <ThemedText style={styles.selectedText}>
         Toggle is {defaultToggle ? "ON" : "OFF"}
@@ -30,6 +29,7 @@ const ThemedToggleSwitchExamples: React.FC = () => {
         value={disabledToggle}
         onValueChange={setDisabledToggle}
         disabled
+        themeType="secondary"
       />
       <ThemedText style={styles.selectedText}>
         Toggle is {disabledToggle ? "ON" : "OFF"} (Disabled)
@@ -42,6 +42,7 @@ const ThemedToggleSwitchExamples: React.FC = () => {
         onValueChange={setCustomSizeToggle}
         width={70}
         height={40}
+        themeType="tertiary"
       />
       <ThemedText style={styles.selectedText}>
         Toggle is {customSizeToggle ? "ON" : "OFF"} (70x40)
@@ -52,10 +53,11 @@ const ThemedToggleSwitchExamples: React.FC = () => {
       <ThemedToggleSwitch
         value={customColorToggle}
         onValueChange={setCustomColorToggle}
-        containerColorOff="#cccccc"
-        containerColorOn="#34C759"
-        circleColorOff="#ffffff"
-        circleColorOn="#ffff00"
+        // If you want per-theme override, you can do { light: "#...", dark: "#..." }
+        backgroundOff={{ light: "#cccccc", dark: "#555555" }}
+        backgroundOn={{ light: "#34C759", dark: "#32D74B" }}
+        circleOff={{ light: "#ffffff", dark: "#ffffff" }}
+        circleOn={{ light: "#ffff00", dark: "#ffea00" }}
       />
       <ThemedText style={styles.selectedText}>
         Toggle is {customColorToggle ? "ON" : "OFF"} (Custom Colors)
@@ -65,10 +67,6 @@ const ThemedToggleSwitchExamples: React.FC = () => {
 };
 
 export default ThemedToggleSwitchExamples;
-
-// ################################################################################
-// STYLES
-// ################################################################################
 
 const styles = StyleSheet.create({
   container: {

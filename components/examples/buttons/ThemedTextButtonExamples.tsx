@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Alert, ScrollView } from "react-native";
 import ThemedTextButton from "@/components/templates/buttons/ThemedTextButton";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedTextButtonExamples: React.FC = () => {
   // States for each button or scenario

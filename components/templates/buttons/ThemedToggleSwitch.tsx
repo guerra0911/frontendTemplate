@@ -1,4 +1,3 @@
-// ThemedToggleSwitch.tsx
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Animated,
@@ -12,19 +11,51 @@ import {
 } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
-// ################################################################################
-// THEME COLOR TYPE
-// ################################################################################
-
 /**
- * Define all possible color keys for ThemedToggleSwitch, matching your Colors.ts setup.
+ * -----------------------------------------------------------------------------
+ * THEME COLOR TYPE
+ * -----------------------------------------------------------------------------
+ * Enumerates all container (track) and circle (thumb) color states
+ * across primary, secondary, tertiary, plus disabled states.
  */
 type ThemeColorType =
-  | "toggleContainerOff"
-  | "toggleContainerOn"
-  | "toggleCircleOff"
-  | "toggleCircleOn";
+  // ON (container track)
+  | "toggleSwitchContainerOnPrimary"
+  | "toggleSwitchContainerOnSecondary"
+  | "toggleSwitchContainerOnTertiary"
+  | "toggleSwitchContainerOnDisabledPrimary"
+  | "toggleSwitchContainerOnDisabledSecondary"
+  | "toggleSwitchContainerOnDisabledTertiary"
 
+  // OFF (container track)
+  | "toggleSwitchContainerOffPrimary"
+  | "toggleSwitchContainerOffSecondary"
+  | "toggleSwitchContainerOffTertiary"
+  | "toggleSwitchContainerOffDisabledPrimary"
+  | "toggleSwitchContainerOffDisabledSecondary"
+  | "toggleSwitchContainerOffDisabledTertiary"
+
+  // ON (circle / thumb)
+  | "toggleSwitchCircleOnPrimary"
+  | "toggleSwitchCircleOnSecondary"
+  | "toggleSwitchCircleOnTertiary"
+  | "toggleSwitchCircleOnDisabledPrimary"
+  | "toggleSwitchCircleOnDisabledSecondary"
+  | "toggleSwitchCircleOnDisabledTertiary"
+
+  // OFF (circle / thumb)
+  | "toggleSwitchCircleOffPrimary"
+  | "toggleSwitchCircleOffSecondary"
+  | "toggleSwitchCircleOffTertiary"
+  | "toggleSwitchCircleOffDisabledPrimary"
+  | "toggleSwitchCircleOffDisabledSecondary"
+  | "toggleSwitchCircleOffDisabledTertiary";
+
+/**
+ * -----------------------------------------------------------------------------
+ * PROPS INTERFACE
+ * -----------------------------------------------------------------------------
+ */
 export interface ThemedToggleSwitchProps {
   // FUNCTIONALITY
   value: boolean;
@@ -34,16 +65,24 @@ export interface ThemedToggleSwitchProps {
   accessibilityLabel?: string;
 
   // DIMENSIONS
-  width?: number;  // Default: 52
-  height?: number; // Default: 32.7
+  width?: number; // default: 52
+  height?: number; // default: 32.7
+
+  // THEME
+  themeType?: "primary" | "secondary" | "tertiary";
 
   // COLOR OVERRIDES
-  containerColorOn?: string;
-  containerColorOff?: string;
-  circleColorOn?: string;
-  circleColorOff?: string;
+  backgroundOn?: { light?: string; dark?: string };
+  backgroundOff?: { light?: string; dark?: string };
+  circleOn?: { light?: string; dark?: string };
+  circleOff?: { light?: string; dark?: string };
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * COMPONENT
+ * -----------------------------------------------------------------------------
+ */
 const ThemedToggleSwitch: React.FC<ThemedToggleSwitchProps> = ({
   // FUNCTIONALITY
   value,
@@ -56,49 +95,100 @@ const ThemedToggleSwitch: React.FC<ThemedToggleSwitchProps> = ({
   width,
   height,
 
-  // COLOR OVERRIDES
-  containerColorOn,
-  containerColorOff,
-  circleColorOn,
-  circleColorOff,
-}) => {
-  // ############################################################################
-  // THEMED COLORS
-  // ############################################################################
-  const inactiveBgColor = useThemeColor({}, "toggleContainerOff");
-  const activeBgColor   = useThemeColor({}, "toggleContainerOn");
-  const defaultCircleColorOff = useThemeColor({}, "toggleCircleOff");
-  const defaultCircleColorOn  = useThemeColor({}, "toggleCircleOn");
+  // THEME
+  themeType = "primary",
 
-  // ############################################################################
-  // DIMENSIONS
-  // ############################################################################
-  const BASE_WIDTH  = 52;
+  // COLOR OVERRIDES (light/dark)
+  backgroundOn = {},
+  backgroundOff = {},
+  circleOn = {},
+  circleOff = {},
+}) => {
+  /**
+   * ---------------------------------------------------------------------------
+   * 1) HELPER: getColorKey(baseColor, onOrOff, themeType, isDisabled)
+   * ---------------------------------------------------------------------------
+   * Dynamically constructs the color key, e.g.:
+   *   baseColor = "toggleSwitchContainer", onOrOff = "On", themeType = "Primary"
+   * => "toggleSwitchContainerOnPrimary"
+   */
+  const getColorKey = (
+    baseColor: "toggleSwitchContainer" | "toggleSwitchCircle",
+    onOrOff: "On" | "Off",
+    variant: "primary" | "secondary" | "tertiary",
+    isDisabledState: boolean
+  ): ThemeColorType => {
+    /**
+     * e.g. "toggleSwitchContainer" + "On" + "Primary" => "toggleSwitchContainerOnPrimary"
+     * if disabled => "toggleSwitchContainerOnDisabledPrimary"
+     */
+    const disabledSegment = isDisabledState ? "Disabled" : "";
+    // Example: "toggleSwitchContainer" + "On" + "Disabled" + "Primary"
+    return `${baseColor}${onOrOff}${disabledSegment}${variant.charAt(0).toUpperCase() + variant.slice(1)}` as ThemeColorType;
+  };
+
+  const isDisabled = disabled;
+
+  /**
+   * ---------------------------------------------------------------------------
+   * 2) THEMED COLORS
+   * ---------------------------------------------------------------------------
+   * We do not directly import ThemedToggleSwitchColors; we rely on useThemeColor
+   * with the color keys from the ThemeColorType enumerations.
+   *
+   * Four color lookups:
+   *   containerOnKey, containerOffKey
+   *   circleOnKey, circleOffKey
+   * We'll choose them based on `value` (true=ON, false=OFF) and `isDisabled`.
+   */
+  const containerOnColor = useThemeColor(
+    backgroundOn,
+    getColorKey("toggleSwitchContainer", "On", themeType, isDisabled)
+  );
+  const containerOffColor = useThemeColor(
+    backgroundOff,
+    getColorKey("toggleSwitchContainer", "Off", themeType, isDisabled)
+  );
+
+  const circleOnColor = useThemeColor(
+    circleOn,
+    getColorKey("toggleSwitchCircle", "On", themeType, isDisabled)
+  );
+  const circleOffColor = useThemeColor(
+    circleOff,
+    getColorKey("toggleSwitchCircle", "Off", themeType, isDisabled)
+  );
+
+  /**
+   * ---------------------------------------------------------------------------
+   * 3) DIMENSIONS
+   * ---------------------------------------------------------------------------
+   */
+  const BASE_WIDTH = 52;
   const BASE_HEIGHT = 32.7;
 
-  const finalWidth  = width ?? BASE_WIDTH;
+  const finalWidth = width ?? BASE_WIDTH;
   const finalHeight = height ?? BASE_HEIGHT;
 
-  // Circle dimension logic: a slight margin from the container edges
-  // so the thumb doesn't touch the container border
-  const circleBaseDiameter = finalHeight - 4; 
-  const circleExpandedDiameter = circleBaseDiameter + 6; // expansion on press
+  // Circle dimension logic
+  const circleBaseDiameter = finalHeight - 4;
+  const circleExpandedDiameter = circleBaseDiameter + 6;
 
-  // ############################################################################
-  // ANIMATION STATES
-  // ############################################################################
-  // Tracks whether toggle is ON (1) or OFF (0)
-  const [animatedValue] = useState(new Animated.Value(value ? 1 : 0));
-  // Controls background color interpolation
-  const [colorAnimatedValue] = useState(new Animated.Value(value ? 1 : 0));
-  // Circle expansion
-  const [circleWidthAnimatedValue] = useState(new Animated.Value(0));
-  // Additional horizontal offset when pressed (only used if value == true)
-  const [translateX] = useState(new Animated.Value(0));
+  /**
+   * ---------------------------------------------------------------------------
+   * 4) ANIMATION STATES
+   * ---------------------------------------------------------------------------
+   */
+  const [animatedValue] = useState(new Animated.Value(value ? 1 : 0));       // track toggle on/off
+  const [colorAnimatedValue] = useState(new Animated.Value(value ? 1 : 0)); // track background color
+  const [circleWidthAnimatedValue] = useState(new Animated.Value(0));       // press expansion
+  const [translateX] = useState(new Animated.Value(0));                     // slight push/pull
 
-  // ############################################################################
-  // EFFECTS
-  // ############################################################################
+  /**
+   * ---------------------------------------------------------------------------
+   * 5) EFFECTS (animate background track and position)
+   * ---------------------------------------------------------------------------
+   */
   useEffect(() => {
     Animated.timing(animatedValue, {
       toValue: value ? 1 : 0,
@@ -115,18 +205,19 @@ const ThemedToggleSwitch: React.FC<ThemedToggleSwitchProps> = ({
     }).start();
   }, [value, animatedValue, colorAnimatedValue]);
 
-  // ############################################################################
-  // PRESS HANDLERS
-  // ############################################################################
+  /**
+   * ---------------------------------------------------------------------------
+   * 6) PRESS HANDLERS
+   * ---------------------------------------------------------------------------
+   */
   const onTouchStart = () => {
-    if (!disabled) {
+    if (!isDisabled) {
       Animated.timing(circleWidthAnimatedValue, {
         toValue: 1,
         duration: 200,
         useNativeDriver: false,
       }).start();
       if (value) {
-        // Slight pull to the left if it's ON
         Animated.timing(translateX, {
           toValue: -5,
           duration: 200,
@@ -150,50 +241,50 @@ const ThemedToggleSwitch: React.FC<ThemedToggleSwitchProps> = ({
   };
 
   const handlePress = useCallback(() => {
-    if (!disabled) {
+    if (!isDisabled) {
       onValueChange(!value);
     }
-  }, [disabled, onValueChange, value]);
+  }, [isDisabled, onValueChange, value]);
 
-  // ############################################################################
-  // INTERPOLATIONS
-  // ############################################################################
-  // The circle moves from leftMargin=2 to
-  // rightMargin=(finalWidth - circleBaseDiameter - 2)
+  /**
+   * ---------------------------------------------------------------------------
+   * 7) INTERPOLATIONS
+   * ---------------------------------------------------------------------------
+   */
+  // Move the circle from left to right
   const moveToggle = useMemo(
-    () => animatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [2, finalWidth - circleBaseDiameter - 2],
-    }),
+    () =>
+      animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [2, finalWidth - circleBaseDiameter - 2],
+      }),
     [animatedValue, finalWidth, circleBaseDiameter]
   );
 
-  // Circle diameter interpolates from base to expanded
+  // Circle diameter from base to expanded
   const circleDiameter = useMemo(
-    () => circleWidthAnimatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [circleBaseDiameter, circleExpandedDiameter],
-    }),
+    () =>
+      circleWidthAnimatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [circleBaseDiameter, circleExpandedDiameter],
+      }),
     [circleWidthAnimatedValue, circleBaseDiameter, circleExpandedDiameter]
   );
 
   // Interpolate container track color
   const bgColor = colorAnimatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [
-      containerColorOff || inactiveBgColor,
-      containerColorOn  || activeBgColor,
-    ],
+    outputRange: [containerOffColor, containerOnColor],
   });
 
-  // Circle color (not animated)
-  const currentCircleColor = value
-    ? circleColorOn  || defaultCircleColorOn
-    : circleColorOff || defaultCircleColorOff;
+  // Determine circle color (no interpolation needed; it’s a direct pick)
+  const currentCircleColor = value ? circleOnColor : circleOffColor;
 
-  // ############################################################################
-  // RENDER
-  // ############################################################################
+  /**
+   * ---------------------------------------------------------------------------
+   * 8) RENDER
+   * ---------------------------------------------------------------------------
+   */
   return (
     <View style={[styles.container, style]}>
       <Pressable
@@ -202,7 +293,7 @@ const ThemedToggleSwitch: React.FC<ThemedToggleSwitchProps> = ({
         onPress={handlePress}
         accessibilityLabel={accessibilityLabel}
         accessibilityRole="switch"
-        accessibilityState={{ disabled, checked: value } as AccessibilityState}
+        accessibilityState={{ disabled: isDisabled, checked: value } as AccessibilityState}
       >
         <Animated.View
           style={[
@@ -210,9 +301,9 @@ const ThemedToggleSwitch: React.FC<ThemedToggleSwitchProps> = ({
             {
               width: finalWidth,
               height: finalHeight,
-              borderRadius: finalHeight * 0.5, // pill shape
+              borderRadius: finalHeight * 0.5,
               backgroundColor: bgColor,
-              opacity: disabled ? 0.6 : 1,
+              opacity: isDisabled ? 0.6 : 1,
             },
           ]}
         >
@@ -224,11 +315,14 @@ const ThemedToggleSwitch: React.FC<ThemedToggleSwitchProps> = ({
                 width: circleDiameter,
                 borderRadius: circleDiameter.interpolate({
                   inputRange: [circleBaseDiameter, circleExpandedDiameter],
-                  outputRange: [circleBaseDiameter * 0.5, circleExpandedDiameter * 0.5],
+                  outputRange: [
+                    circleBaseDiameter * 0.5,
+                    circleExpandedDiameter * 0.5,
+                  ],
                 }),
                 marginLeft: moveToggle,
                 backgroundColor: currentCircleColor,
-                transform: [{ translateX: translateX }],
+                transform: [{ translateX }],
               },
             ]}
           />
@@ -250,7 +344,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   toggleCircle: {
-    // All circle size & position handled by animation
+    // The circle’s size & position are handled by animation,
+    // but we can still add a subtle shadow here if desired
     shadowColor: "#515151",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.2,

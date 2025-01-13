@@ -3,7 +3,7 @@ import { StyleSheet, View, ScrollView } from "react-native";
 import ThemedDateTimeSelector, {
   DateTimePickerType,
 } from "@/components/templates/dateTime/ThemedDateTimeSelector";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedDateTimeSelectorExamples: React.FC = () => {
   // Four separate states for demonstration

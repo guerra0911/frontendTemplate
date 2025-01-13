@@ -7,7 +7,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Alert } from "react-native";
 import ThemedTouchableRipple from "@/components/templates/buttons/ThemedTouchableRipple";
-import { ThemedText } from "@/components/templates/general/ThemedText"; // Adjust path if needed
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedTouchableRippleExamples: React.FC = () => {
   const [pressCount, setPressCount] = useState(0);
@@ -27,16 +27,13 @@ const ThemedTouchableRippleExamples: React.FC = () => {
       </ThemedText>
 
       {/* Basic Usage */}
-      <ThemedTouchableRipple
-        onPress={handlePress}
-        style={styles.rippleExample}
-      >
+      <ThemedTouchableRipple onPress={handlePress} style={styles.rippleExample}>
         <ThemedText style={styles.textLabel}>
           Tap Me (Presses: {pressCount})
         </ThemedText>
       </ThemedTouchableRipple>
 
-      {/* Borderless = false => default overflow */}
+      {/* Underlay Override */}
       <ThemedTouchableRipple
         style={styles.rippleExample}
         underlayColor={{ light: "#ffcccb", dark: "#ff4444" }}
@@ -44,10 +41,11 @@ const ThemedTouchableRippleExamples: React.FC = () => {
         <ThemedText style={styles.textLabel}>Underlay Override</ThemedText>
       </ThemedTouchableRipple>
 
-      {/* Borderless = true => overflow: 'hidden' */}
+      {/* Borderless Circle (with themeType) */}
       <ThemedTouchableRipple
         borderless
         style={[styles.rippleExample, { borderRadius: 50 }]}
+        themeType="secondary"
         rippleColor={{ light: "#00000030", dark: "#ffffff30" }}
       >
         <ThemedText style={styles.textLabel}>Borderless Circle</ThemedText>
@@ -96,10 +94,5 @@ const styles = StyleSheet.create({
   },
   textLabel: {
     fontSize: 16,
-  },
-  fullScreenLabel: {
-    fontSize: 18,
-    color: "#fff",
-    fontWeight: "bold",
   },
 });

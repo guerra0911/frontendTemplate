@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import ThemedSegmentedControl from "@/components/templates/buttons/ThemedSegmentedControl";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedSegmentedControlExamples: React.FC = () => {
   const [selectedPrimary, setSelectedPrimary] = useState(0);

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ThemedText } from '@/components/templates/general/ThemedText';
+import { ThemedText } from '@/components/templates/typography/ThemedText';
 import ThemedScrollContainer from '@/components/templates/containers/ThemedScrollContainer';
 
 export function ProfileScreen() {

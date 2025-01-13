@@ -1,23 +1,29 @@
 // components/ThemedScrollContainer.tsx
 
-import React, { useCallback } from 'react';
+import React, { useCallback } from "react";
 import {
   StyleSheet,
   RefreshControl,
   View,
   StyleProp,
   ViewStyle,
-  ScrollViewProps,
-} from 'react-native';
-import Animated, { useAnimatedScrollHandler } from 'react-native-reanimated';
-import { ThemedView } from '@/components/templates/containers/ThemedView';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { BOTTOM_FOOTER_HEIGHT } from '@/constants/Layouts';
+} from "react-native";
+import Animated from "react-native-reanimated";
+import { ThemedView } from "@/components/templates/containers/ThemedView";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
 
-////////////////////////////////////////////////////////////////////////////////
-// INTERFACES
-////////////////////////////////////////////////////////////////////////////////
+// ----------------------------------------------------------------------------
+// THEME COLOR TYPE
+// ----------------------------------------------------------------------------
+type ThemeColorType =
+  | "scrollContainerBackgroundPrimary"
+  | "scrollContainerBackgroundSecondary"
+  | "scrollContainerBackgroundTertiary";
 
+// ----------------------------------------------------------------------------
+// PROPS
+// ----------------------------------------------------------------------------
 interface ThemedScrollContainerProps {
   children: React.ReactNode;
   isScrollable?: boolean;
@@ -26,13 +32,15 @@ interface ThemedScrollContainerProps {
   refreshing?: boolean;
   style?: StyleProp<ViewStyle>;
   contentContainerStyle?: StyleProp<ViewStyle>;
-  // Extend with additional props as needed
+
+  // Theming
+  themeType?: "primary" | "secondary" | "tertiary";
+  backgroundColor?: { light?: string; dark?: string };
 }
 
-////////////////////////////////////////////////////////////////////////////////
+// ----------------------------------------------------------------------------
 // COMPONENT
-////////////////////////////////////////////////////////////////////////////////
-
+// ----------------------------------------------------------------------------
 const ThemedScrollContainer: React.FC<ThemedScrollContainerProps> = ({
   children,
   isScrollable = true,
@@ -41,44 +49,38 @@ const ThemedScrollContainer: React.FC<ThemedScrollContainerProps> = ({
   refreshing = false,
   style,
   contentContainerStyle,
+  themeType = "primary",
+  backgroundColor = {}, // default to empty object
 }) => {
-  // ############################################################################
-  // THEME COLORS
-  // ############################################################################
+  // Helper to build color key
+  const getColorKey = (
+    base: string,
+    variant: "primary" | "secondary" | "tertiary"
+  ): ThemeColorType => {
+    return `${base}${variant.charAt(0).toUpperCase() + variant.slice(1)}` as ThemeColorType;
+  };
 
-  const backgroundColor = useThemeColor({}, 'background');
+  const backgroundColorKey = getColorKey("scrollContainerBackground", themeType);
 
-  // ############################################################################
-  // HANDLERS
-  // ############################################################################
+  // Resolve background color
+  const resolvedBackgroundColor = useThemeColor(backgroundColor, backgroundColorKey);
 
-  /**
-   * Handler for pull-to-refresh functionality.
-   */
+  // Handler for pull-to-refresh
   const handleRefresh = useCallback(() => {
-    if (onRefresh) {
-      onRefresh();
-    }
+    onRefresh?.();
   }, [onRefresh]);
-
-  // ############################################################################
-  // RENDER
-  // ############################################################################
 
   return (
     <ThemedView style={[styles.container, style]}>
-      {/* ##########################################################################
-          Scrollable Content
-      ########################################################################## */}
       {isScrollable ? (
         <Animated.ScrollView
           style={styles.scrollView}
           contentContainerStyle={[
             styles.contentContainer,
             contentContainerStyle,
-            { backgroundColor },
+            { backgroundColor: resolvedBackgroundColor },
           ]}
-          scrollEnabled={isScrollable}
+          scrollEnabled
           showsVerticalScrollIndicator={false}
           refreshControl={
             isRefreshable && onRefresh ? (
@@ -89,14 +91,11 @@ const ThemedScrollContainer: React.FC<ThemedScrollContainerProps> = ({
           {children}
         </Animated.ScrollView>
       ) : (
-        /* ##########################################################################
-            Non-Scrollable Content
-        ########################################################################## */
         <View
           style={[
             styles.contentContainer,
             contentContainerStyle,
-            { backgroundColor },
+            { backgroundColor: resolvedBackgroundColor },
           ]}
         >
           {children}
@@ -105,10 +104,6 @@ const ThemedScrollContainer: React.FC<ThemedScrollContainerProps> = ({
     </ThemedView>
   );
 };
-
-////////////////////////////////////////////////////////////////////////////////
-// STYLES
-////////////////////////////////////////////////////////////////////////////////
 
 const styles = StyleSheet.create({
   container: {
@@ -124,9 +119,5 @@ const styles = StyleSheet.create({
     paddingBottom: 50,
   },
 });
-
-////////////////////////////////////////////////////////////////////////////////
-// EXPORT
-////////////////////////////////////////////////////////////////////////////////
 
 export default ThemedScrollContainer;

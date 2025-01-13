@@ -8,7 +8,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import ThemedIcon from '@/components/templates/icons/ThemedIcon';
-import { ThemedText } from '@/components/templates/general/ThemedText';
+import { ThemedText } from '@/components/templates/typography/ThemedText';
 
 const ThemedIconExamples: React.FC = () => {
   return (

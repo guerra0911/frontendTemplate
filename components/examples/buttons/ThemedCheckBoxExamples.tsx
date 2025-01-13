@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View, ScrollView } from "react-native";
 import ThemedCheckBox from "@/components/templates/buttons/ThemedCheckBox";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 const ThemedCheckBoxExamples: React.FC = () => {
   // STATES FOR EXAMPLES

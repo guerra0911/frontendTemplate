@@ -7,7 +7,7 @@
 
 import React, { useState } from "react";
 import { StyleSheet, View, Button } from "react-native";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 import ThemedCrossFadeIcon, {
   CrossFadeIconType,
 } from "@/components/templates/icons/ThemedCrossFadeIcon";

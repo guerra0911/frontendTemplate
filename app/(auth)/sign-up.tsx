@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import FormField from "@/components/forms/FormField";
 import { registerUser } from "@/services/authServices";
 import { validateEmail, validatePassword, validateUsername } from "@/utils/validation";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 import { ThemedView } from "@/components/templates/containers/ThemedView";
 
 import SignUpButton from "@/components/buttons/SignUpButton";

@@ -1,6 +1,6 @@
 // components/ThemedTabbedScrollContainer.tsx
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from "react";
 import {
   StyleSheet,
   RefreshControl,
@@ -9,18 +9,32 @@ import {
   Text,
   StyleProp,
   ViewStyle,
-} from 'react-native';
-import Animated from 'react-native-reanimated';
+} from "react-native";
+import Animated from "react-native-reanimated";
+import { ThemedView } from "@/components/templates/containers/ThemedView";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
 
-import { ThemedView } from '@/components/templates/containers/ThemedView';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { BOTTOM_FOOTER_HEIGHT } from '@/constants/Layouts';
+// ----------------------------------------------------------------------------
+// THEME COLOR TYPE
+// ----------------------------------------------------------------------------
+type ThemeColorType =
+  | "tabbedScrollContainerBackgroundPrimary"
+  | "tabbedScrollContainerBackgroundSecondary"
+  | "tabbedScrollContainerBackgroundTertiary"
+  | "tabbedScrollContainerHeaderBackgroundPrimary"
+  | "tabbedScrollContainerHeaderBackgroundSecondary"
+  | "tabbedScrollContainerHeaderBackgroundTertiary"
+  | "tabbedScrollContainerTextPrimary"
+  | "tabbedScrollContainerTextSecondary"
+  | "tabbedScrollContainerTextTertiary"
+  | "tabbedScrollContainerTintPrimary"
+  | "tabbedScrollContainerTintSecondary"
+  | "tabbedScrollContainerTintTertiary";
 
-////////////////////////////////////////////////////////////////////////////////
+// ----------------------------------------------------------------------------
 // INTERFACES
-////////////////////////////////////////////////////////////////////////////////
-
+// ----------------------------------------------------------------------------
 interface Tab {
   label: string;
   component: React.ReactNode;
@@ -34,12 +48,20 @@ interface ThemedTabbedScrollContainerProps {
   refreshing?: boolean;
   style?: StyleProp<ViewStyle>;
   contentContainerStyle?: StyleProp<ViewStyle>;
+
+  // Theming
+  themeType?: "primary" | "secondary" | "tertiary";
+
+  // Optional overrides
+  backgroundColor?: { light?: string; dark?: string };
+  headerBackgroundColor?: { light?: string; dark?: string };
+  textColor?: { light?: string; dark?: string };
+  tintColor?: { light?: string; dark?: string };
 }
 
-////////////////////////////////////////////////////////////////////////////////
+// ----------------------------------------------------------------------------
 // COMPONENT
-////////////////////////////////////////////////////////////////////////////////
-
+// ----------------------------------------------------------------------------
 const ThemedTabbedScrollContainer: React.FC<ThemedTabbedScrollContainerProps> = ({
   tabs,
   isScrollable = true,
@@ -48,90 +70,88 @@ const ThemedTabbedScrollContainer: React.FC<ThemedTabbedScrollContainerProps> = 
   refreshing = false,
   style,
   contentContainerStyle,
+  themeType = "primary",
+  backgroundColor = {},
+  headerBackgroundColor = {},
+  textColor = {},
+  tintColor = {},
 }) => {
-  // ############################################################################
-  // STATE
-  // ############################################################################
-
   const [activeTabIndex, setActiveTabIndex] = useState(0);
 
-  // ############################################################################
-  // THEME COLORS
-  // ############################################################################
+  // Helper to build color keys
+  const getColorKey = (base: string, variant: "primary" | "secondary" | "tertiary") =>
+    `${base}${variant.charAt(0).toUpperCase() + variant.slice(1)}` as ThemeColorType;
 
-  const backgroundColor = useThemeColor({}, 'background');
-  const textColor = useThemeColor({}, 'text');
-  const headerBackgroundColor = useThemeColor({}, 'headerBackground');
-  const activeTabBorderColor = useThemeColor({}, 'tint');
+  // Resolve container background
+  const containerBgKey = getColorKey("tabbedScrollContainerBackground", themeType);
+  const resolvedContainerBgColor = useThemeColor(backgroundColor, containerBgKey);
 
-  // ############################################################################
-  // HANDLERS
-  // ############################################################################
+  // Resolve header background
+  const headerBgKey = getColorKey("tabbedScrollContainerHeaderBackground", themeType);
+  const resolvedHeaderBgColor = useThemeColor(headerBackgroundColor, headerBgKey);
 
-  /**
-   * Handler for pull-to-refresh functionality.
-   */
+  // Resolve text color
+  const textColorKey = getColorKey("tabbedScrollContainerText", themeType);
+  const resolvedTextColor = useThemeColor(textColor, textColorKey);
+
+  // Resolve tint color (for active tab underline, etc.)
+  const tintColorKey = getColorKey("tabbedScrollContainerTint", themeType);
+  const resolvedTintColor = useThemeColor(tintColor, tintColorKey);
+
+  // Handler for pull-to-refresh
   const handleRefresh = useCallback(() => {
-    if (onRefresh) {
-      onRefresh();
-    }
+    onRefresh?.();
   }, [onRefresh]);
 
-  /**
-   * Handler for tab press events.
-   * @param index - The index of the tab that was pressed.
-   */
+  // Handler for tab press
   const handleTabPress = (index: number) => {
     setActiveTabIndex(index);
   };
 
-  // ############################################################################
-  // RENDER
-  // ############################################################################
-
   return (
     <ThemedView style={[styles.container, style]}>
-      {/* ##########################################################################
-          Tab Headers
-      ########################################################################## */}
-      <View style={[styles.tabContainer, { backgroundColor: headerBackgroundColor }]}>
-        {tabs.map((tab, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.tab,
-              activeTabIndex === index && { borderBottomColor: activeTabBorderColor, borderBottomWidth: 2 },
-            ]}
-            onPress={() => handleTabPress(index)}
-          >
-            <Text
+      {/* Tab Headers */}
+      <View style={[styles.tabContainer, { backgroundColor: resolvedHeaderBgColor }]}>
+        {tabs.map((tab, index) => {
+          const isActive = activeTabIndex === index;
+          return (
+            <TouchableOpacity
+              key={index}
               style={[
-                styles.tabLabel,
-                { color: textColor },
-                activeTabIndex === index && styles.activeTabLabel,
+                styles.tab,
+                isActive && {
+                  borderBottomColor: resolvedTintColor,
+                  borderBottomWidth: 2,
+                },
               ]}
+              onPress={() => handleTabPress(index)}
             >
-              {tab.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                style={[
+                  styles.tabLabel,
+                  { color: resolvedTextColor },
+                  isActive && styles.activeTabLabel,
+                ]}
+              >
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
-      {/* ##########################################################################
-          Content Area
-      ########################################################################## */}
+      {/* Content Area */}
       {isScrollable ? (
         <Animated.ScrollView
           style={styles.scrollView}
           contentContainerStyle={[
             styles.contentContainer,
             contentContainerStyle,
-            { backgroundColor },
+            { backgroundColor: resolvedContainerBgColor },
           ]}
-          scrollEnabled={isScrollable}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            isRefreshable && onRefresh ? (
+            isRefreshable ? (
               <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
             ) : undefined
           }
@@ -143,7 +163,7 @@ const ThemedTabbedScrollContainer: React.FC<ThemedTabbedScrollContainerProps> = 
           style={[
             styles.contentContainer,
             contentContainerStyle,
-            { backgroundColor },
+            { backgroundColor: resolvedContainerBgColor },
           ]}
         >
           {tabs[activeTabIndex].component}
@@ -153,30 +173,24 @@ const ThemedTabbedScrollContainer: React.FC<ThemedTabbedScrollContainerProps> = 
   );
 };
 
-////////////////////////////////////////////////////////////////////////////////
-// STYLES
-////////////////////////////////////////////////////////////////////////////////
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingBottom: BOTTOM_FOOTER_HEIGHT,
   },
   tabContainer: {
-    flexDirection: 'row',
-    // Flex properties handle spacing, no need for justifyContent
+    flexDirection: "row",
   },
   tab: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 10,
   },
   tabLabel: {
     fontSize: 16,
-    // Additional label styles can be added here
   },
   activeTabLabel: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   scrollView: {
     flex: 1,
@@ -185,9 +199,5 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
 });
-
-////////////////////////////////////////////////////////////////////////////////
-// EXPORT
-////////////////////////////////////////////////////////////////////////////////
 
 export default ThemedTabbedScrollContainer;

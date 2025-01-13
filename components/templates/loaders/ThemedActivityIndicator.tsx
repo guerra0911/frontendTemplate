@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   StyleSheet,
@@ -7,41 +7,106 @@ import {
   StyleProp,
   ViewStyle,
   Platform,
-} from 'react-native';
-import { useThemeColor } from '@/hooks/useThemeColor';
+} from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
+// ################################################################################
+// THEME COLOR TYPE
+// ################################################################################
+
+/**
+ * Defines all possible color keys for ThemedActivityIndicator across
+ * primary, secondary, and tertiary states (optionally disabled if needed).
+ */
+type ThemeColorType =
+  | "activityIndicatorColorPrimary"
+  | "activityIndicatorColorSecondary"
+  | "activityIndicatorColorTertiary";
+
+// ################################################################################
+// PROPS
+// ################################################################################
+
+/**
+ * A grouped approach for clarity:
+ * - functionality: animating, hidesWhenStopped
+ * - dimension: size
+ * - color & theming: themeType, color override
+ * - style: container style
+ */
 export interface ThemedActivityIndicatorProps {
+  // FUNCTIONALITY
   animating?: boolean;
-  color?: { light?: string; dark?: string };
-  size?: number;
   hidesWhenStopped?: boolean;
+
+  // DIMENSIONS
+  size?: number;
+
+  // COLOR & THEMING
+  themeType?: "primary" | "secondary" | "tertiary";
+  color?: { light?: string; dark?: string };
+
+  // STYLING
   style?: StyleProp<ViewStyle>;
 }
 
+// ################################################################################
+// CONSTANTS
+// ################################################################################
+
 const DURATION = 2400;
 
+// ################################################################################
+// COMPONENT
+// ################################################################################
+
 const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
+  // FUNCTIONALITY
   animating = true,
-  color,
-  size = 24,
   hidesWhenStopped = true,
+
+  // DIMENSIONS
+  size = 24,
+
+  // COLOR & THEMING
+  themeType = "primary",
+  color = {}, // default to empty object => avoids undefined
+
+  // STYLING
   style,
 }) => {
+  // ============================================================================
+  // ANIMATION REFS
+  // ============================================================================
   const timer = React.useRef(new Animated.Value(0)).current;
   const fadeAnim = React.useRef(
     new Animated.Value(!animating && hidesWhenStopped ? 0 : 1)
   ).current;
-
-  const ringColor = useThemeColor(
-    {
-      light: color?.light,
-      dark: color?.dark,
-    },
-    'activityIndicatorColor'
-  );
-
   const rotation = React.useRef<Animated.CompositeAnimation>();
 
+  // ============================================================================
+  // THEME COLOR
+  // ============================================================================
+  /**
+   * Build the color key dynamically, e.g. "activityIndicatorColorPrimary"
+   */
+  const getColorKey = (
+    base: string,
+    variant: "primary" | "secondary" | "tertiary"
+  ): ThemeColorType => {
+    return `${base}${
+      variant.charAt(0).toUpperCase() + variant.slice(1)
+    }` as ThemeColorType;
+  };
+
+  const ringColor = useThemeColor(
+    color, // user override
+    getColorKey("activityIndicatorColor", themeType)
+  );
+
+  // ============================================================================
+  // ANIMATION FUNCTIONS
+  // ============================================================================
   const startRotation = React.useCallback(() => {
     Animated.timing(fadeAnim, {
       duration: 200,
@@ -62,11 +127,12 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
   }, []);
 
   React.useEffect(() => {
+    // Initialize rotation if undefined
     if (rotation.current === undefined) {
       rotation.current = Animated.timing(timer, {
         duration: DURATION,
         easing: Easing.linear,
-        useNativeDriver: Platform.OS !== 'web',
+        useNativeDriver: Platform.OS !== "web",
         toValue: 1,
       });
     }
@@ -84,13 +150,15 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
     }
   }, [animating, hidesWhenStopped, fadeAnim, startRotation, stopRotation, timer]);
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
   const frames = (60 * DURATION) / 1000;
   const easing = Easing.bezier(0.4, 0.0, 0.7, 1.0);
-
   const containerStyle: ViewStyle = {
     width: size,
     height: size / 2,
-    overflow: 'hidden',
+    overflow: "hidden",
   };
 
   return (
@@ -109,18 +177,21 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
             new Array(frames),
             (_, frameIndex) => frameIndex / (frames - 1)
           );
-          const outputRange = Array.from(new Array(frames), (_, frameIndex) => {
-            let progress = (2 * frameIndex) / (frames - 1);
-            const rotation = index ? +(360 - 15) : -(180 - 15);
 
-            if (progress > 1.0) {
-              progress = 2.0 - progress;
+          const outputRange = Array.from(
+            new Array(frames),
+            (_, frameIndex) => {
+              let progress = (2 * frameIndex) / (frames - 1);
+              const rotationDeg = index ? +(360 - 15) : -(180 - 15);
+              if (progress > 1.0) {
+                // Reverse direction
+                progress = 2.0 - progress;
+              }
+              const direction = index ? -1 : +1;
+              return `${direction * (180 - 30) * easing(progress) +
+                rotationDeg}deg`;
             }
-
-            const direction = index ? -1 : +1;
-
-            return `${direction * (180 - 30) * easing(progress) + rotation}deg`;
-          });
+          );
 
           const layerStyle = {
             width: size,
@@ -129,7 +200,10 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
               {
                 rotate: timer.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [`${0 + 30 + 15}deg`, `${2 * 360 + 30 + 15}deg`],
+                  outputRange: [
+                    `${0 + 30 + 15}deg`,
+                    `${2 * 360 + 30 + 15}deg`,
+                  ],
                 }),
               },
             ],
@@ -153,20 +227,20 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
           const lineStyle = {
             width: size,
             height: size,
-            borderColor: ringColor,
+            borderColor: ringColor, // our resolved theme color
             borderWidth: size / 10,
             borderRadius: size / 2,
           };
 
           return (
-            <Animated.View key={index} style={[styles.layer]}>
+            <Animated.View key={index} style={styles.layer}>
               <Animated.View style={layerStyle}>
                 <Animated.View
-                  style={[containerStyle as any, offsetStyle]}
+                  style={[containerStyle, offsetStyle]}
                   collapsable={false}
                 >
                   <Animated.View style={viewportStyle}>
-                    <Animated.View style={containerStyle as any} collapsable={false}>
+                    <Animated.View style={containerStyle} collapsable={false}>
                       <Animated.View style={lineStyle} />
                     </Animated.View>
                   </Animated.View>
@@ -180,15 +254,19 @@ const ThemedActivityIndicator: React.FC<ThemedActivityIndicatorProps> = ({
   );
 };
 
+// ################################################################################
+// STYLES
+// ################################################################################
+
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   layer: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

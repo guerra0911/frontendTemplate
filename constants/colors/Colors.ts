@@ -21,7 +21,17 @@ import ThemedCardColors from "./templates/cards/ThemedCardColors";
 import ThemedSurfaceColors from "./templates/containers/ThemedSurfaceColors";
 import ThemedTouchableRippleColors from "./templates/buttons/ThemedTouchableRippleColors";
 import ThemedActivityIndicatorColors from "./templates/loaders/ThemedActivityIndicatorColors";
+import ThemedChasingDotLoadingIndicatorColors from "./templates/loaders/ThemedChasingDotLoadingIndicatorColors";
 import ThemedCrossFadeIconColors from "./templates/icons/ThemedCrossFadeIconColors";
+import ThemedAnimatedScrollViewColors from "./templates/containers/ThemedAnimatedScrollViewColors";
+import ThemedScrollContainerColors from "./templates/containers/ThemedScrollContainerColors";
+import ThemedTabbedScrollContainerColors from "./templates/containers/ThemedTabbedScrollContainerColors";
+import ThemedViewColors from "./templates/containers/ThemedViewColors";
+import ThemedParallaxScrollContainerColors from "./templates/containers/ThemedParallaxScrollViewColors";
+import ThemedCollapsibleColors from "./templates/general/ThemedCollapsibleColors";
+import ThemedTextColors from "./templates/typography/ThemedTextColors";
+import ThemedAnimatedTextColors from "./templates/typography/ThemedAnimatedTextColors";
+import ThemedExternalLinkColors from "./templates/typography/ThemedExternalLinkColors";
 
 
 const tintColorLight = "#0a7ea4";
@@ -38,6 +48,33 @@ export const Colors = {
     tabIconDefault: "#687076",
     tabIconSelected: tintColorLight,
     border: "#ddd",
+
+    // Text Colors
+    ...ThemedTextColors.light,
+
+    // Animated Text Colors
+    ...ThemedAnimatedTextColors.light,
+
+    // External Link Colors
+    ...ThemedExternalLinkColors.light,
+
+    // Animated Scroll View Colors
+    ...ThemedAnimatedScrollViewColors.light,
+
+    // Parallax Scroll View Colors
+    ...ThemedParallaxScrollContainerColors.light,
+
+    // Scroll Container Colors
+    ...ThemedScrollContainerColors.light,
+
+    // Tabbed Scroll Container Colors
+    ...ThemedTabbedScrollContainerColors.light,
+
+    // View Colors
+    ...ThemedViewColors.light,
+
+    // Collapsible Colors
+    ...ThemedCollapsibleColors.light,
 
     // Icon Colors
     ...ThemedIconColors.light,
@@ -98,6 +135,9 @@ export const Colors = {
 
     // Activity Indicator Colors
     ...ThemedActivityIndicatorColors.light,
+
+    // Chasing Dot Loadin gIndicator Colors
+    ...ThemedChasingDotLoadingIndicatorColors.light,
   },
   dark: {
     text: "#ECEDEE",
@@ -109,6 +149,33 @@ export const Colors = {
     tabIconDefault: "#9BA1A6",
     tabIconSelected: tintColorDark,
     border: "#555",
+
+    // Text Colors
+    ...ThemedTextColors.dark,
+
+    // Animated Text Colors
+    ...ThemedAnimatedTextColors.dark,
+
+    // External Link Colors
+    ...ThemedExternalLinkColors.dark,
+
+    // Animated Scroll View Colors
+    ...ThemedAnimatedScrollViewColors.dark,
+
+    // Parallax Scroll View Colors
+    ...ThemedParallaxScrollContainerColors.light,
+
+    // Scroll Container Colors
+    ...ThemedScrollContainerColors.dark,
+
+    // Tabbed Scroll Container Colors
+    ...ThemedTabbedScrollContainerColors.dark,
+
+    // View Colors
+    ...ThemedViewColors.dark,
+
+    // Collapsible Colors
+    ...ThemedCollapsibleColors.dark,
 
     // Icon Colors
     ...ThemedIconColors.dark,
@@ -169,5 +236,8 @@ export const Colors = {
 
     // Activity Indicator Colors
     ...ThemedActivityIndicatorColors.dark,
+
+    // Chasing Dot Loadin gIndicator Colors
+    ...ThemedChasingDotLoadingIndicatorColors.dark,
   },
 };

@@ -1,13 +1,4 @@
-/**
- * ThemedCrossFadeIcon
- *
- * Mirrors React Native Paper's CrossFadeIcon logic:
- * - Cross-fade + rotate transitions when icon changes
- * - Uses your typed color keys for "primary", "secondary", "tertiary"
- * - Follows the same approach as RNP's CrossFadeIcon for a smoother experience
- */
-
-import React from 'react';
+import React from "react";
 import {
   View,
   Animated,
@@ -15,24 +6,24 @@ import {
   Easing,
   StyleProp,
   ViewStyle,
-} from 'react-native';
-import ThemedIcon, { ThemedIconProps } from './ThemedIcon';
-import { useThemeColor } from '@/hooks/useThemeColor';
+} from "react-native";
+import ThemedIcon, { ThemedIconProps } from "./ThemedIcon";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 type CrossFadeIconThemeColorType =
-  | 'crossFadeIconColorPrimary'
-  | 'crossFadeIconColorSecondary'
-  | 'crossFadeIconColorTertiary';
+  | "crossFadeIconColorPrimary"
+  | "crossFadeIconColorSecondary"
+  | "crossFadeIconColorTertiary";
 
-export type CrossFadeIconType = 'primary' | 'secondary' | 'tertiary';
+export type CrossFadeIconType = "primary" | "secondary" | "tertiary";
 
 export interface ThemedCrossFadeIconProps {
-  iconName: ThemedIconProps['iconName'];
-  iconLibrary?: ThemedIconProps['iconLibrary'];
-  color?: {
-    light?: string;
-    dark?: string;
-  };
+  iconName: ThemedIconProps["iconName"];
+  iconLibrary?: ThemedIconProps["iconLibrary"];
+
+  // Now color can be a string or an object. We provide a default = {}
+  color?: string | { light?: string; dark?: string };
+
   type?: CrossFadeIconType;
   size?: number;
   style?: StyleProp<ViewStyle>;
@@ -42,8 +33,9 @@ export interface ThemedCrossFadeIconProps {
 
 const BASE_DURATION = 200;
 
+/** Build the cross-fade icon color key: "crossFadeIconColorPrimary", etc. */
 function getColorKey(
-  base: 'crossFadeIconColor',
+  base: "crossFadeIconColor",
   themeType: CrossFadeIconType
 ): CrossFadeIconThemeColorType {
   return `${base}${themeType.charAt(0).toUpperCase()}${themeType.slice(1)}` as CrossFadeIconThemeColorType;
@@ -51,24 +43,25 @@ function getColorKey(
 
 const ThemedCrossFadeIcon: React.FC<ThemedCrossFadeIconProps> = ({
   iconName,
-  iconLibrary = 'Ionicons',
-  color,
-  type = 'primary',
+  iconLibrary = "Ionicons",
+  color = {}, // default to an object
+  type = "primary",
   size = 24,
   style,
   animationScale = 1,
-  testID = 'themed-cross-fade-icon',
+  testID = "themed-cross-fade-icon",
 }) => {
   const [currentIcon, setCurrentIcon] = React.useState(iconName);
   const [previousIcon, setPreviousIcon] = React.useState<string | null>(null);
-
   const fadeAnim = React.useRef(new Animated.Value(1)).current;
 
+  // If the icon changed, we set up a transition
   if (currentIcon !== iconName) {
     setPreviousIcon(currentIcon);
     setCurrentIcon(iconName);
   }
 
+  // Animate cross-fade + rotation
   React.useEffect(() => {
     if (previousIcon && previousIcon !== currentIcon) {
       fadeAnim.setValue(1);
@@ -85,7 +78,7 @@ const ThemedCrossFadeIcon: React.FC<ThemedCrossFadeIconProps> = ({
   const opacityPrev = fadeAnim;
   const rotatePrev = fadeAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['-90deg', '0deg'],
+    outputRange: ["-90deg", "0deg"],
   });
 
   const opacityNext = previousIcon
@@ -97,19 +90,19 @@ const ThemedCrossFadeIcon: React.FC<ThemedCrossFadeIconProps> = ({
   const rotateNext = previousIcon
     ? fadeAnim.interpolate({
         inputRange: [0, 1],
-        outputRange: ['0deg', '-180deg'],
+        outputRange: ["0deg", "-180deg"],
       })
-    : '0deg';
+    : "0deg";
 
-  const typedColorKey = getColorKey('crossFadeIconColor', type);
-
-  const resolvedColor = useThemeColor(
-    {
-      light: color?.light,
-      dark: color?.dark,
-    },
-    typedColorKey
-  );
+  // Resolve color via theming if color is an object, or use the string as-is
+  let resolvedColor: string;
+  if (typeof color === "string") {
+    resolvedColor = color;
+  } else {
+    // color is an object or empty
+    const typedColorKey = getColorKey("crossFadeIconColor", type);
+    resolvedColor = useThemeColor(color, typedColorKey);
+  }
 
   return (
     <View
@@ -128,13 +121,14 @@ const ThemedCrossFadeIcon: React.FC<ThemedCrossFadeIconProps> = ({
           testID={`${testID}-previous`}
         >
           <ThemedIcon
-            iconName={previousIcon as any}
+            iconName={previousIcon}
             iconLibrary={iconLibrary}
             size={size}
             color={resolvedColor}
           />
         </Animated.View>
       )}
+
       <Animated.View
         style={[
           styles.iconWrapper,
@@ -146,7 +140,7 @@ const ThemedCrossFadeIcon: React.FC<ThemedCrossFadeIconProps> = ({
         testID={`${testID}-current`}
       >
         <ThemedIcon
-          iconName={currentIcon as any}
+          iconName={currentIcon}
           iconLibrary={iconLibrary}
           size={size}
           color={resolvedColor}
@@ -158,11 +152,11 @@ const ThemedCrossFadeIcon: React.FC<ThemedCrossFadeIconProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   iconWrapper: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     bottom: 0,

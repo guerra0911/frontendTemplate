@@ -4,14 +4,10 @@
  * Defines color keys for a Card in light/dark mode,
  * supporting primary, secondary, and tertiary variants,
  * as well as typed border colors.
- *
- * Merge these into your global Colors object (Colors.ts)
- * so that useThemeColor can retrieve them by typed keys.
  */
-
 const ThemedCardColors = {
   light: {
-    // Background (e.g., for "contained" or general card background)
+    // Background (for "contained" or general card background)
     cardBackgroundPrimary: "#FFFFFF",
     cardBackgroundSecondary: "#F5F5F5",
     cardBackgroundTertiary: "#EFEFEF",

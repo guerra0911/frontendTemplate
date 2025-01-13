@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import { useGlobalContext } from "@/contexts/GlobalProvider";
 import { loginUser } from "@/services/authServices";
 import FormField from "@/components/forms/FormField";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 import { ThemedView } from "@/components/templates/containers/ThemedView";
 
 import SignInButton from "@/components/buttons/SignInButton";

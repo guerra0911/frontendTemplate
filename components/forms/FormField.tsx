@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThemedText } from '@/components/templates/general/ThemedText';
+import { ThemedText } from '@/components/templates/typography/ThemedText';
 import { ThemedView } from '@/components/templates/containers/ThemedView';
 import { ThemedInput } from '../templates/forms/ThemedInput';
 

@@ -1,14 +1,13 @@
 /**
  * ThemedFABGroup
  *
- * Updated to match React Native Paper's FAB.Group:
+ * Matches React Native Paper's FAB.Group:
  * - Open/close animation with a backdrop
  * - Speed dial items that animate in/out
- * - Press/long-press toggling, plus optional toggling on press or on long press
- * - Mapped to your ThemedFAB for mini-fabs
+ * - Press/long-press toggling
+ * - Uses ThemedFAB for mini-fabs
  */
-
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -18,34 +17,44 @@ import {
   ViewStyle,
   GestureResponderEvent,
   TextStyle,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ThemedFAB, {
   ThemedFABProps,
   FABSize,
   FABType,
-} from '@/components/templates/buttons/ThemedFAB';
-import { ThemedText } from '@/components/templates/general/ThemedText';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import type { IconName } from '@/components/templates/icons/ThemedIcon';
+} from "@/components/templates/buttons/ThemedFAB";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import type { IconName } from "@/components/templates/icons/ThemedIcon";
+
+// ################################################################################
+// ACTION INTERFACE
+// ################################################################################
 
 export interface ThemedFABGroupAction {
   iconName: IconName;
   label?: string;
   onPress?: (event: GestureResponderEvent) => void;
+
+  // Theming / color overrides
   color?: { light?: string; dark?: string };
   labelTextColor?: { light?: string; dark?: string };
-  style?: StyleProp<ViewStyle>;
-  labelContainerStyle?: StyleProp<ViewStyle>;
-  labelStyle?: StyleProp<TextStyle>;
   rippleColor?: { light?: string; dark?: string };
-  size?: FABSize;
   backgroundColor?: { light?: string; dark?: string };
   borderColor?: { light?: string; dark?: string };
   borderWidth?: number;
-  borderStyle?: 'solid' | 'dotted' | 'dashed';
+  borderStyle?: "solid" | "dotted" | "dashed";
   elevation?: number;
   type?: FABType;
+
+  // Sizing
+  size?: FABSize;
+
+  // Additional styling
+  style?: StyleProp<ViewStyle>;
+  labelContainerStyle?: StyleProp<ViewStyle>;
+  labelStyle?: StyleProp<TextStyle>;
 }
 
 export interface ThemedFABGroupProps {
@@ -54,30 +63,38 @@ export interface ThemedFABGroupProps {
   onStateChange: (state: { open: boolean }) => void;
   iconName: IconName;
 
-  /**
-   * Called when the user presses the main FAB.
-   */
+  // Press events for the main FAB
   onPress?: (event: GestureResponderEvent) => void;
-
-  /**
-   * Called when the user long-presses the main FAB (if you want
-   * to do toggling on long-press instead of single press).
-   */
   onLongPress?: (event: GestureResponderEvent) => void;
 
+  // Behavior
   toggleStackOnLongPress?: boolean;
   enableLongPressWhenStackOpened?: boolean;
   visible?: boolean;
+
+  // Backdrop
   backdropColor?: { light?: string; dark?: string };
+
+  // Additional styling
   style?: StyleProp<ViewStyle>;
   testID?: string;
+
+  // Speed-dial spacing
   speedDialToMainSpacing?: number;
   speedDialBetweenSpacing?: number;
+
+  // Extended label on the main FAB
   label?: string;
+
+  // Provide partial ThemedFABProps for different states
   closedMainFabProps?: Partial<ThemedFABProps>;
   openMainFabProps?: Partial<ThemedFABProps>;
   miniFabProps?: Partial<ThemedFABProps>;
 }
+
+// ################################################################################
+// COMPONENT
+// ################################################################################
 
 const ThemedFABGroup: React.FC<ThemedFABGroupProps> = ({
   actions,
@@ -93,22 +110,29 @@ const ThemedFABGroup: React.FC<ThemedFABGroupProps> = ({
   speedDialToMainSpacing = -40,
   speedDialBetweenSpacing = 100,
   style,
-  testID = 'themed-fab-group',
+  testID = "themed-fab-group",
   label,
   closedMainFabProps = {},
   openMainFabProps = {},
   miniFabProps = {},
 }) => {
+  // Safe area insets for iPhone X, etc.
   const safeArea = useSafeAreaInsets();
+
+  // Backdrop animation
   const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  // Individual action animations
   const actionAnimations = useRef(actions.map(() => new Animated.Value(open ? 1 : 0)));
 
+  // Re-init action animations if actions change
   useEffect(() => {
     actionAnimations.current = actions.map(
       (_, i) => actionAnimations.current[i] || new Animated.Value(open ? 1 : 0)
     );
   }, [actions, open]);
 
+  // Animate open/close
   useEffect(() => {
     if (open) {
       Animated.timing(backdropAnim, {
@@ -116,6 +140,7 @@ const ThemedFABGroup: React.FC<ThemedFABGroupProps> = ({
         duration: 200,
         useNativeDriver: true,
       }).start();
+
       Animated.stagger(
         50,
         actionAnimations.current
@@ -146,21 +171,26 @@ const ThemedFABGroup: React.FC<ThemedFABGroupProps> = ({
     }
   }, [open, actions]);
 
+  // Helpers to close/toggle
   const closeStack = () => onStateChange({ open: false });
   const toggleStack = () => onStateChange({ open: !open });
 
+  // Fallback backdrop
   const fallbackBackdrop = {
-    light: 'rgba(0,0,0,0.5)',
-    dark: 'rgba(255,255,255,0.2)',
+    light: "rgba(0,0,0,0.5)",
+    dark: "rgba(255,255,255,0.2)",
   };
 
+  // Resolve backdrop color
   const resolvedBackdropColor = useThemeColor(
     backdropColor ?? fallbackBackdrop,
-    'fabRipplePrimary'
+    "fabRipplePrimary" // or a more specific color key if you prefer
   );
 
+  // Main press handlers
   const handleMainPress = (e: GestureResponderEvent) => {
     onPress?.(e);
+    // If user didn't request toggling on longPress only, or if stack is open, toggle
     if (!toggleStackOnLongPress || open) {
       toggleStack();
     }
@@ -180,14 +210,10 @@ const ThemedFABGroup: React.FC<ThemedFABGroupProps> = ({
   }
 
   return (
-    <View
-      testID={testID}
-      pointerEvents="box-none"
-      style={[styles.container, style]}
-    >
+    <View testID={testID} pointerEvents="box-none" style={[styles.container, style]}>
       {/* Backdrop */}
       <Animated.View
-        pointerEvents={open ? 'auto' : 'none'}
+        pointerEvents={open ? "auto" : "none"}
         style={[
           StyleSheet.absoluteFillObject,
           {
@@ -205,7 +231,7 @@ const ThemedFABGroup: React.FC<ThemedFABGroupProps> = ({
 
       {/* Speed-dial mini-FABs */}
       <View
-        pointerEvents={open ? 'box-none' : 'none'}
+        pointerEvents={open ? "box-none" : "none"}
         style={[
           styles.actionsContainer,
           {
@@ -217,11 +243,14 @@ const ThemedFABGroup: React.FC<ThemedFABGroupProps> = ({
         ]}
       >
         {actions.map((action, i) => {
+          // We animate from the last item to the first => reverse index
           const idx = actions.length - 1 - i;
           const anim = actionAnimations.current[idx];
 
-          const translateDistance =
-            speedDialToMainSpacing + i * speedDialBetweenSpacing;
+          // The distance to move upward for each action
+          const translateDistance = speedDialToMainSpacing + i * speedDialBetweenSpacing;
+
+          // Animate scale + Y translation
           const scale = anim.interpolate({
             inputRange: [0, 1],
             outputRange: [0.8, 1],
@@ -237,8 +266,9 @@ const ThemedFABGroup: React.FC<ThemedFABGroupProps> = ({
             <View
               key={`fab-action-${i}`}
               style={styles.actionWrapper}
-              pointerEvents={open ? 'box-none' : 'none'}
+              pointerEvents={open ? "box-none" : "none"}
             >
+              {/* Optional label */}
               {hasLabel && (
                 <Animated.View
                   style={[
@@ -262,7 +292,8 @@ const ThemedFABGroup: React.FC<ThemedFABGroupProps> = ({
                         styles.labelText,
                         action.labelStyle,
                         {
-                          color: action.labelTextColor?.light ?? '#FFFFFF',
+                          // fallback text color is #FFF if not provided
+                          color: action.labelTextColor?.light ?? "#FFFFFF",
                         },
                       ]}
                       type="defaultSemiBold"
@@ -272,6 +303,8 @@ const ThemedFABGroup: React.FC<ThemedFABGroupProps> = ({
                   </Pressable>
                 </Animated.View>
               )}
+
+              {/* Mini-FAB itself */}
               <Animated.View
                 style={[
                   styles.miniFabContainer,
@@ -285,8 +318,8 @@ const ThemedFABGroup: React.FC<ThemedFABGroupProps> = ({
                 <ThemedFAB
                   {...miniFabProps}
                   iconName={action.iconName}
-                  type={action.type ?? miniFabProps.type ?? 'primary'}
-                  size={action.size ?? miniFabProps.size ?? 'small'}
+                  type={action.type ?? miniFabProps.type ?? "primary"}
+                  size={action.size ?? miniFabProps.size ?? "small"}
                   backgroundColor={action.backgroundColor ?? miniFabProps.backgroundColor}
                   borderColor={action.borderColor ?? miniFabProps.borderColor}
                   borderWidth={action.borderWidth ?? miniFabProps.borderWidth}
@@ -341,20 +374,24 @@ const ThemedFABGroup: React.FC<ThemedFABGroupProps> = ({
 
 export default React.memo(ThemedFABGroup);
 
+// ################################################################################
+// STYLES
+// ################################################################################
+
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   actionsContainer: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   actionWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   labelContainer: {
-    backgroundColor: 'rgba(0,0,0,0.75)',
+    backgroundColor: "rgba(0,0,0,0.75)",
     borderRadius: 4,
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -365,10 +402,10 @@ const styles = StyleSheet.create({
   },
   labelText: {
     fontSize: 14,
-    color: '#fff',
+    color: "#fff",
   },
   miniFabContainer: {},
   mainFabContainer: {
-    position: 'absolute',
+    position: "absolute",
   },
 });

@@ -4,7 +4,7 @@ import { useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGlobalContext } from '@/contexts/GlobalProvider';
 import { welcomeStyles } from '@/styles/welcomeStyles';
-import { ThemedText } from '@/components/templates/general/ThemedText';
+import { ThemedText } from '@/components/templates/typography/ThemedText';
 import { ThemedView } from '@/components/templates/containers/ThemedView';
 import ThemedActivityIndicator from '@/components/templates/loaders/ThemedActivityIndicator';
 

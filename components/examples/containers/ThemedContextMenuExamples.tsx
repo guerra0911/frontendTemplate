@@ -5,7 +5,7 @@ import { StyleSheet, View, Text, Alert, ScrollView } from "react-native";
 import ThemedContextMenu, {
   ThemedContextMenuAction,
 } from "@/components/templates/containers/ThemedContextMenu";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 import ThemedButton from "@/components/templates/buttons/ThemedButton";
 
 const ThemedContextMenuExamples: React.FC = () => {

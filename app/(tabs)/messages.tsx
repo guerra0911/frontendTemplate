@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from "react";
 import { StyleSheet } from "react-native";
 import ThemedScrollContainer from "@/components/templates/containers/ThemedScrollContainer";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 // Importing the new example components
 import ThemedButtonExamples from "@/components/examples/buttons/ThemedButtonExamples";
@@ -27,7 +27,11 @@ import ThemedCrossFadeIconExamples from "@/components/examples/icons/ThemedCross
 import ThemedFABExamples from "@/components/examples/buttons/ThemedFABExamples";
 import ThemedCardExamples from "@/components/examples/cards/ThemedCardExamples";
 import ThemedFABExamples2 from "@/components/examples/buttons/ThemedFABExamples2";
-import ThemedChasingDotLoadingIndicatorExamples from "@/components/examples/loaders/ChasingDotLoadingIndicatorExamples";
+import ThemedChasingDotLoadingIndicatorExamples from "@/components/examples/loaders/ThemedChasingDotLoadingIndicatorExamples";
+import ThemedCollapsibleExamples from "@/components/examples/general/ThemedCollapsibleExamples";
+import ThemedTextExamples from "@/components/examples/typography/ThemedTextExamples";
+import ThemedAnimatedTextExamples from "@/components/examples/typography/ThemedAnimatedTextExamples";
+import ThemedExternalLinkExamples from "@/components/examples/typography/ThemedExternalLinkExamples";
 
 export default function MessagesScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -49,6 +53,15 @@ export default function MessagesScreen() {
       refreshing={refreshing}
     >
       <ThemedText style={styles.title}>Messages</ThemedText>
+
+      {/* Themed Text Examples */}
+      <ThemedTextExamples />
+
+      {/* Themed Animated Text Examples */}
+      <ThemedAnimatedTextExamples />
+
+      {/* Themed External Link Examples */}
+      <ThemedExternalLinkExamples />
 
       {/* Themed Button Examples */}
       <ThemedButtonExamples />
@@ -82,6 +95,9 @@ export default function MessagesScreen() {
 
       {/* Themed Radio Button Examples */}
       <ThemedRadioButtonExamples />
+
+      {/* Themed Collapsible Examples*/}
+      <ThemedCollapsibleExamples />
 
       {/* Themed Context Menu Examples */}
       <ThemedContextMenuExamples />

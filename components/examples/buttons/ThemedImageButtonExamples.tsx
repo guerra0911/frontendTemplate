@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Alert, ScrollView } from "react-native";
 import ThemedImageButton from "@/components/templates/buttons/ThemedImageButton";
-import { ThemedText } from "@/components/templates/general/ThemedText";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 /* 
   Sample local image import can be done as needed.

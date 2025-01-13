@@ -7,7 +7,7 @@ import { pingServer } from '@/services/authServices';
 import { homeStyles } from '@/styles/homeStyles';
 
 import ThemedParallaxScrollView from '@/components/templates/containers/ThemedParallaxScrollView';
-import { ThemedText } from '@/components/templates/general/ThemedText';
+import { ThemedText } from '@/components/templates/typography/ThemedText';
 import { ThemedView } from '@/components/templates/containers/ThemedView';
 import { HelloWave } from '@/components/templates/icons/HelloWave';
 import { LogoutButton } from '@/components/buttons/LogoutButton';
