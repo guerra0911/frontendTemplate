@@ -34,6 +34,7 @@ import ThemedAnimatedTextExamples from "@/components/examples/typography/ThemedA
 import ThemedExternalLinkExamples from "@/components/examples/typography/ThemedExternalLinkExamples";
 import ThemedAvatarExamples from "@/components/examples/avatars/ThemedAvatarExamples";
 import ThemedDividerExamples from "@/components/examples/general/ThemedDividerExamples";
+import ThemedListExamples from "@/components/examples/lists/ThemedListExamples";
 
 export default function MessagesScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -85,6 +86,9 @@ export default function MessagesScreen() {
 
       {/* Themed Divider Examples */}
       <ThemedDividerExamples />
+
+      {/* Themed List Examples */}
+      <ThemedListExamples />
 
       {/* Themed Toggle Button Examples */}
       <ThemedToggleButtonExamples />

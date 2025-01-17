@@ -2,8 +2,8 @@
  * ThemedTouchableRipple.tsx
  *
  * A custom ripple-like component that integrates with your theming system.
- * It supports ripple, underlay, and hover colors for primary/secondary/tertiary
- * states, including disabled variations. 
+ * Supports ripple, underlay, and hover colors for primary/secondary/tertiary
+ * states, including disabled variations.
  */
 import React, { useCallback } from "react";
 import {
@@ -14,7 +14,7 @@ import {
   ViewStyle,
   GestureResponderEvent,
 } from "react-native";
-import Pressable, { PressableState, PressableProps } from "../general/Pressable"
+import Pressable, { PressableState, PressableProps } from "../general/Pressable";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
 // ################################################################################
@@ -32,27 +32,22 @@ type ThemeColorType =
   | "touchableRippleColorPrimary"
   | "touchableRippleColorSecondary"
   | "touchableRippleColorTertiary"
-
   // Ripple color (disabled)
   | "touchableRippleColorDisabledPrimary"
   | "touchableRippleColorDisabledSecondary"
   | "touchableRippleColorDisabledTertiary"
-
   // Underlay color (normal)
   | "touchableUnderlayColorPrimary"
   | "touchableUnderlayColorSecondary"
   | "touchableUnderlayColorTertiary"
-
   // Underlay color (disabled)
   | "touchableUnderlayColorDisabledPrimary"
   | "touchableUnderlayColorDisabledSecondary"
   | "touchableUnderlayColorDisabledTertiary"
-
   // Hover color (normal)
   | "touchableHoverColorPrimary"
   | "touchableHoverColorSecondary"
   | "touchableHoverColorTertiary"
-
   // Hover color (disabled)
   | "touchableHoverColorDisabledPrimary"
   | "touchableHoverColorDisabledSecondary"
@@ -78,14 +73,18 @@ export interface ThemedTouchableRippleProps
   /** Theming category (primary, secondary, tertiary) */
   themeType?: "primary" | "secondary" | "tertiary";
 
-  /** Override the ripple color from the theme. e.g. { light: "#00000020", dark: "#ffffff20" } */
-  rippleColor?: { light?: string; dark?: string };
+  /**
+   * Override the ripple color from the theme.
+   * Can be a single string (applied to both light & dark), or an object.
+   * e.g. `"transparent"` or `{ light: "#00000020", dark: "#ffffff20" }`.
+   */
+  rippleColor?: { light?: string; dark?: string } | string;
 
-  /** Override the underlay color for iOS or older Android. e.g. { light: "#00000010", dark: "#ffffff10" } */
-  underlayColor?: { light?: string; dark?: string };
+  /** Override the underlay color for iOS/older Android, same pattern as above. */
+  underlayColor?: { light?: string; dark?: string } | string;
 
-  /** Custom hover color for web. e.g. { light: "#00000005", dark: "#ffffff05" } */
-  hoverColor?: { light?: string; dark?: string };
+  /** Custom hover color for web, same pattern as above. */
+  hoverColor?: { light?: string; dark?: string } | string;
 
   /** Disabled state for the pressable */
   disabled?: boolean;
@@ -110,6 +109,24 @@ export interface ThemedTouchableRippleProps
 }
 
 // ################################################################################
+// UTIL: parseColorProp
+// ################################################################################
+
+/**
+ * If the user passes a string (e.g. "transparent" or "#000"),
+ * we interpret it as { light: string, dark: string }.
+ * If they pass an object, we use it directly.
+ */
+function parseColorProp(
+  colorProp: { light?: string; dark?: string } | string
+): { light?: string; dark?: string } {
+  if (typeof colorProp === "string") {
+    return { light: colorProp, dark: colorProp };
+  }
+  return colorProp;
+}
+
+// ################################################################################
 // COMPONENT
 // ################################################################################
 
@@ -118,9 +135,9 @@ const ThemedTouchableRipple: React.FC<ThemedTouchableRippleProps> = ({
   style,
   borderless = false,
   themeType = "primary",
-  rippleColor={},
-  underlayColor={},
-  hoverColor={},
+  rippleColor = {},
+  underlayColor = {},
+  hoverColor = {},
   disabled = false,
   onPress,
   onLongPress,
@@ -131,52 +148,58 @@ const ThemedTouchableRipple: React.FC<ThemedTouchableRippleProps> = ({
   ...rest
 }) => {
   // ----------------------------------------------------------------------------
-  // 1) Helper function to produce the color key
+  // 1) Helper function to build color keys
   // ----------------------------------------------------------------------------
   const getColorKey = (
     base: "touchableRippleColor" | "touchableUnderlayColor" | "touchableHoverColor",
     variant: "primary" | "secondary" | "tertiary",
     isDisabled: boolean
   ): ThemeColorType => {
-    // e.g. "touchableRippleColor" + (isDisabled ? "Disabled" : "") + "Primary" 
+    // e.g. "touchableRippleColor" + (isDisabled ? "Disabled" : "") + "Primary"
     // => "touchableRippleColorDisabledPrimary"
     const disabledSegment = isDisabled ? "Disabled" : "";
-    return `${base}${disabledSegment}${variant.charAt(0).toUpperCase() + variant.slice(1)}` as ThemeColorType;
+    return `${base}${disabledSegment}${
+      variant.charAt(0).toUpperCase() + variant.slice(1)
+    }` as ThemeColorType;
   };
 
   const isDisabledState = disabled;
 
   // ----------------------------------------------------------------------------
-  // 2) Resolve theme-based colors using the new color keys
+  // 2) Parse color props to unify single strings => { light, dark }
+  // ----------------------------------------------------------------------------
+  const rippleColorObj = parseColorProp(rippleColor);
+  const underlayColorObj = parseColorProp(underlayColor);
+  const hoverColorObj = parseColorProp(hoverColor);
+
+  // ----------------------------------------------------------------------------
+  // 3) Resolve theme-based colors using the new color keys
   // ----------------------------------------------------------------------------
   const defaultRippleColor = useThemeColor(
-    rippleColor,
+    rippleColorObj,
     getColorKey("touchableRippleColor", themeType, isDisabledState)
   );
 
   const defaultUnderlayColor = useThemeColor(
-    underlayColor,
+    underlayColorObj,
     getColorKey("touchableUnderlayColor", themeType, isDisabledState)
   );
 
   const defaultHoverColor = useThemeColor(
-    hoverColor,
+    hoverColorObj,
     getColorKey("touchableHoverColor", themeType, isDisabledState)
   );
 
   // ----------------------------------------------------------------------------
-  // 3) Determine the platform
+  // 4) Combine dynamic styles with user style
   // ----------------------------------------------------------------------------
   const isAndroid = Platform.OS === "android";
 
-  // ----------------------------------------------------------------------------
-  // 4) Combine dynamic styles with user style
-  // ----------------------------------------------------------------------------
   const combinedStyle = useCallback(
     (pressableState: PressableState) => {
       const { hovered, pressed } = pressableState;
-
       let backgroundColor: string | undefined;
+
       if (hovered && !pressed) {
         backgroundColor = defaultHoverColor;
       } else if (pressed) {
@@ -197,7 +220,7 @@ const ThemedTouchableRipple: React.FC<ThemedTouchableRippleProps> = ({
         fullScreen && styles.fullScreenContainer,
         userStyle,
         { backgroundColor },
-        // If disabled, we might dim the entire container's opacity or color
+        // If disabled, we might dim entire container's opacity or color
         disabled && { opacity: 0.6 },
       ];
     },
