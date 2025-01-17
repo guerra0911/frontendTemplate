@@ -33,6 +33,7 @@ import ThemedTextColors from "./templates/typography/ThemedTextColors";
 import ThemedAnimatedTextColors from "./templates/typography/ThemedAnimatedTextColors";
 import ThemedExternalLinkColors from "./templates/typography/ThemedExternalLinkColors";
 import ThemedAvatarColors from "./templates/avatars/ThemedAvatarColors";
+import ThemedDividerColors from "./templates/general/ThemedDividerColors";
 
 
 const tintColorLight = "#0a7ea4";
@@ -142,6 +143,9 @@ export const Colors = {
 
     // Avatar Colors
     ...ThemedAvatarColors.light,
+
+    // Divider Colors
+    ...ThemedDividerColors.light,
   },
   dark: {
     text: "#ECEDEE",
@@ -246,5 +250,8 @@ export const Colors = {
 
     // Avatar Colors
     ...ThemedAvatarColors.dark,
+
+    // Divider Colors
+    ...ThemedDividerColors.dark,
   },
 };

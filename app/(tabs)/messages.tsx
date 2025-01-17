@@ -32,6 +32,8 @@ import ThemedCollapsibleExamples from "@/components/examples/general/ThemedColla
 import ThemedTextExamples from "@/components/examples/typography/ThemedTextExamples";
 import ThemedAnimatedTextExamples from "@/components/examples/typography/ThemedAnimatedTextExamples";
 import ThemedExternalLinkExamples from "@/components/examples/typography/ThemedExternalLinkExamples";
+import ThemedAvatarExamples from "@/components/examples/avatars/ThemedAvatarExamples";
+import ThemedDividerExamples from "@/components/examples/general/ThemedDividerExamples";
 
 export default function MessagesScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -77,6 +79,12 @@ export default function MessagesScreen() {
 
       {/* Themed Text Button Examples */}
       <ThemedTextButtonExamples />
+
+      {/* Themed Avatar Examples */}
+      <ThemedAvatarExamples />
+
+      {/* Themed Divider Examples */}
+      <ThemedDividerExamples />
 
       {/* Themed Toggle Button Examples */}
       <ThemedToggleButtonExamples />
