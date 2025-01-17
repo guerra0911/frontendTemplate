@@ -32,6 +32,7 @@ import ThemedCollapsibleColors from "./templates/general/ThemedCollapsibleColors
 import ThemedTextColors from "./templates/typography/ThemedTextColors";
 import ThemedAnimatedTextColors from "./templates/typography/ThemedAnimatedTextColors";
 import ThemedExternalLinkColors from "./templates/typography/ThemedExternalLinkColors";
+import ThemedAvatarColors from "./templates/avatars/ThemedAvatarColors";
 
 
 const tintColorLight = "#0a7ea4";
@@ -136,8 +137,11 @@ export const Colors = {
     // Activity Indicator Colors
     ...ThemedActivityIndicatorColors.light,
 
-    // Chasing Dot Loadin gIndicator Colors
+    // Chasing Dot Loading Indicator Colors
     ...ThemedChasingDotLoadingIndicatorColors.light,
+
+    // Avatar Colors
+    ...ThemedAvatarColors.light,
   },
   dark: {
     text: "#ECEDEE",
@@ -237,7 +241,10 @@ export const Colors = {
     // Activity Indicator Colors
     ...ThemedActivityIndicatorColors.dark,
 
-    // Chasing Dot Loadin gIndicator Colors
+    // Chasing Dot Loading Indicator Colors
     ...ThemedChasingDotLoadingIndicatorColors.dark,
+
+    // Avatar Colors
+    ...ThemedAvatarColors.dark,
   },
 };
