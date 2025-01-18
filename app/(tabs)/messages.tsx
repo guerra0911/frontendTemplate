@@ -38,6 +38,9 @@ import ThemedListItemExamples from "@/components/examples/lists/ThemedListItemEx
 import ThemedListSectionExamples from "@/components/examples/lists/ThemedListSectionExamples";
 import ThemedListAccordionExamples from "@/components/examples/lists/ThemedListAccordionExamples";
 import ThemedListAccordionGroupExamples from "@/components/examples/lists/ThemedListAccordionGroupExamples";
+import ThemedCheckboxListItemExamples from "@/components/examples/lists/ThemedCheckboxListItemExamples";
+import ThemedRadioButtonListItemExamples from "@/components/examples/lists/ThemedRadioButtonListItemExamples";
+import ThemedToggleSwitchListItemExamples from "@/components/examples/lists/ThemedToggleSwitchListItemExamples";
 
 export default function MessagesScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -72,6 +75,9 @@ export default function MessagesScreen() {
       {/* Themed Button Examples */}
       <ThemedButtonExamples />
 
+      {/* Themed Toggle Button Examples */}
+      <ThemedToggleButtonExamples />
+
       {/* Themed Icon Examples */}
       <ThemedIconExamples />
 
@@ -102,23 +108,29 @@ export default function MessagesScreen() {
       {/* Themed List Accordion Group Examples */}
       <ThemedListAccordionGroupExamples />
 
-      {/* Themed Toggle Button Examples */}
-      <ThemedToggleButtonExamples />
+      {/* Themed Check Box List Item Examples */}
+      <ThemedCheckboxListItemExamples />
+
+      {/* Themed Radio Button List Item Examples */}
+      <ThemedRadioButtonListItemExamples />
+
+      {/* Themed Toggle Switch List Item Examples */}
+      <ThemedToggleSwitchListItemExamples />
 
       {/* Themed Toggle Switch Examples */}
       <ThemedToggleSwitchExamples />
-
-      {/* Themed Segmented Control Examples */}
-      <ThemedSegmentedControlExamples />
-
-      {/* Themed Choice Chips Examples */}
-      <ThemedChoiceChipsExample />
 
       {/* Themed Check Box Examples */}
       <ThemedCheckBoxExamples />
 
       {/* Themed Radio Button Examples */}
       <ThemedRadioButtonExamples />
+
+      {/* Themed Segmented Control Examples */}
+      <ThemedSegmentedControlExamples />
+
+      {/* Themed Choice Chips Examples */}
+      <ThemedChoiceChipsExample />
 
       {/* Themed Collapsible Examples*/}
       <ThemedCollapsibleExamples />
