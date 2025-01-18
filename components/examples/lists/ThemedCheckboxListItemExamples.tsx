@@ -8,6 +8,7 @@ import { StyleSheet, View } from "react-native";
 import ThemedCheckboxListItem from "@/components/templates/lists/ThemedCheckboxListItem";
 import { ThemedText } from "@/components/templates/typography/ThemedText";
 import { ThemedDivider } from "@/components/templates/general/ThemedDivder";
+import ThemedCard from "@/components/templates/cards/ThemedCard";
 
 export default function ThemedCheckboxListItemExamples() {
   const [checkboxVal1, setCheckboxVal1] = useState(false);
@@ -16,6 +17,7 @@ export default function ThemedCheckboxListItemExamples() {
   const [checkboxVal4, setCheckboxVal4] = useState(false);
   const [checkboxVal5, setCheckboxVal5] = useState(false);
   const [checkboxVal6, setCheckboxVal6] = useState(false);
+  const [checkboxVal7, setCheckboxVal7] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -80,6 +82,18 @@ export default function ThemedCheckboxListItemExamples() {
         value={checkboxVal6}
         onValueChange={setCheckboxVal6}
         disableRippleEffect
+      />
+
+      <ThemedText type="subtitle">Arbitrary child usage</ThemedText>
+      <ThemedCheckboxListItem
+        title="Check plus card"
+        value={checkboxVal7}
+        onValueChange={setCheckboxVal7}
+        middleChildren={
+          <ThemedCard style={{ padding: 6, marginTop: 8 }}>
+            <ThemedText>Inside middleChildren</ThemedText>
+          </ThemedCard>
+        }
       />
     </View>
   );

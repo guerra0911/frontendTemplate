@@ -10,6 +10,8 @@ import ThemedListAccordion from "@/components/templates/lists/ThemedListAccordio
 import ThemedListItem from "@/components/templates/lists/ThemedListItem";
 import { ThemedDivider } from "@/components/templates/general/ThemedDivder";
 import ThemedListIcon from "@/components/templates/lists/ThemedListIcon";
+import ThemedActivityIndicator from "@/components/templates/loaders/ThemedActivityIndicator";
+import ThemedCard from "@/components/templates/cards/ThemedCard";
 
 export default function ThemedListAccordionExamples() {
   const [expanded, setExpanded] = useState(true);
@@ -126,6 +128,26 @@ export default function ThemedListAccordionExamples() {
         disableRippleEffect
       >
         <ThemedListItem title="Child" />
+      </ThemedListAccordion>
+
+      <ThemedDivider />
+      <ThemedText style={{ marginTop: 20 }} type="subtitle">
+        Arbitrary child in accordion header
+      </ThemedText>
+      <ThemedListAccordion
+        leftChildren={<ThemedActivityIndicator animating size={20} />}
+        middleChildren={
+          <ThemedCard style={{ padding: 8 }}>
+            <ThemedCard.Title title="Card inside the header" />
+          </ThemedCard>
+        }
+        rightChildren={
+          <View style={{ backgroundColor: "#c0c0c0", padding: 6 }}>
+            <ThemedText>RightBox</ThemedText>
+          </View>
+        }
+      >
+        <ThemedListItem title="Child item 1" />
       </ThemedListAccordion>
     </View>
   );

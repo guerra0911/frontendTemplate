@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback } from "react";
 import { GestureResponderEvent, StyleProp, ViewStyle } from "react-native";
 import ThemedListItem, {
   ThemedListItemProps,
@@ -7,68 +7,61 @@ import ThemedCheckBox, {
   ThemedCheckBoxProps,
 } from "@/components/templates/buttons/ThemedCheckBox";
 
-/**
- * -----------------------------------------------------------------------------
- * PROPS
- * -----------------------------------------------------------------------------
- * We'll combine ThemedListItemProps + ThemedCheckBoxProps,
- * except we rename or omit conflicting fields. We also add toggling logic.
- */
 export interface ThemedCheckboxListItemProps
-  extends Omit<ThemedListItemProps, "left" | "right" | "onPress"> {
-  /** Current checked state of the checkbox */
+  extends Omit<
+    ThemedListItemProps,
+    "left" | "right" | "onPress" | "leftChildren" | "rightChildren"
+  > {
   value: boolean;
-  /** Callback when the checkbox value changes */
   onValueChange: (newValue: boolean) => void;
 
-  /** If true, tapping the entire item toggles the checkbox. */
+  /** Tapping entire item toggles checkbox if true. */
   toggleOnPressItem?: boolean;
 
-  /** Place the checkbox on left or right? @default "left" */
+  /** "left" or "right" placement for the checkbox. @default "left" */
   checkboxPosition?: "left" | "right";
 
-  /**
-   * If you want to customize ThemedCheckBox further (size, colors, etc.),
-   * we merge ThemedCheckBoxProps but override value/onValueChange above.
-   */
-  checkBoxProps?: Omit<ThemedCheckBoxProps, "value" | "onValueChange" | "style">;
-
-  /** Style specifically for the ThemedCheckBox itself. */
+  /** Additional props for ThemedCheckBox. */
+  checkBoxProps?: Omit<
+    ThemedCheckBoxProps,
+    "value" | "onValueChange" | "style"
+  >;
   checkBoxStyle?: StyleProp<ViewStyle>;
 
   disableRippleEffect?: boolean;
+
+  // Additional dynamic children
+  leftChildren?: React.ReactNode;
+  middleChildren?: React.ReactNode;
+  rightChildren?: React.ReactNode;
 }
 
-/**
- * -----------------------------------------------------------------------------
- * COMPONENT
- * -----------------------------------------------------------------------------
- */
 export default function ThemedCheckboxListItem({
   value,
   onValueChange,
   toggleOnPressItem = false,
   checkboxPosition = "left",
-  disableRippleEffect = false,
 
   checkBoxProps,
   checkBoxStyle,
 
-  // The rest are ThemedListItemProps
+  leftChildren,
+  middleChildren,
+  rightChildren,
+
+  disableRippleEffect = false,
+
   ...listItemProps
 }: ThemedCheckboxListItemProps) {
-  // If user taps the entire item
   const handleItemPress = useCallback(
     (e: GestureResponderEvent) => {
       if (toggleOnPressItem) {
         onValueChange(!value);
       }
-      // else do nothing, or pass some additional callback if you prefer
     },
     [toggleOnPressItem, onValueChange, value]
   );
 
-  // The actual ThemedCheckBox or left or right element
   const checkBoxElement = (
     <ThemedCheckBox
       {...(checkBoxProps || {})}
@@ -80,12 +73,22 @@ export default function ThemedCheckboxListItem({
 
   return (
     <ThemedListItem
-      // If toggleOnPressItem is true, item is pressable => toggles on press
       onPress={toggleOnPressItem ? handleItemPress : undefined}
       disableRippleEffect={disableRippleEffect}
-      // Put the checkbox in left or right
-      left={checkboxPosition === "left" ? () => checkBoxElement : undefined}
-      right={checkboxPosition === "right" ? () => checkBoxElement : undefined}
+      // We combine the existing leftChildren or rightChildren with the checkbox
+      left={
+        checkboxPosition === "left"
+          ? () => checkBoxElement
+          : undefined
+      }
+      right={
+        checkboxPosition === "right"
+          ? () => checkBoxElement
+          : undefined
+      }
+      leftChildren={checkboxPosition === "left" ? undefined : leftChildren}
+      rightChildren={checkboxPosition === "right" ? undefined : rightChildren}
+      middleChildren={middleChildren}
       {...listItemProps}
     />
   );

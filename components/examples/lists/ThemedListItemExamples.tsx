@@ -14,6 +14,8 @@ import ThemedCheckBox from "@/components/templates/buttons/ThemedCheckBox"; // i
 import { ThemedText } from "@/components/templates/typography/ThemedText";
 import ThemedListIcon from "@/components/templates/lists/ThemedListIcon";
 import ThemedListImage from "@/components/templates/lists/ThemedListImage";
+import ThemedCard from "@/components/templates/cards/ThemedCard";
+import ThemedActivityIndicator from "@/components/templates/loaders/ThemedActivityIndicator";
 
 // We'll mock a "CenteredCheckbox" component using ThemedCheckBox for demonstration
 function CenteredCheckbox() {
@@ -186,6 +188,40 @@ export default function ThemedListItemExamples() {
         description="Still calls onPress but no visual effect"
         disableRippleEffect
         onPress={() => console.log("Pressed item w/o ripple")}
+      />
+
+      <ThemedDivider />
+      <ThemedText type="subtitle">Arbitrary children demonstration</ThemedText>
+
+      {/* 1) ThemedCard in middle */}
+      <ThemedListItem
+        title="Title is still rendered"
+        description="But we also put a ThemedCard below the description"
+        middleChildren={
+          <View style={{ marginTop: 8 }}>
+            <ThemedCard style={{ padding: 10 }}>
+              <ThemedCard.Title title="I'm a ThemedCard in a list item!" />
+              <ThemedCard.Content>
+                <ThemedText>Nested inside middleChildren</ThemedText>
+              </ThemedCard.Content>
+            </ThemedCard>
+          </View>
+        }
+      />
+
+      {/* 2) ThemedActivityIndicator on the right + ThemedCard on leftChildren */}
+      <ThemedListItem
+        title="Mixed children"
+        leftChildren={
+          <ThemedCard style={{ width: 80, height: 60 }}>
+            <ThemedCard.Content>
+              <ThemedText>Left Card</ThemedText>
+            </ThemedCard.Content>
+          </ThemedCard>
+        }
+        rightChildren={
+          <ThemedActivityIndicator size={24} themeType="secondary" animating />
+        }
       />
     </View>
   );

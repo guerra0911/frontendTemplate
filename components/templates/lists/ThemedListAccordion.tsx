@@ -2,15 +2,9 @@ import React, { useState, useContext, useCallback } from "react";
 import { View, StyleSheet, GestureResponderEvent, StyleProp, ViewStyle } from "react-native";
 import ThemedTouchableRipple from "@/components/templates/buttons/ThemedTouchableRipple";
 import { ThemedText } from "../typography/ThemedText";
-import ThemedIcon from "@/components/templates/icons/ThemedIcon";
 import { ThemedListAccordionGroupContext } from "./ThemedListAccordionContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
-/**
- * -----------------------------------------------------------------------------
- * THEME COLOR TYPE
- * -----------------------------------------------------------------------------
- */
 type ListAccordionTextColorType =
   | "listItemTextColorPrimary"
   | "listItemTextColorSecondary"
@@ -23,52 +17,33 @@ type ListAccordionDescriptionColorType =
 
 export type ThemedListAccordionType = "primary" | "secondary" | "tertiary";
 
-/**
- * -----------------------------------------------------------------------------
- * PROPS
- * -----------------------------------------------------------------------------
- */
 export interface ThemedListAccordionProps {
-  title: string;
+  title?: string;
   description?: string;
   id?: string | number;
   expanded?: boolean;
   onPress?: (e: GestureResponderEvent) => void;
   left?: (props: { color: string }) => React.ReactNode;
   right?: (props: { isExpanded: boolean }) => React.ReactNode;
+
+  // NEW arbitrary children in the header
+  leftChildren?: React.ReactNode;
+  middleChildren?: React.ReactNode;
+  rightChildren?: React.ReactNode;
+
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   themeType?: ThemedListAccordionType;
 
-  /** Custom header dimension */
   width?: number;
   height?: number;
-
-  /**
-   * Spacing between left container and content.
-   * @default 8
-   */
-  leftToContentSpacing?: number;
-
-  /**
-   * Spacing between content and right container.
-   * @default 8
-   */
-  contentToRightSpacing?: number;
-
-  /**
-   * Align the title/description text: 'left'|'center'|'right'.
-   */
+  leftToContentSpacing?: number;    // default 8
+  contentToRightSpacing?: number;   // default 8
   contentAlignment?: "left" | "center" | "right";
 
   disableRippleEffect?: boolean;
 }
 
-/**
- * -----------------------------------------------------------------------------
- * COMPONENT
- * -----------------------------------------------------------------------------
- */
 export default function ThemedListAccordion({
   title,
   description,
@@ -77,6 +52,9 @@ export default function ThemedListAccordion({
   onPress,
   left,
   right,
+  leftChildren,
+  middleChildren,
+  rightChildren,
   children,
   style,
   themeType = "primary",
@@ -96,10 +74,11 @@ export default function ThemedListAccordion({
     ? expandedProp
     : localExpanded;
 
-  // Build color keys for text & description
+  // Build color keys
   const titleColorKey = `listItemTextColor${
     themeType.charAt(0).toUpperCase() + themeType.slice(1)
   }` as ListAccordionTextColorType;
+
   const descColorKey = `listItemDescriptionColor${
     themeType.charAt(0).toUpperCase() + themeType.slice(1)
   }` as ListAccordionDescriptionColorType;
@@ -119,57 +98,67 @@ export default function ThemedListAccordion({
     [onPress, groupContext, id, expandedProp]
   );
 
-  // Left
-  const leftElement = left ? left({ color: isExpanded ? "#0A84FF" : "#666" }) : null;
+  // Header left
+  const leftElement = left
+    ? left({ color: isExpanded ? "#0A84FF" : "#666" })
+    : leftChildren;
 
-  // We'll place the "header" in a separate container with user-specified width/height
-  // The children expand below.
+  // Middle content => title/description + middleChildren
+  const middleContent = (
+    <>
+      {title && (
+        <ThemedText
+          style={[styles.title, { color: resolvedTitleColor, textAlign: contentAlignment }]}
+        >
+          {title}
+        </ThemedText>
+      )}
+      {description && (
+        <ThemedText
+          style={[styles.description, { color: resolvedDescColor, textAlign: contentAlignment }]}
+        >
+          {description}
+        </ThemedText>
+      )}
+      {middleChildren}
+    </>
+  );
+
+  // Right
+  const rightElement = right
+    ? right({ isExpanded })
+    : rightChildren;
+
   return (
     <View style={style}>
-      {/* Header row container with optional width & height */}
       <View style={[{ width, height }, styles.headerContainer]}>
-        <ThemedTouchableRipple onPress={handlePress} disableRippleEffect={disableRippleEffect} style={styles.rippleContainer}>
+        <ThemedTouchableRipple
+          onPress={handlePress}
+          disableRippleEffect={disableRippleEffect}
+          style={styles.rippleContainer}
+        >
           <View style={styles.row}>
-            {/* Left container */}
             {leftElement && <View style={styles.leftContainer}>{leftElement}</View>}
 
-            {/* Middle content container */}
             <View
               style={[
                 styles.content,
                 {
                   marginLeft: leftElement ? leftToContentSpacing : 0,
-                  marginRight: right ? contentToRightSpacing : 0,
+                  marginRight: rightElement ? contentToRightSpacing : 0,
                 },
               ]}
             >
-              <ThemedText style={[styles.title, { color: resolvedTitleColor, textAlign: contentAlignment }]}>
-                {title}
-              </ThemedText>
-              {description ? (
-                <ThemedText style={[styles.description, { color: resolvedDescColor, textAlign: contentAlignment }]}>
-                  {description}
-                </ThemedText>
-              ) : null}
+              {middleContent}
             </View>
 
-            {/* Right container */}
-            <View style={styles.rightContainer}>
-              {right ? (
-                right({ isExpanded })
-              ) : (
-                <ThemedIcon
-                  iconName={isExpanded ? "chevron-up" : "chevron-down"}
-                  size={24}
-                  color="#888"
-                />
-              )}
-            </View>
+            {rightElement && (
+              <View style={styles.rightContainer}>{rightElement}</View>
+            )}
           </View>
         </ThemedTouchableRipple>
       </View>
 
-      {/* Expandable children container (auto-size) */}
       {isExpanded && <View style={styles.childrenContainer}>{children}</View>}
     </View>
   );
@@ -205,7 +194,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 2,
   },
-  childrenContainer: {
-    // the expanded content
-  },
+  childrenContainer: {},
 });

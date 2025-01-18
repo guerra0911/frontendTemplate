@@ -41,6 +41,7 @@ export type ThemedListType = "primary" | "secondary" | "tertiary";
  * -----------------------------------------------------------------------------
  */
 
+/** For standard or functional Title/Description. */
 type TitleProp =
   | React.ReactNode
   | ((
@@ -62,15 +63,28 @@ type DescriptionProp =
     ) => React.ReactNode);
 
 export interface ThemedListItemProps {
-  /** Title text or function. */
-  title: TitleProp;
-  /** Description text or function. */
+  /** Standard Title and Description (optional). */
+  title?: TitleProp;
   description?: DescriptionProp;
-  /** Callback returning a left element (icon, avatar, etc.). */
+
+  /**
+   * Left callback: (props: { color: string }) => ReactNode
+   * If you want a dynamic icon, etc.
+   * But we also allow explicit child with leftChildren.
+   */
   left?: (props: { color: string }) => React.ReactNode;
-  /** Callback returning a right element. */
   right?: (props: { color: string }) => React.ReactNode;
-  /** Press handler. */
+
+  /** 
+   * NEW: Arbitrary child components in each region. 
+   * If these are present, they appear in addition to or in place of left/right?
+   * It's up to you if you want them combined or override the existing left/right.
+   */
+  leftChildren?: React.ReactNode;
+  middleChildren?: React.ReactNode;
+  rightChildren?: React.ReactNode;
+
+  /** Press handler => item is pressable. */
   onPress?: (e: GestureResponderEvent) => void;
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
@@ -94,24 +108,12 @@ export interface ThemedListItemProps {
   width?: number;
   height?: number;
 
-  /**
-   * Extra spacing between the left container and the middle (content).
-   * @default 8
-   */
-  leftToContentSpacing?: number;
-
-  /**
-   * Extra spacing between the middle (content) and the right container.
-   * @default 8
-   */
-  contentToRightSpacing?: number;
-
-  /**
-   * How to align text within the content block: left, center, or right.
-   * This sets `textAlign` on the Title/Description.
-   */
+  // Spacing & alignment
+  leftToContentSpacing?: number;    // default 8
+  contentToRightSpacing?: number;   // default 8
   contentAlignment?: "left" | "center" | "right";
 
+  // Ripple disable
   disableRippleEffect?: boolean;
 }
 
@@ -121,14 +123,9 @@ export interface ThemedListItemProps {
  * -----------------------------------------------------------------------------
  */
 function ThemedListItem({
-  themeType = "primary",
+  // Title/Description
   title,
   description,
-  left,
-  right,
-  onPress,
-  style,
-  contentStyle,
   titleStyle,
   titleNumberOfLines = 1,
   titleEllipsizeMode,
@@ -137,12 +134,33 @@ function ThemedListItem({
   descriptionNumberOfLines = 2,
   descriptionEllipsizeMode,
   descriptionMaxFontSizeMultiplier,
+
+  // Extra children approach
+  left,
+  right,
+  leftChildren,
+  middleChildren,
+  rightChildren,
+
+  // Pressable
+  onPress,
+  disableRippleEffect = false,
+
+  // Theming
+  themeType = "primary",
+
+  // Dimensions
   width,
   height,
+
+  // Spacing / alignment
   leftToContentSpacing = 8,
   contentToRightSpacing = 8,
   contentAlignment = "left",
-  disableRippleEffect = false,
+
+  // Style
+  style,
+  contentStyle,
 }: ThemedListItemProps) {
   // Build color keys
   const backgroundKey = `listItemBackground${
@@ -161,16 +179,17 @@ function ThemedListItem({
   const itemTextColor = useThemeColor({}, textKey);
   const itemDescriptionColor = useThemeColor({}, descKey);
 
+  // If multiline desc => align top
   const [alignToTop, setAlignToTop] = useState(false);
-
   const onDescriptionTextLayout = (
     e: NativeSyntheticEvent<TextLayoutEventData>
   ) => {
     setAlignToTop(e.nativeEvent.lines.length >= 2);
   };
 
-  // Title logic
+  // RENDER TITLE
   const renderTitle = () => {
+    if (!title) return null;
     const fontSize = 16;
     if (typeof title === "function") {
       return title({
@@ -199,11 +218,10 @@ function ThemedListItem({
     );
   };
 
-  // Description logic
+  // RENDER DESCRIPTION
   const renderDescription = () => {
-    const fontSize = 14;
     if (!description) return null;
-
+    const fontSize = 14;
     if (typeof description === "function") {
       return description({
         color: itemDescriptionColor,
@@ -232,19 +250,26 @@ function ThemedListItem({
     );
   };
 
-  // Left element
+  // Left element (callback) or leftChildren
   const leftElement = left
-    ? left({
-        color: itemDescriptionColor,
-      })
-    : null;
+    ? left({ color: itemDescriptionColor })
+    : leftChildren; // if both are present, you can decide to combine or let left override
 
-  // Right element
+  // Right element (callback) or rightChildren
   const rightElement = right
-    ? right({
-        color: itemDescriptionColor,
-      })
-    : null;
+    ? right({ color: itemDescriptionColor })
+    : rightChildren;
+
+  // Middle content
+  // If user gave middleChildren, we can show them plus or instead of title/desc
+  // We'll show both for maximum flexibility. Or you can choose to skip title/desc if middleChildren exist.
+  const middleContent = (
+    <>
+      {renderTitle()}
+      {renderDescription()}
+      {middleChildren}
+    </>
+  );
 
   return (
     <ThemedTouchableRipple
@@ -269,21 +294,18 @@ function ThemedListItem({
           </View>
         )}
 
-        {/* Middle content container */}
+        {/* Middle container */}
         <View
           style={[
             styles.content,
             {
-              // If left is present, add spacing from left
               marginLeft: leftElement ? leftToContentSpacing : 0,
-              // If right is present, add spacing from right
               marginRight: rightElement ? contentToRightSpacing : 0,
             },
             contentStyle,
           ]}
         >
-          {renderTitle()}
-          {renderDescription()}
+          {middleContent}
         </View>
 
         {/* Right container */}

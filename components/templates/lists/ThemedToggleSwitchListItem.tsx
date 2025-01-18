@@ -8,25 +8,24 @@ import ThemedToggleSwitch, {
 } from "@/components/templates/buttons/ThemedToggleSwitch";
 
 export interface ThemedToggleSwitchListItemProps
-  extends Omit<ThemedListItemProps, "left" | "right" | "onPress"> {
-  /** Current on/off state of the toggle. */
+  extends Omit<
+    ThemedListItemProps,
+    "left" | "right" | "onPress" | "leftChildren" | "rightChildren"
+  > {
   value: boolean;
-  /** Callback when toggling. */
   onValueChange: (newValue: boolean) => void;
 
-  /** If true, tapping entire item toggles the switch. */
   toggleOnPressItem?: boolean;
-
-  /** "left" or "right" for the switch position. @default "right" */
   switchPosition?: "left" | "right";
 
-  /** Additional props to pass to ThemedToggleSwitch. */
   switchProps?: Omit<ThemedToggleSwitchProps, "value" | "onValueChange" | "style">;
-
-  /** Style for the ThemedToggleSwitch itself. */
   switchStyle?: StyleProp<ViewStyle>;
 
   disableRippleEffect?: boolean;
+
+  leftChildren?: React.ReactNode;
+  middleChildren?: React.ReactNode;
+  rightChildren?: React.ReactNode;
 }
 
 export default function ThemedToggleSwitchListItem({
@@ -34,10 +33,15 @@ export default function ThemedToggleSwitchListItem({
   onValueChange,
   toggleOnPressItem = false,
   switchPosition = "right",
-  disableRippleEffect = false,
 
   switchProps,
   switchStyle,
+
+  leftChildren,
+  middleChildren,
+  rightChildren,
+
+  disableRippleEffect = false,
 
   ...listItemProps
 }: ThemedToggleSwitchListItemProps) {
@@ -65,6 +69,9 @@ export default function ThemedToggleSwitchListItem({
       disableRippleEffect={disableRippleEffect}
       left={switchPosition === "left" ? () => switchElement : undefined}
       right={switchPosition === "right" ? () => switchElement : undefined}
+      leftChildren={switchPosition === "left" ? undefined : leftChildren}
+      rightChildren={switchPosition === "right" ? undefined : rightChildren}
+      middleChildren={middleChildren}
       {...listItemProps}
     />
   );

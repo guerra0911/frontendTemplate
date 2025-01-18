@@ -6,6 +6,7 @@ import { StyleSheet, View } from "react-native";
 import ThemedToggleSwitchListItem from "@/components/templates/lists/ThemedToggleSwitchListItem";
 import { ThemedText } from "@/components/templates/typography/ThemedText";
 import { ThemedDivider } from "@/components/templates/general/ThemedDivder";
+import ThemedCard from "@/components/templates/cards/ThemedCard";
 
 export default function ThemedToggleSwitchListItemExamples() {
   const [switchVal1, setSwitchVal1] = useState(false);
@@ -13,6 +14,7 @@ export default function ThemedToggleSwitchListItemExamples() {
   const [switchVal3, setSwitchVal3] = useState(false);
   const [switchVal4, setSwitchVal4] = useState(false);
   const [switchVal5, setSwitchVal5] = useState(false);
+  const [switchVal6, setSwitchVal6] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -67,6 +69,21 @@ export default function ThemedToggleSwitchListItemExamples() {
         value={switchVal5}
         onValueChange={setSwitchVal5}
         disableRippleEffect
+      />
+
+      <ThemedText type="subtitle">
+        Embed ThemedCard on the right, plus switch on left
+      </ThemedText>
+      <ThemedToggleSwitchListItem
+        value={switchVal6}
+        onValueChange={setSwitchVal6}
+        switchPosition="left"
+        rightChildren={
+          <ThemedCard style={{ padding: 8, width: 120 }}>
+            <ThemedCard.Title title="Right Card" />
+          </ThemedCard>
+        }
+        title="Switch on left, card on right"
       />
     </View>
   );
