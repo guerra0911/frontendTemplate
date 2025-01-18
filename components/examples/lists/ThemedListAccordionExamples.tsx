@@ -66,6 +66,32 @@ export default function ThemedListAccordionExamples() {
           left={() => <ThemedListIcon icon="thumbs-down-outline" />}
         />
       </ThemedListAccordion>
+
+      <ThemedDivider />
+
+      {/* NEW SUBSECTION: Custom dimension accordion (header only) */}
+      <ThemedText style={{ marginTop: 20 }} type="subtitle">
+        Custom dimension accordion (no overlap)
+      </ThemedText>
+      <ThemedListAccordion
+        title="Custom sized accordion"
+        description="width=300, height=80"
+        width={300}
+        height={80}
+        left={(props) => <ThemedListIcon icon="folder" color={props.color} />}
+      >
+        <ThemedListItem title="Inside item 1" />
+        <ThemedListItem title="Inside item 2" />
+      </ThemedListAccordion>
+      <ThemedListAccordion
+        title="Another custom sized"
+        description="width=200, height=100"
+        width={200}
+        height={100}
+      >
+        <ThemedListItem title="Inside item 1" />
+        <ThemedListItem title="Inside item 2" />
+      </ThemedListAccordion>
     </View>
   );
 }

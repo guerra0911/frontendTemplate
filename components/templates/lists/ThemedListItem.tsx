@@ -39,6 +39,7 @@ export type ThemedListType = "primary" | "secondary" | "tertiary";
  * -----------------------------------------------------------------------------
  * PROPS
  * -----------------------------------------------------------------------------
+ * We add optional width & height to customize the container’s size.
  */
 type TitleProp =
   | React.ReactNode
@@ -83,6 +84,12 @@ export interface ThemedListItemProps {
 
   // Theming
   themeType?: ThemedListType;
+
+  /**
+   * Custom dimensions for this item.
+   */
+  width?: number;
+  height?: number;
 }
 
 /**
@@ -107,6 +114,10 @@ function ThemedListItem({
   descriptionNumberOfLines = 2,
   descriptionEllipsizeMode,
   descriptionMaxFontSizeMultiplier,
+
+  // New custom dimension props
+  width,
+  height,
 }: ThemedListItemProps) {
   // Build color keys
   const backgroundKey = `listItemBackground${
@@ -207,6 +218,8 @@ function ThemedListItem({
           padding: 8,
         },
         styles.container,
+        // Apply optional custom width/height
+        { width, height },
         style,
       ]}
     >

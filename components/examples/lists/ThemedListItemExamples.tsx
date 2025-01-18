@@ -19,7 +19,11 @@ import ThemedListImage from "@/components/templates/lists/ThemedListImage";
 function CenteredCheckbox() {
   return (
     <View style={styles.centered}>
-      <ThemedCheckBox value={true} onValueChange={() => {}} style={styles.centered} />
+      <ThemedCheckBox
+        value={true}
+        onValueChange={() => {}}
+        style={styles.centered}
+      />
     </View>
   );
 }
@@ -90,7 +94,7 @@ export default function ThemedListItemExamples() {
       <ThemedListItem
         title="Headline"
         left={() => (
-          <ThemedListImage source={{ uri: "https://picsum.photos/100" }}/>
+          <ThemedListImage source={{ uri: "https://picsum.photos/100" }} />
         )}
       />
       <ThemedListItem
@@ -105,12 +109,34 @@ export default function ThemedListItemExamples() {
       <ThemedText type="subtitle">With switch (ToggleSwitch)</ThemedText>
       <ThemedListItem
         title="Headline"
-        right={() => <ThemedToggleSwitch value={true} onValueChange={() => {}} />}
+        right={() => (
+          <ThemedToggleSwitch value={true} onValueChange={() => {}} />
+        )}
       />
       <ThemedListItem
         title="Headline"
         description="Supporting text"
-        right={() => <ThemedToggleSwitch value={false} onValueChange={() => {}} />}
+        right={() => (
+          <ThemedToggleSwitch value={false} onValueChange={() => {}} />
+        )}
+      />
+
+      <ThemedDivider />
+
+      {/* NEW SUBSECTION: Custom dimension items */}
+      <ThemedText type="subtitle">Custom dimension items</ThemedText>
+      <ThemedListItem
+        title="Small height, wide width"
+        description="This list item is 50 in height, 300 in width"
+        height={50}
+        width={300}
+      />
+      <ThemedListItem
+        title="Large height, narrower width"
+        description="This list item is 100 in height, 200 in width"
+        height={100}
+        width={200}
+        right={() => <CenteredCheckbox />}
       />
     </View>
   );
@@ -124,4 +150,3 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 });
-
