@@ -1,36 +1,71 @@
 import React from "react";
-import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
+import { StyleSheet, View, ViewStyle, StyleProp } from "react-native";
 import ThemedIcon from "@/components/templates/icons/ThemedIcon";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
+/**
+ * -----------------------------------------------------------------------------
+ * THEME COLOR TYPE
+ * -----------------------------------------------------------------------------
+ */
+type ListIconTextColorType =
+  | "listItemTextColorPrimary"
+  | "listItemTextColorSecondary"
+  | "listItemTextColorTertiary";
+
+export type ThemedListIconType = "primary" | "secondary" | "tertiary";
+
+/**
+ * -----------------------------------------------------------------------------
+ * PROPS
+ * -----------------------------------------------------------------------------
+ */
 export interface ThemedListIconProps {
-  iconName: string;
+  icon: string;
   iconLibrary?: "Ionicons" | "MaterialIcons" | "FontAwesome";
-  color?: string;
+  color?: string; // If user wants to override
   style?: StyleProp<ViewStyle>;
-  size?: number; // e.g. 24
+  size?: number;
+  themeType?: ThemedListIconType;
 }
 
-function ThemedListIcon({
-  iconName,
-  iconLibrary = "Ionicons",
-  color = "#333333",
+/**
+ * -----------------------------------------------------------------------------
+ * COMPONENT
+ * -----------------------------------------------------------------------------
+ */
+export default function ThemedListIcon({
+  icon,
+  iconLibrary,
+  color,
   style,
   size = 24,
+  themeType = "primary",
 }: ThemedListIconProps) {
+  // If user doesn't pass a color => fallback from theme
+  const colorKey = (`listItemTextColor${
+    themeType.charAt(0).toUpperCase() + themeType.slice(1)
+  }` as ListIconTextColorType);
+
+  const defaultColor = useThemeColor({}, colorKey);
+
   return (
-    <View style={[styles.container, style]}>
-      <ThemedIcon iconName={iconName} iconLibrary={iconLibrary} size={size} color={color} />
+    <View style={[styles.container, style]} pointerEvents="box-none">
+      <ThemedIcon
+        iconName={icon}
+        iconLibrary={iconLibrary || "Ionicons"}
+        size={size}
+        color={color || defaultColor}
+      />
     </View>
   );
 }
 
-export default React.memo(ThemedListIcon);
-
 const styles = StyleSheet.create({
   container: {
-    width: 40,
-    height: 40,
     margin: 8,
+    height: 40,
+    width: 40,
     alignItems: "center",
     justifyContent: "center",
   },

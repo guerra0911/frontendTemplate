@@ -1,65 +1,45 @@
-import React, { createContext, useState, ReactNode, isValidElement } from "react";
-import { ThemedDivider } from "../general/ThemedDivder";
-
-export type ThemedListAccordionGroupContextType = {
-  expandedId: string | number | undefined;
-  onAccordionPress: (id: string | number) => void;
-} | null;
-
-export const ThemedListAccordionGroupContext =
-  createContext<ThemedListAccordionGroupContextType>(null);
+import React, { useState, useMemo } from "react";
+import { View, StyleProp, ViewStyle, StyleSheet } from "react-native";
+import {
+  ThemedListAccordionGroupContext,
+  ThemedListAccordionGroupContextType,
+} from "./ThemedListAccordionContext";
 
 export interface ThemedListAccordionGroupProps {
   expandedId?: string | number;
   onAccordionPress?: (expandedId: string | number) => void;
-  children: ReactNode;
-
-  /**
-   * If true, automatically inserts a divider between each child Accordion
-   */
-  dividerBetweenAccordions?: boolean;
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
 }
 
-function ThemedListAccordionGroup({
+export default function ThemedListAccordionGroup({
   expandedId: expandedIdProp,
   onAccordionPress,
   children,
-  dividerBetweenAccordions = false,
+  style,
 }: ThemedListAccordionGroupProps) {
-  const [expandedId, setExpandedId] = useState<string | number | undefined>(
-    undefined
-  );
+  const [localExpandedId, setLocalExpandedId] = useState<
+    string | number | undefined
+  >(undefined);
 
-  const handlePressDefault = (id: string | number) => {
-    setExpandedId((current) => (current === id ? undefined : id));
-  };
+  function handlePress(id: string | number) {
+    setLocalExpandedId((cur) => (cur === id ? undefined : id));
+  }
 
-  const isControlled = expandedIdProp !== undefined && onAccordionPress !== undefined;
-  const contextValue = {
-    expandedId: isControlled ? expandedIdProp : expandedId,
-    onAccordionPress: isControlled ? onAccordionPress! : handlePressDefault,
-  };
-
-  // If we want to add a divider between each child
-  const childrenArray = React.Children.toArray(children);
+  const contextValue: ThemedListAccordionGroupContextType = useMemo(() => {
+    return {
+      expandedId: expandedIdProp !== undefined ? expandedIdProp : localExpandedId,
+      onAccordionPress: onAccordionPress || handlePress,
+    };
+  }, [expandedIdProp, localExpandedId, onAccordionPress]);
 
   return (
     <ThemedListAccordionGroupContext.Provider value={contextValue}>
-      {dividerBetweenAccordions
-        ? childrenArray.map((child, index) => {
-            if (!isValidElement(child)) {
-              return child;
-            }
-            return (
-              <React.Fragment key={index}>
-                {child}
-                {index < childrenArray.length - 1 && <ThemedDivider />}
-              </React.Fragment>
-            );
-          })
-        : childrenArray}
+      <View style={[styles.container, style]}>{children}</View>
     </ThemedListAccordionGroupContext.Provider>
   );
 }
 
-export default React.memo(ThemedListAccordionGroup);
+const styles = StyleSheet.create({
+  container: {},
+});

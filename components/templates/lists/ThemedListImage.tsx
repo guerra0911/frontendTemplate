@@ -1,37 +1,53 @@
 import React from "react";
-import { Image, StyleSheet, ImageSourcePropType, StyleProp, ImageStyle } from "react-native";
+import { Image, StyleSheet, StyleProp, ImageStyle } from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
+/**
+ * -----------------------------------------------------------------------------
+ * THEME COLOR TYPE
+ * -----------------------------------------------------------------------------
+ */
+export type ThemedListImageType = "primary" | "secondary" | "tertiary";
+
+/**
+ * -----------------------------------------------------------------------------
+ * PROPS
+ * -----------------------------------------------------------------------------
+ */
 export interface ThemedListImageProps {
-  source: ImageSourcePropType;
+  source: any;
   variant?: "image" | "video";
   style?: StyleProp<ImageStyle>;
+  themeType?: ThemedListImageType;
 }
 
-function ThemedListImage({
+/**
+ * -----------------------------------------------------------------------------
+ * COMPONENT
+ * -----------------------------------------------------------------------------
+ */
+export default function ThemedListImage({
   source,
   variant = "image",
   style,
+  themeType = "primary",
 }: ThemedListImageProps) {
-  // If variant=video, we can enlarge the preview.
-  const getStyle = () => {
+  // If you want to thematically color behind the image, you could do so.
+  const getStyles = () => {
     if (variant === "video") {
       return [styles.video, style];
-    } else {
-      return [styles.image, style];
     }
+    return [styles.image, style];
   };
 
   return (
     <Image
+      style={getStyles()}
       source={source}
-      style={getStyle()}
       accessibilityIgnoresInvertColors
-      resizeMode="cover"
     />
   );
 }
-
-export default React.memo(ThemedListImage);
 
 const styles = StyleSheet.create({
   image: {
@@ -41,5 +57,6 @@ const styles = StyleSheet.create({
   video: {
     width: 100,
     height: 64,
+    marginLeft: 0,
   },
 });

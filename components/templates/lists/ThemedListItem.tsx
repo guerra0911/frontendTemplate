@@ -1,151 +1,233 @@
-import React, { ReactNode } from "react";
+import React, { useState } from "react";
 import {
-  View,
-  StyleSheet,
-  StyleProp,
-  ViewStyle,
   GestureResponderEvent,
+  StyleProp,
+  StyleSheet,
+  TextStyle,
+  View,
+  ViewStyle,
+  NativeSyntheticEvent,
+  TextLayoutEventData,
 } from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedTouchableRipple from "@/components/templates/buttons/ThemedTouchableRipple";
 import { ThemedText } from "../typography/ThemedText";
 
+/**
+ * -----------------------------------------------------------------------------
+ * THEME COLOR TYPE
+ * -----------------------------------------------------------------------------
+ */
+type ListBackgroundColorType =
+  | "listItemBackgroundPrimary"
+  | "listItemBackgroundSecondary"
+  | "listItemBackgroundTertiary";
+
+type ListTextColorType =
+  | "listItemTextColorPrimary"
+  | "listItemTextColorSecondary"
+  | "listItemTextColorTertiary";
+
+type ListDescriptionColorType =
+  | "listItemDescriptionColorPrimary"
+  | "listItemDescriptionColorSecondary"
+  | "listItemDescriptionColorTertiary";
+
+export type ThemedListType = "primary" | "secondary" | "tertiary";
+
+/**
+ * -----------------------------------------------------------------------------
+ * PROPS
+ * -----------------------------------------------------------------------------
+ */
+type TitleProp =
+  | React.ReactNode
+  | ((
+      props: {
+        color: string;
+        fontSize: number;
+        ellipsizeMode?: "head" | "middle" | "tail" | "clip";
+      }
+    ) => React.ReactNode);
+
+type DescriptionProp =
+  | React.ReactNode
+  | ((
+      props: {
+        color: string;
+        fontSize: number;
+        ellipsizeMode?: "head" | "middle" | "tail" | "clip";
+      }
+    ) => React.ReactNode);
+
 export interface ThemedListItemProps {
-  /**
-   * If you want to show a simple title + optional description, you can still do so:
-   */
-  title?: string;
-  description?: string;
-
-  /**
-   * If you want to provide a fully custom component in the center,
-   * you can place it here. If `middle` is provided, we skip the title/description logic.
-   */
-  middle?: ReactNode;
-
-  /**
-   * Pass a function or node to render on the left side
-   */
-  left?: (props: { color?: string; style?: any }) => ReactNode;
-
-  /**
-   * Pass a function or node to render on the right side
-   */
-  right?: (props: { color?: string; style?: any }) => ReactNode;
-
-  /**
-   * Called on press
-   */
+  title: TitleProp;
+  description?: DescriptionProp;
+  left?: (props: { color: string }) => React.ReactNode;
+  right?: (props: { color: string }) => React.ReactNode;
   onPress?: (e: GestureResponderEvent) => void;
-
-  /**
-   * Additional container styling
-   */
   style?: StyleProp<ViewStyle>;
+  contentStyle?: StyleProp<ViewStyle>;
 
-  /**
-   * Controls the overall item height (number or string, e.g. 60, "auto", "80%").
-   */
-  itemSize?: number | string;
+  // Title
+  titleStyle?: StyleProp<TextStyle>;
+  titleNumberOfLines?: number;
+  titleEllipsizeMode?: "head" | "middle" | "tail" | "clip";
+  titleMaxFontSizeMultiplier?: number;
 
-  /**
-   * Padding between the left section (icon, image, or custom) and the middle.
-   * @default 8
-   */
-  leftPadding?: number;
+  // Description
+  descriptionStyle?: StyleProp<TextStyle>;
+  descriptionNumberOfLines?: number;
+  descriptionEllipsizeMode?: "head" | "middle" | "tail" | "clip";
+  descriptionMaxFontSizeMultiplier?: number;
 
-  /**
-   * Padding between the right section and the middle.
-   * @default 8
-   */
-  rightPadding?: number;
-
-  /**
-   * Global internal padding around the entire item content.
-   * @default 8
-   */
-  innerPadding?: number;
-
-  /**
-   * If true, we show a fully transparent ripple => no visible effect.
-   * @default false
-   */
-  disableRipple?: boolean;
+  // Theming
+  themeType?: ThemedListType;
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * COMPONENT
+ * -----------------------------------------------------------------------------
+ */
 function ThemedListItem({
-  // Text-based usage
+  themeType = "primary",
   title,
   description,
-  // Custom usage
-  middle,
-
   left,
   right,
   onPress,
   style,
-  itemSize,
-  leftPadding = 8,
-  rightPadding = 8,
-  innerPadding = 8,
-  disableRipple = false,
+  contentStyle,
+  titleStyle,
+  titleNumberOfLines = 1,
+  titleEllipsizeMode,
+  titleMaxFontSizeMultiplier,
+  descriptionStyle,
+  descriptionNumberOfLines = 2,
+  descriptionEllipsizeMode,
+  descriptionMaxFontSizeMultiplier,
 }: ThemedListItemProps) {
-  // Container can handle numeric or string-based heights
-  const containerStyle: ViewStyle = {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: innerPadding,
-    // itemSize => set minHeight or height
-    ...(itemSize ? { height: itemSize as ViewStyle["height"] } : {}),
+  // Build color keys
+  const backgroundKey = `listItemBackground${
+    themeType.charAt(0).toUpperCase() + themeType.slice(1)
+  }` as ListBackgroundColorType;
+
+  const textKey = `listItemTextColor${
+    themeType.charAt(0).toUpperCase() + themeType.slice(1)
+  }` as ListTextColorType;
+
+  const descKey = `listItemDescriptionColor${
+    themeType.charAt(0).toUpperCase() + themeType.slice(1)
+  }` as ListDescriptionColorType;
+
+  const itemBackground = useThemeColor({}, backgroundKey);
+  const itemTextColor = useThemeColor({}, textKey);
+  const itemDescriptionColor = useThemeColor({}, descKey);
+
+  const [alignToTop, setAlignToTop] = useState(false);
+
+  const onDescriptionTextLayout = (
+    e: NativeSyntheticEvent<TextLayoutEventData>
+  ) => {
+    setAlignToTop(e.nativeEvent.lines.length >= 2);
   };
 
-  // Middle content: if user provided `middle`, we render that.
-  // Otherwise, we fallback to title/description text approach.
-  let middleContent: ReactNode = middle;
-  if (!middle) {
-    // fallback to the normal title/description
-    middleContent = (
-      <View style={styles.textContainer}>
-        {title ? (
-          <ThemedText type="defaultSemiBold" style={styles.title}>
-            {title}
-          </ThemedText>
-        ) : null}
-        {description ? (
-          <ThemedText type="default" style={styles.description}>
-            {description}
-          </ThemedText>
-        ) : null}
-      </View>
+  // Title logic
+  const renderTitle = () => {
+    const fontSize = 16;
+    if (typeof title === "function") {
+      return title({
+        color: itemTextColor,
+        fontSize,
+        ellipsizeMode: titleEllipsizeMode,
+      });
+    }
+    return (
+      <ThemedText
+        style={[{ color: itemTextColor, fontSize }, styles.title, titleStyle]}
+        numberOfLines={titleNumberOfLines}
+        ellipsizeMode={titleEllipsizeMode}
+        maxFontSizeMultiplier={titleMaxFontSizeMultiplier}
+      >
+        {title}
+      </ThemedText>
     );
-  }
+  };
 
-  const content = (
-    <View style={[containerStyle, style]}>
-      {/* LEFT SECTION */}
-      {left && (
-        <View style={{ marginRight: leftPadding }}>
-          {left({})}
-        </View>
-      )}
+  // Description logic
+  const renderDescription = () => {
+    const fontSize = 14;
+    if (!description) return null;
 
-      {/* MIDDLE SECTION */}
-      {middleContent}
+    if (typeof description === "function") {
+      return description({
+        color: itemDescriptionColor,
+        fontSize,
+        ellipsizeMode: descriptionEllipsizeMode,
+      });
+    }
+    return (
+      <ThemedText
+        style={[
+          { color: itemDescriptionColor, fontSize },
+          styles.description,
+          descriptionStyle,
+        ]}
+        numberOfLines={descriptionNumberOfLines}
+        ellipsizeMode={descriptionEllipsizeMode}
+        onTextLayout={onDescriptionTextLayout}
+        maxFontSizeMultiplier={descriptionMaxFontSizeMultiplier}
+      >
+        {description}
+      </ThemedText>
+    );
+  };
 
-      {/* RIGHT SECTION */}
-      {right && (
-        <View style={{ marginLeft: rightPadding }}>
-          {right({})}
-        </View>
-      )}
-    </View>
-  );
+  // Left element
+  const leftElement = left
+    ? left({
+        color: itemDescriptionColor,
+      })
+    : null;
 
-  // If user wants no visible ripple effect => rippleColor="transparent"
-  const rippleColor = disableRipple ? "transparent" : undefined;
+  // Right element
+  const rightElement = right
+    ? right({
+        color: itemDescriptionColor,
+      })
+    : null;
 
   return (
-    <ThemedTouchableRipple onPress={onPress} rippleColor={rippleColor}>
-      {content}
+    <ThemedTouchableRipple
+      onPress={onPress}
+      style={[
+        {
+          backgroundColor: itemBackground,
+          padding: 8,
+        },
+        styles.container,
+        style,
+      ]}
+    >
+      <View style={styles.row}>
+        {leftElement && (
+          <View style={[styles.leftContainer, alignToTop && styles.leftAlign]}>
+            {leftElement}
+          </View>
+        )}
+        <View style={[styles.content, contentStyle]}>
+          {renderTitle()}
+          {renderDescription()}
+        </View>
+        {rightElement && (
+          <View
+            style={[styles.rightContainer, alignToTop && styles.rightAlign]}
+          >
+            {rightElement}
+          </View>
+        )}
+      </View>
     </ThemedTouchableRipple>
   );
 }
@@ -153,15 +235,41 @@ function ThemedListItem({
 export default React.memo(ThemedListItem);
 
 const styles = StyleSheet.create({
-  textContainer: {
+  container: {},
+  row: {
+    flexDirection: "row",
+    width: "100%",
+    alignItems: "center",
+  },
+  leftContainer: {
+    marginVertical: 6,
+    paddingLeft: 8,
+    alignItems: "center",
     justifyContent: "center",
+  },
+  leftAlign: {
+    alignSelf: "flex-start",
+  },
+  content: {
     flex: 1,
+    marginVertical: 6,
+    paddingHorizontal: 8,
+    justifyContent: "center",
+  },
+  rightContainer: {
+    marginVertical: 6,
+    marginLeft: "auto",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  rightAlign: {
+    alignSelf: "flex-start",
   },
   title: {
     fontSize: 16,
   },
   description: {
     fontSize: 14,
-    opacity: 0.7,
+    marginTop: 2,
   },
 });

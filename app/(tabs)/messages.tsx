@@ -34,7 +34,10 @@ import ThemedAnimatedTextExamples from "@/components/examples/typography/ThemedA
 import ThemedExternalLinkExamples from "@/components/examples/typography/ThemedExternalLinkExamples";
 import ThemedAvatarExamples from "@/components/examples/avatars/ThemedAvatarExamples";
 import ThemedDividerExamples from "@/components/examples/general/ThemedDividerExamples";
-import ThemedListExamples from "@/components/examples/lists/ThemedListExamples";
+import ThemedListItemExamples from "@/components/examples/lists/ThemedListItemExamples";
+import ThemedListSectionExamples from "@/components/examples/lists/ThemedListSectionExamples";
+import ThemedListAccordionExamples from "@/components/examples/lists/ThemedListAccordionExamples";
+import ThemedListAccordionGroupExamples from "@/components/examples/lists/ThemedListAccordionGroupExamples";
 
 export default function MessagesScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -87,8 +90,17 @@ export default function MessagesScreen() {
       {/* Themed Divider Examples */}
       <ThemedDividerExamples />
 
-      {/* Themed List Examples */}
-      <ThemedListExamples />
+      {/* Themed List Item Examples */}
+      <ThemedListItemExamples />
+
+      {/* Themed List Section Examples */}
+      <ThemedListSectionExamples />
+
+      {/* Themed List Accordion Examples */}
+      <ThemedListAccordionExamples />
+
+      {/* Themed List Accordion Group Examples */}
+      <ThemedListAccordionGroupExamples />
 
       {/* Themed Toggle Button Examples */}
       <ThemedToggleButtonExamples />

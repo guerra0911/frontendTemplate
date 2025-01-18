@@ -1,26 +1,65 @@
 import React from "react";
 import { StyleSheet, StyleProp, TextStyle } from "react-native";
-import { ThemedText } from "@/components/templates/typography/ThemedText";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedText } from "../typography/ThemedText";
 
+/**
+ * -----------------------------------------------------------------------------
+ * THEME COLOR TYPE
+ * -----------------------------------------------------------------------------
+ */
+type ListSubheaderColorType =
+  | "listSubheaderTextColorPrimary"
+  | "listSubheaderTextColorSecondary"
+  | "listSubheaderTextColorTertiary";
+
+export type ThemedListSubheaderType = "primary" | "secondary" | "tertiary";
+
+/**
+ * -----------------------------------------------------------------------------
+ * PROPS
+ * -----------------------------------------------------------------------------
+ */
 export interface ThemedListSubheaderProps {
-  style?: StyleProp<TextStyle>;
   children?: React.ReactNode;
+  style?: StyleProp<TextStyle>;
+  themeType?: ThemedListSubheaderType;
 }
 
-function ThemedListSubheader({ style, children }: ThemedListSubheaderProps) {
+/**
+ * -----------------------------------------------------------------------------
+ * COMPONENT
+ * -----------------------------------------------------------------------------
+ */
+export default function ThemedListSubheader({
+  children,
+  style,
+  themeType = "primary",
+}: ThemedListSubheaderProps) {
+  const colorKey = `listSubheaderTextColor${
+    themeType.charAt(0).toUpperCase() + themeType.slice(1)
+  }` as ListSubheaderColorType;
+
+  const resolvedTextColor = useThemeColor({}, colorKey);
+
   return (
-    <ThemedText type="defaultSemiBold" style={[styles.subheader, style]}>
+    <ThemedText
+      style={[
+        styles.container,
+        { color: resolvedTextColor, fontWeight: "500" },
+        style,
+      ]}
+      numberOfLines={1}
+    >
       {children}
     </ThemedText>
   );
 }
 
-export default React.memo(ThemedListSubheader);
-
 const styles = StyleSheet.create({
-  subheader: {
+  container: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    opacity: 0.7,
+    paddingVertical: 13,
+    fontSize: 14,
   },
 });

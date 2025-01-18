@@ -1,58 +1,76 @@
-import React, { isValidElement } from "react";
-import { View, StyleSheet, StyleProp, ViewStyle, TextStyle } from "react-native";
+import React from "react";
+import {
+  View,
+  ViewProps,
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+} from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedListSubheader from "./ThemedListSubheader";
-import { ThemedDivider } from "../general/ThemedDivder";
 
-export interface ThemedListSectionProps {
+/**
+ * -----------------------------------------------------------------------------
+ * THEME COLOR TYPE
+ * -----------------------------------------------------------------------------
+ */
+type ListSectionBackgroundType =
+  | "listSectionBackgroundPrimary"
+  | "listSectionBackgroundSecondary"
+  | "listSectionBackgroundTertiary";
+
+export type ThemedListSectionType = "primary" | "secondary" | "tertiary";
+
+/**
+ * -----------------------------------------------------------------------------
+ * PROPS
+ * -----------------------------------------------------------------------------
+ */
+export interface ThemedListSectionProps extends ViewProps {
   title?: string;
-  titleStyle?: StyleProp<TextStyle>;
+  children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
-  children?: React.ReactNode;
-
-  /**
-   * If true, inserts a divider after each child item.
-   */
-  dividerBetweenItems?: boolean;
-
-  /**
-   * Controls the height/width of the entire section if desired.
-   */
-  sectionSize?: number | string;
+  titleStyle?: StyleProp<TextStyle>;
+  themeType?: ThemedListSectionType;
 }
 
-function ThemedListSection({
+/**
+ * -----------------------------------------------------------------------------
+ * COMPONENT
+ * -----------------------------------------------------------------------------
+ */
+export default function ThemedListSection({
   title,
-  titleStyle,
-  style,
   children,
-  dividerBetweenItems = false,
-  sectionSize,
+  style,
+  titleStyle,
+  themeType = "primary",
+  ...rest
 }: ThemedListSectionProps) {
-  const containerStyle: ViewStyle = {
-    marginVertical: 8,
-    ...(sectionSize ? { height: sectionSize as ViewStyle['height'] } : {}),
-  };
+  const backgroundKey = `listSectionBackground${
+    themeType.charAt(0).toUpperCase() + themeType.slice(1)
+  }` as ListSectionBackgroundType;
 
-  const childArray = React.Children.toArray(children);
+  const resolvedBackgroundColor = useThemeColor({}, backgroundKey);
 
   return (
-    <View style={[containerStyle, style]}>
+    <View
+      {...rest}
+      style={[{ backgroundColor: resolvedBackgroundColor }, styles.container, style]}
+    >
       {title ? (
-        <ThemedListSubheader style={titleStyle}>{title}</ThemedListSubheader>
+        <ThemedListSubheader style={titleStyle} themeType={themeType}>
+          {title}
+        </ThemedListSubheader>
       ) : null}
-      {dividerBetweenItems
-        ? childArray.map((child, index) => {
-            if (!isValidElement(child)) return child;
-            return (
-              <React.Fragment key={index}>
-                {child}
-                {index < childArray.length - 1 && <ThemedDivider />}
-              </React.Fragment>
-            );
-          })
-        : childArray}
+      {children}
     </View>
   );
 }
 
-export default React.memo(ThemedListSection);
+const styles = StyleSheet.create({
+  container: {
+    marginVertical: 8,
+  },
+});

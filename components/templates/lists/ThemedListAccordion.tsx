@@ -1,144 +1,154 @@
-import React, { useContext, useState, CSSProperties, isValidElement } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import { View, StyleSheet, GestureResponderEvent, StyleProp, ViewStyle } from "react-native";
-import { ThemedListAccordionGroupContext } from "./ThemedListAccordionGroup";
 import ThemedTouchableRipple from "@/components/templates/buttons/ThemedTouchableRipple";
 import { ThemedText } from "../typography/ThemedText";
 import ThemedIcon from "@/components/templates/icons/ThemedIcon";
-import { ThemedDivider } from "../general/ThemedDivder";
+import { ThemedListAccordionGroupContext } from "./ThemedListAccordionContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
+/**
+ * -----------------------------------------------------------------------------
+ * THEME COLOR TYPE
+ * -----------------------------------------------------------------------------
+ */
+type ListAccordionTextColorType =
+  | "listItemTextColorPrimary"
+  | "listItemTextColorSecondary"
+  | "listItemTextColorTertiary";
+
+type ListAccordionDescriptionColorType =
+  | "listItemDescriptionColorPrimary"
+  | "listItemDescriptionColorSecondary"
+  | "listItemDescriptionColorTertiary";
+
+export type ThemedListAccordionType = "primary" | "secondary" | "tertiary";
+
+/**
+ * -----------------------------------------------------------------------------
+ * PROPS
+ * -----------------------------------------------------------------------------
+ */
 export interface ThemedListAccordionProps {
-  id?: string | number;
   title: string;
   description?: string;
-  left?: (props: { expanded: boolean }) => React.ReactNode;
-  right?: (props: { expanded: boolean }) => React.ReactNode;
+  id?: string | number;
   expanded?: boolean;
   onPress?: (e: GestureResponderEvent) => void;
-  style?: StyleProp<ViewStyle>;
-
-  /**
-   * Custom style for the container wrapping the entire Accordion (for sizing, etc.)
-   */
-  containerStyle?: StyleProp<ViewStyle>;
-
-  /**
-   * If true, automatically inserts a divider between each child item.
-   */
-  dividerBetweenChildren?: boolean;
-
-  /**
-   * If true, the ripple effect is disabled, replaced with a normal View.
-   * @default false
-   */
-  disableRipple?: boolean;
-
+  left?: (props: { color: string }) => React.ReactNode;
+  right?: (props: { isExpanded: boolean }) => React.ReactNode;
   children?: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+  themeType?: ThemedListAccordionType;
 }
 
-function ThemedListAccordion({
-  id,
+/**
+ * -----------------------------------------------------------------------------
+ * COMPONENT
+ * -----------------------------------------------------------------------------
+ */
+export default function ThemedListAccordion({
   title,
   description,
+  id,
+  expanded: expandedProp,
+  onPress,
   left,
   right,
-  expanded,
-  onPress,
-  style,
-  containerStyle,
-  dividerBetweenChildren = false,
-  disableRipple = false,
   children,
+  style,
+  themeType = "primary",
 }: ThemedListAccordionProps) {
+  // If inside group, we read from context
   const groupContext = useContext(ThemedListAccordionGroupContext);
-  const isGroup = groupContext !== null;
+  const [localExpanded, setLocalExpanded] = useState(false);
 
-  const [localExpanded, setLocalExpanded] = useState<boolean>(expanded ?? false);
-
-  const actualExpanded = isGroup
-    ? groupContext?.expandedId === id
-    : expanded !== undefined
-    ? expanded
+  const isExpanded = groupContext
+    ? groupContext.expandedId === id
+    : expandedProp !== undefined
+    ? expandedProp
     : localExpanded;
 
-  const handlePress = (e: GestureResponderEvent) => {
-    onPress?.(e);
-    if (isGroup && id !== undefined) {
-      groupContext?.onAccordionPress(id);
-    } else {
-      if (expanded === undefined) {
-        setLocalExpanded(!localExpanded);
+  // Build color keys
+  const titleColorKey = `listItemTextColor${
+    themeType.charAt(0).toUpperCase() + themeType.slice(1)
+  }` as ListAccordionTextColorType;
+
+  const descColorKey = `listItemDescriptionColor${
+    themeType.charAt(0).toUpperCase() + themeType.slice(1)
+  }` as ListAccordionDescriptionColorType;
+
+  const resolvedTitleColor = useThemeColor({}, titleColorKey);
+  const resolvedDescColor = useThemeColor({}, descColorKey);
+
+  const handlePress = useCallback(
+    (e: GestureResponderEvent) => {
+      onPress?.(e);
+      if (groupContext && id !== undefined) {
+        groupContext.onAccordionPress(id);
+      } else if (expandedProp === undefined) {
+        // uncontrolled
+        setLocalExpanded((prev) => !prev);
       }
-    }
-  };
-
-  const headerContent = (
-    <View style={[styles.header, style]}>
-      {left ? left({ expanded: !!actualExpanded }) : null}
-
-      <View style={styles.textContainer}>
-        <ThemedText type="defaultSemiBold" style={styles.title}>
-          {title}
-        </ThemedText>
-        {description ? (
-          <ThemedText type="default" style={styles.description}>
-            {description}
-          </ThemedText>
-        ) : null}
-      </View>
-
-      {right ? (
-        right({ expanded: !!actualExpanded })
-      ) : (
-        <ThemedIcon
-          iconName={actualExpanded ? "chevron-up" : "chevron-down"}
-          size={24}
-          style={styles.rightIcon}
-        />
-      )}
-    </View>
+    },
+    [onPress, groupContext, id, expandedProp]
   );
 
-  return (
-    <View style={containerStyle}>
-      {disableRipple ? (
-        <View style={{ flexDirection: "row" }} onTouchEnd={handlePress}>
-          {headerContent}
-        </View>
-      ) : (
-        <ThemedTouchableRipple onPress={handlePress} style={{}}>
-          {headerContent}
-        </ThemedTouchableRipple>
-      )}
+  const leftElement = left
+    ? left({ color: isExpanded ? "#0A84FF" : "#666" })
+    : null;
 
-      {actualExpanded && children ? (
-        <View style={styles.children}>
-          {dividerBetweenChildren
-            ? React.Children.toArray(children).map((child, index, arr) => {
-                if (!isValidElement(child)) return child;
-                return (
-                  <React.Fragment key={index}>
-                    {child}
-                    {index < arr.length - 1 && <ThemedDivider />}
-                  </React.Fragment>
-                );
-              })
-            : children}
+  return (
+    <View style={style}>
+      <ThemedTouchableRipple onPress={handlePress} style={styles.rippleContainer}>
+        <View style={styles.row}>
+          {leftElement && <View style={styles.leftContainer}>{leftElement}</View>}
+          <View style={styles.content}>
+            <ThemedText style={[styles.title, { color: resolvedTitleColor }]}>
+              {title}
+            </ThemedText>
+            {description ? (
+              <ThemedText style={[styles.description, { color: resolvedDescColor }]}>
+                {description}
+              </ThemedText>
+            ) : null}
+          </View>
+          <View style={styles.rightContainer}>
+            {right ? (
+              right({ isExpanded })
+            ) : (
+              <ThemedIcon
+                iconName={isExpanded ? "chevron-up" : "chevron-down"}
+                size={24}
+                color="#888"
+              />
+            )}
+          </View>
         </View>
-      ) : null}
+      </ThemedTouchableRipple>
+      {isExpanded && children}
     </View>
   );
 }
 
-export default React.memo(ThemedListAccordion);
-
 const styles = StyleSheet.create({
-  header: {
+  rippleContainer: {
+    padding: 8,
+  },
+  row: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 12,
   },
-  textContainer: {
+  leftContainer: {
+    marginRight: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  content: {
     flex: 1,
+  },
+  rightContainer: {
+    marginLeft: "auto",
+    alignItems: "center",
     justifyContent: "center",
   },
   title: {
@@ -146,13 +156,6 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    opacity: 0.7,
-  },
-  rightIcon: {
-    marginLeft: 8,
-  },
-  children: {
-    paddingLeft: 40,
-    paddingVertical: 6,
+    marginTop: 2,
   },
 });
