@@ -111,6 +111,8 @@ export interface ThemedListItemProps {
    * This sets `textAlign` on the Title/Description.
    */
   contentAlignment?: "left" | "center" | "right";
+
+  disableRippleEffect?: boolean;
 }
 
 /**
@@ -140,6 +142,7 @@ function ThemedListItem({
   leftToContentSpacing = 8,
   contentToRightSpacing = 8,
   contentAlignment = "left",
+  disableRippleEffect = false,
 }: ThemedListItemProps) {
   // Build color keys
   const backgroundKey = `listItemBackground${
@@ -246,6 +249,7 @@ function ThemedListItem({
   return (
     <ThemedTouchableRipple
       onPress={onPress}
+      disableRippleEffect={disableRippleEffect}
       style={[
         {
           backgroundColor: itemBackground,

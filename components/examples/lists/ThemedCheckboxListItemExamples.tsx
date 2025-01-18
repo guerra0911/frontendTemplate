@@ -15,6 +15,7 @@ export default function ThemedCheckboxListItemExamples() {
   const [checkboxVal3, setCheckboxVal3] = useState(false);
   const [checkboxVal4, setCheckboxVal4] = useState(false);
   const [checkboxVal5, setCheckboxVal5] = useState(false);
+  const [checkboxVal6, setCheckboxVal6] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -71,6 +72,14 @@ export default function ThemedCheckboxListItemExamples() {
           customSize: 30,
           customRadius: "factor",
         }}
+      />
+
+      <ThemedText type="subtitle">No ripple on item tap</ThemedText>
+      <ThemedCheckboxListItem
+        title="Disable ripple effect"
+        value={checkboxVal6}
+        onValueChange={setCheckboxVal6}
+        disableRippleEffect
       />
     </View>
   );

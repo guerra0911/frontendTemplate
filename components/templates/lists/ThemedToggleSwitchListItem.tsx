@@ -25,6 +25,8 @@ export interface ThemedToggleSwitchListItemProps
 
   /** Style for the ThemedToggleSwitch itself. */
   switchStyle?: StyleProp<ViewStyle>;
+
+  disableRippleEffect?: boolean;
 }
 
 export default function ThemedToggleSwitchListItem({
@@ -32,6 +34,7 @@ export default function ThemedToggleSwitchListItem({
   onValueChange,
   toggleOnPressItem = false,
   switchPosition = "right",
+  disableRippleEffect = false,
 
   switchProps,
   switchStyle,
@@ -59,6 +62,7 @@ export default function ThemedToggleSwitchListItem({
   return (
     <ThemedListItem
       onPress={toggleOnPressItem ? handleItemPress : undefined}
+      disableRippleEffect={disableRippleEffect}
       left={switchPosition === "left" ? () => switchElement : undefined}
       right={switchPosition === "right" ? () => switchElement : undefined}
       {...listItemProps}

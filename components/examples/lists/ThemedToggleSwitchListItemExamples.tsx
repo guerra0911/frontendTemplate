@@ -12,6 +12,7 @@ export default function ThemedToggleSwitchListItemExamples() {
   const [switchVal2, setSwitchVal2] = useState(true);
   const [switchVal3, setSwitchVal3] = useState(false);
   const [switchVal4, setSwitchVal4] = useState(false);
+  const [switchVal5, setSwitchVal5] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -58,6 +59,14 @@ export default function ThemedToggleSwitchListItemExamples() {
           themeType: "secondary",
         }}
         description="centered text"
+      />
+
+      <ThemedText type="subtitle">Disable ripple effect</ThemedText>
+      <ThemedToggleSwitchListItem
+        title="No ripple toggle item"
+        value={switchVal5}
+        onValueChange={setSwitchVal5}
+        disableRippleEffect
       />
     </View>
   );

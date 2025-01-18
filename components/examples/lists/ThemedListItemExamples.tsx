@@ -147,7 +147,9 @@ export default function ThemedListItemExamples() {
         description="Content -> Right spacing 10"
         leftToContentSpacing={30}
         contentToRightSpacing={10}
-        left={(props) => <ThemedListIcon icon="people-circle-sharp" color={props.color} />}
+        left={(props) => (
+          <ThemedListIcon icon="people-circle-sharp" color={props.color} />
+        )}
         right={() => <CenteredCheckbox />}
       />
 
@@ -171,6 +173,19 @@ export default function ThemedListItemExamples() {
         width={350}
         height={60}
         contentAlignment="center"
+      />
+
+      <ThemedText type="subtitle">Disable Ripple Examples</ThemedText>
+      <ThemedListItem
+        title="No ripple effect"
+        description="disableRippleEffect={true}"
+        disableRippleEffect
+      />
+      <ThemedListItem
+        title="Pressable with no ripple"
+        description="Still calls onPress but no visual effect"
+        disableRippleEffect
+        onPress={() => console.log("Pressed item w/o ripple")}
       />
     </View>
   );

@@ -60,6 +60,8 @@ export interface ThemedListAccordionProps {
    * Align the title/description text: 'left'|'center'|'right'.
    */
   contentAlignment?: "left" | "center" | "right";
+
+  disableRippleEffect?: boolean;
 }
 
 /**
@@ -83,6 +85,7 @@ export default function ThemedListAccordion({
   leftToContentSpacing = 8,
   contentToRightSpacing = 8,
   contentAlignment = "left",
+  disableRippleEffect = false,
 }: ThemedListAccordionProps) {
   const groupContext = useContext(ThemedListAccordionGroupContext);
   const [localExpanded, setLocalExpanded] = useState(false);
@@ -125,7 +128,7 @@ export default function ThemedListAccordion({
     <View style={style}>
       {/* Header row container with optional width & height */}
       <View style={[{ width, height }, styles.headerContainer]}>
-        <ThemedTouchableRipple onPress={handlePress} style={styles.rippleContainer}>
+        <ThemedTouchableRipple onPress={handlePress} disableRippleEffect={disableRippleEffect} style={styles.rippleContainer}>
           <View style={styles.row}>
             {/* Left container */}
             {leftElement && <View style={styles.leftContainer}>{leftElement}</View>}

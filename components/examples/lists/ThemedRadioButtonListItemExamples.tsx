@@ -12,6 +12,7 @@ export default function ThemedRadioButtonListItemExamples() {
   const [radio2, setRadio2] = useState(true);
   const [radio3, setRadio3] = useState(false);
   const [radio4, setRadio4] = useState(false);
+  const [radio5, setRadio5] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -57,6 +58,14 @@ export default function ThemedRadioButtonListItemExamples() {
           iconLibrary: "FontAwesome",
         }}
         description="Large radio w/heart icon"
+      />
+
+      <ThemedText type="subtitle">No ripple effect on item press</ThemedText>
+      <ThemedRadioButtonListItem
+        title="No ripple radio item"
+        value={radio5}
+        onValueChange={setRadio5}
+        disableRippleEffect
       />
     </View>
   );

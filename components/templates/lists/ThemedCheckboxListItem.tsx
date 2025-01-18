@@ -35,6 +35,8 @@ export interface ThemedCheckboxListItemProps
 
   /** Style specifically for the ThemedCheckBox itself. */
   checkBoxStyle?: StyleProp<ViewStyle>;
+
+  disableRippleEffect?: boolean;
 }
 
 /**
@@ -47,6 +49,7 @@ export default function ThemedCheckboxListItem({
   onValueChange,
   toggleOnPressItem = false,
   checkboxPosition = "left",
+  disableRippleEffect = false,
 
   checkBoxProps,
   checkBoxStyle,
@@ -79,6 +82,7 @@ export default function ThemedCheckboxListItem({
     <ThemedListItem
       // If toggleOnPressItem is true, item is pressable => toggles on press
       onPress={toggleOnPressItem ? handleItemPress : undefined}
+      disableRippleEffect={disableRippleEffect}
       // Put the checkbox in left or right
       left={checkboxPosition === "left" ? () => checkBoxElement : undefined}
       right={checkboxPosition === "right" ? () => checkBoxElement : undefined}

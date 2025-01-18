@@ -106,6 +106,9 @@ export interface ThemedTouchableRippleProps
 
   /** If true, positions this ripple absolutely to cover the entire screen. */
   fullScreen?: boolean;
+
+  /** If true, the pressed/hover/ripple color logic is skipped => effectively invisible ripple. */
+  disableRippleEffect?: boolean;
 }
 
 // ################################################################################
@@ -145,6 +148,7 @@ const ThemedTouchableRipple: React.FC<ThemedTouchableRippleProps> = ({
   onPressOut,
   delayLongPress,
   fullScreen = false,
+  disableRippleEffect = false,
   ...rest
 }) => {
   // ----------------------------------------------------------------------------
@@ -198,16 +202,21 @@ const ThemedTouchableRipple: React.FC<ThemedTouchableRippleProps> = ({
   const combinedStyle = useCallback(
     (pressableState: PressableState) => {
       const { hovered, pressed } = pressableState;
-      let backgroundColor: string | undefined;
 
-      if (hovered && !pressed) {
-        backgroundColor = defaultHoverColor;
-      } else if (pressed) {
-        if (isAndroid) {
-          backgroundColor = defaultRippleColor;
-        } else {
-          backgroundColor = defaultUnderlayColor;
+      let backgroundColor: string | undefined;
+      if (!disableRippleEffect) {
+        if (hovered && !pressed) {
+          backgroundColor = defaultHoverColor;
+        } else if (pressed) {
+          if (isAndroid) {
+            backgroundColor = defaultRippleColor;
+          } else {
+            backgroundColor = defaultUnderlayColor;
+          }
         }
+      } else {
+        // If ripple effect is disabled => no background color changes
+        backgroundColor = undefined;
       }
 
       // Merge user-supplied style
@@ -220,7 +229,6 @@ const ThemedTouchableRipple: React.FC<ThemedTouchableRippleProps> = ({
         fullScreen && styles.fullScreenContainer,
         userStyle,
         { backgroundColor },
-        // If disabled, we might dim entire container's opacity or color
         disabled && { opacity: 0.6 },
       ];
     },
@@ -232,6 +240,7 @@ const ThemedTouchableRipple: React.FC<ThemedTouchableRippleProps> = ({
       defaultRippleColor,
       defaultUnderlayColor,
       isAndroid,
+      disableRippleEffect,
       disabled,
     ]
   );

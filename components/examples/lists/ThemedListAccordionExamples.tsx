@@ -116,6 +116,17 @@ export default function ThemedListAccordionExamples() {
       >
         <ThemedListItem title="Inside item 1" />
       </ThemedListAccordion>
+
+      <ThemedText style={{ marginTop: 20 }} type="subtitle">
+        Disable Ripple in Accordion
+      </ThemedText>
+      <ThemedListAccordion
+        title="No ripple effect"
+        description="disableRippleEffect"
+        disableRippleEffect
+      >
+        <ThemedListItem title="Child" />
+      </ThemedListAccordion>
     </View>
   );
 }

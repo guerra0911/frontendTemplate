@@ -27,6 +27,8 @@ export interface ThemedRadioButtonListItemProps
 
   /** Style specifically for the ThemedRadioButton itself. */
   radioStyle?: StyleProp<ViewStyle>;
+
+  disableRippleEffect?: boolean;
 }
 
 export default function ThemedRadioButtonListItem({
@@ -34,6 +36,7 @@ export default function ThemedRadioButtonListItem({
   onValueChange,
   toggleOnPressItem = false,
   radioPosition = "left",
+  disableRippleEffect = false,
 
   radioProps,
   radioStyle,
@@ -61,6 +64,7 @@ export default function ThemedRadioButtonListItem({
   return (
     <ThemedListItem
       onPress={toggleOnPressItem ? handleItemPress : undefined}
+      disableRippleEffect={disableRippleEffect}
       left={radioPosition === "left" ? () => radioElement : undefined}
       right={radioPosition === "right" ? () => radioElement : undefined}
       {...listItemProps}
