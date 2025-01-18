@@ -92,6 +92,30 @@ export default function ThemedListAccordionExamples() {
         <ThemedListItem title="Inside item 1" />
         <ThemedListItem title="Inside item 2" />
       </ThemedListAccordion>
+
+      {/* NEW EXAMPLES: Custom spacing & alignment in accordions */}
+      <ThemedText style={{ marginTop: 20 }} type="subtitle">
+        Custom spacing & alignment in header
+      </ThemedText>
+      <ThemedListAccordion
+        title="Accordion with big left spacing"
+        description="left->content=40, content->right=5, text center"
+        leftToContentSpacing={40}
+        contentToRightSpacing={5}
+        contentAlignment="center"
+        left={(props) => <ThemedListIcon icon="folder" color={props.color} />}
+      >
+        <ThemedListItem title="Inside item 1" />
+        <ThemedListItem title="Inside item 2" />
+      </ThemedListAccordion>
+
+      <ThemedListAccordion
+        title="Right aligned text, no left"
+        description="title & desc align right"
+        contentAlignment="right"
+      >
+        <ThemedListItem title="Inside item 1" />
+      </ThemedListAccordion>
     </View>
   );
 }

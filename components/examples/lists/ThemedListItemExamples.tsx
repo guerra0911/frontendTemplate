@@ -138,6 +138,40 @@ export default function ThemedListItemExamples() {
         width={200}
         right={() => <CenteredCheckbox />}
       />
+
+      {/* NEW EXAMPLES: Custom spacing & alignment */}
+      <ThemedText type="subtitle">Custom Spacing & Alignment</ThemedText>
+
+      <ThemedListItem
+        title="Left -> Content spacing 30"
+        description="Content -> Right spacing 10"
+        leftToContentSpacing={30}
+        contentToRightSpacing={10}
+        left={(props) => <ThemedListIcon icon="people-circle-sharp" color={props.color} />}
+        right={() => <CenteredCheckbox />}
+      />
+
+      <ThemedListItem
+        title="All text center aligned"
+        description="No left, no right, text centered"
+        contentAlignment="center"
+      />
+
+      <ThemedListItem
+        title="All text right aligned"
+        description="Left component only, with big spacing to content"
+        leftToContentSpacing={40}
+        contentAlignment="right"
+        left={(props) => <ThemedListIcon icon="star" color={props.color} />}
+      />
+
+      <ThemedListItem
+        title="No left/right, custom size + centered text"
+        description="width=250, height=60"
+        width={350}
+        height={60}
+        contentAlignment="center"
+      />
     </View>
   );
 }

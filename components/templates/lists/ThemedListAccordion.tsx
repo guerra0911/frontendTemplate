@@ -1,11 +1,5 @@
 import React, { useState, useContext, useCallback } from "react";
-import {
-  View,
-  StyleSheet,
-  GestureResponderEvent,
-  StyleProp,
-  ViewStyle,
-} from "react-native";
+import { View, StyleSheet, GestureResponderEvent, StyleProp, ViewStyle } from "react-native";
 import ThemedTouchableRipple from "@/components/templates/buttons/ThemedTouchableRipple";
 import { ThemedText } from "../typography/ThemedText";
 import ThemedIcon from "@/components/templates/icons/ThemedIcon";
@@ -35,42 +29,37 @@ export type ThemedListAccordionType = "primary" | "secondary" | "tertiary";
  * -----------------------------------------------------------------------------
  */
 export interface ThemedListAccordionProps {
-  /** Title text displayed on the header row. */
   title: string;
-
-  /** Optional description text under the title in the header row. */
   description?: string;
-
-  /** Unique ID if used inside ThemedListAccordionGroup. */
   id?: string | number;
-
-  /** If controlled externally, whether the accordion is expanded. */
   expanded?: boolean;
-
-  /** Press handler for the header. */
   onPress?: (e: GestureResponderEvent) => void;
-
-  /** Optional left element callback. */
   left?: (props: { color: string }) => React.ReactNode;
-
-  /** Optional right element callback. Receives isExpanded boolean. */
   right?: (props: { isExpanded: boolean }) => React.ReactNode;
-
-  /** The children displayed when expanded. */
   children?: React.ReactNode;
-
-  /** Additional style for the entire accordion container (both header + children). */
   style?: StyleProp<ViewStyle>;
-
-  /** The theme type controlling header text color, etc. @default 'primary' */
   themeType?: ThemedListAccordionType;
 
-  /**
-   * Custom dimensions for the **header portion** of the accordion.
-   * The children container automatically grows if the item is expanded.
-   */
+  /** Custom header dimension */
   width?: number;
   height?: number;
+
+  /**
+   * Spacing between left container and content.
+   * @default 8
+   */
+  leftToContentSpacing?: number;
+
+  /**
+   * Spacing between content and right container.
+   * @default 8
+   */
+  contentToRightSpacing?: number;
+
+  /**
+   * Align the title/description text: 'left'|'center'|'right'.
+   */
+  contentAlignment?: "left" | "center" | "right";
 }
 
 /**
@@ -89,15 +78,15 @@ export default function ThemedListAccordion({
   children,
   style,
   themeType = "primary",
-
-  // Custom dimensions: apply to the "header" portion only
   width,
   height,
+  leftToContentSpacing = 8,
+  contentToRightSpacing = 8,
+  contentAlignment = "left",
 }: ThemedListAccordionProps) {
   const groupContext = useContext(ThemedListAccordionGroupContext);
   const [localExpanded, setLocalExpanded] = useState(false);
 
-  // If in a group, use groupContext; else use expandedProp; else local state
   const isExpanded = groupContext
     ? groupContext.expandedId === id
     : expandedProp !== undefined
@@ -115,7 +104,6 @@ export default function ThemedListAccordion({
   const resolvedTitleColor = useThemeColor({}, titleColorKey);
   const resolvedDescColor = useThemeColor({}, descColorKey);
 
-  // Press logic
   const handlePress = useCallback(
     (e: GestureResponderEvent) => {
       onPress?.(e);
@@ -128,33 +116,41 @@ export default function ThemedListAccordion({
     [onPress, groupContext, id, expandedProp]
   );
 
-  // If a left element is provided, we pass color to it
-  const leftElement = left
-    ? left({ color: isExpanded ? "#0A84FF" : "#666" })
-    : null;
+  // Left
+  const leftElement = left ? left({ color: isExpanded ? "#0A84FF" : "#666" }) : null;
 
-  // The entire container is a vertical stack:
-  // 1) The header row (with custom width/height)
-  // 2) The children if expanded
+  // We'll place the "header" in a separate container with user-specified width/height
+  // The children expand below.
   return (
     <View style={style}>
-      {/* Header row container */}
+      {/* Header row container with optional width & height */}
       <View style={[{ width, height }, styles.headerContainer]}>
         <ThemedTouchableRipple onPress={handlePress} style={styles.rippleContainer}>
           <View style={styles.row}>
+            {/* Left container */}
             {leftElement && <View style={styles.leftContainer}>{leftElement}</View>}
 
-            <View style={styles.content}>
-              <ThemedText style={[styles.title, { color: resolvedTitleColor }]}>
+            {/* Middle content container */}
+            <View
+              style={[
+                styles.content,
+                {
+                  marginLeft: leftElement ? leftToContentSpacing : 0,
+                  marginRight: right ? contentToRightSpacing : 0,
+                },
+              ]}
+            >
+              <ThemedText style={[styles.title, { color: resolvedTitleColor, textAlign: contentAlignment }]}>
                 {title}
               </ThemedText>
               {description ? (
-                <ThemedText style={[styles.description, { color: resolvedDescColor }]}>
+                <ThemedText style={[styles.description, { color: resolvedDescColor, textAlign: contentAlignment }]}>
                   {description}
                 </ThemedText>
               ) : null}
             </View>
 
+            {/* Right container */}
             <View style={styles.rightContainer}>
               {right ? (
                 right({ isExpanded })
@@ -177,13 +173,10 @@ export default function ThemedListAccordion({
 }
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    // The user can override or specify width/height here
-    // but the container does not scroll or overflow children
-  },
+  headerContainer: {},
   rippleContainer: {
-    padding: 8,
     flex: 1,
+    padding: 8,
   },
   row: {
     flexDirection: "row",
@@ -191,7 +184,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   leftContainer: {
-    marginRight: 8,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -211,6 +203,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   childrenContainer: {
-    // The expanded content goes here
+    // the expanded content
   },
 });

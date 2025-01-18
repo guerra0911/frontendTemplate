@@ -39,8 +39,8 @@ export type ThemedListType = "primary" | "secondary" | "tertiary";
  * -----------------------------------------------------------------------------
  * PROPS
  * -----------------------------------------------------------------------------
- * We add optional width & height to customize the container’s size.
  */
+
 type TitleProp =
   | React.ReactNode
   | ((
@@ -62,10 +62,15 @@ type DescriptionProp =
     ) => React.ReactNode);
 
 export interface ThemedListItemProps {
+  /** Title text or function. */
   title: TitleProp;
+  /** Description text or function. */
   description?: DescriptionProp;
+  /** Callback returning a left element (icon, avatar, etc.). */
   left?: (props: { color: string }) => React.ReactNode;
+  /** Callback returning a right element. */
   right?: (props: { color: string }) => React.ReactNode;
+  /** Press handler. */
   onPress?: (e: GestureResponderEvent) => void;
   style?: StyleProp<ViewStyle>;
   contentStyle?: StyleProp<ViewStyle>;
@@ -85,11 +90,27 @@ export interface ThemedListItemProps {
   // Theming
   themeType?: ThemedListType;
 
-  /**
-   * Custom dimensions for this item.
-   */
+  // Custom dimensions
   width?: number;
   height?: number;
+
+  /**
+   * Extra spacing between the left container and the middle (content).
+   * @default 8
+   */
+  leftToContentSpacing?: number;
+
+  /**
+   * Extra spacing between the middle (content) and the right container.
+   * @default 8
+   */
+  contentToRightSpacing?: number;
+
+  /**
+   * How to align text within the content block: left, center, or right.
+   * This sets `textAlign` on the Title/Description.
+   */
+  contentAlignment?: "left" | "center" | "right";
 }
 
 /**
@@ -114,10 +135,11 @@ function ThemedListItem({
   descriptionNumberOfLines = 2,
   descriptionEllipsizeMode,
   descriptionMaxFontSizeMultiplier,
-
-  // New custom dimension props
   width,
   height,
+  leftToContentSpacing = 8,
+  contentToRightSpacing = 8,
+  contentAlignment = "left",
 }: ThemedListItemProps) {
   // Build color keys
   const backgroundKey = `listItemBackground${
@@ -156,7 +178,15 @@ function ThemedListItem({
     }
     return (
       <ThemedText
-        style={[{ color: itemTextColor, fontSize }, styles.title, titleStyle]}
+        style={[
+          {
+            color: itemTextColor,
+            fontSize,
+            textAlign: contentAlignment,
+          },
+          styles.title,
+          titleStyle,
+        ]}
         numberOfLines={titleNumberOfLines}
         ellipsizeMode={titleEllipsizeMode}
         maxFontSizeMultiplier={titleMaxFontSizeMultiplier}
@@ -181,7 +211,11 @@ function ThemedListItem({
     return (
       <ThemedText
         style={[
-          { color: itemDescriptionColor, fontSize },
+          {
+            color: itemDescriptionColor,
+            fontSize,
+            textAlign: contentAlignment,
+          },
           styles.description,
           descriptionStyle,
         ]}
@@ -216,23 +250,39 @@ function ThemedListItem({
         {
           backgroundColor: itemBackground,
           padding: 8,
+          width,
+          height,
         },
         styles.container,
-        // Apply optional custom width/height
-        { width, height },
         style,
       ]}
     >
       <View style={styles.row}>
+        {/* Left container */}
         {leftElement && (
           <View style={[styles.leftContainer, alignToTop && styles.leftAlign]}>
             {leftElement}
           </View>
         )}
-        <View style={[styles.content, contentStyle]}>
+
+        {/* Middle content container */}
+        <View
+          style={[
+            styles.content,
+            {
+              // If left is present, add spacing from left
+              marginLeft: leftElement ? leftToContentSpacing : 0,
+              // If right is present, add spacing from right
+              marginRight: rightElement ? contentToRightSpacing : 0,
+            },
+            contentStyle,
+          ]}
+        >
           {renderTitle()}
           {renderDescription()}
         </View>
+
+        {/* Right container */}
         {rightElement && (
           <View
             style={[styles.rightContainer, alignToTop && styles.rightAlign]}
@@ -266,7 +316,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     marginVertical: 6,
-    paddingHorizontal: 8,
     justifyContent: "center",
   },
   rightContainer: {
