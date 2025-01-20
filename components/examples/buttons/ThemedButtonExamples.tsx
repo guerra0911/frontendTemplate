@@ -480,6 +480,32 @@ const ThemedButtonExamples: React.FC = () => {
       <ThemedText style={styles.selectedText}>
         Press the "Dotted Border" button above
       </ThemedText>
+
+      <ThemedText style={styles.sectionTitle}>Elevation Examples</ThemedText>
+
+      {/* Button with an elevation of 1 */}
+      <ThemedButton
+        title="Elevation 1"
+        onPress={() => handlePress("Button with elevation 1 pressed")}
+        elevation={1}
+        style={styles.button}
+      />
+
+      {/* Button with an elevation of 4 */}
+      <ThemedButton
+        title="Elevation 4"
+        onPress={() => handlePress("Button with elevation 4 pressed")}
+        elevation={4}
+        style={styles.button}
+      />
+
+      {/* Button with a higher, "max" elevation (here using 10) */}
+      <ThemedButton
+        title="Max Elevation"
+        onPress={() => handlePress("Button with max elevation pressed")}
+        elevation={10}  // Adjust this value to represent "max" if desired.
+        style={styles.button}
+      />
     </ScrollView>
   );
 };
