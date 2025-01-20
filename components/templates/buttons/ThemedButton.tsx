@@ -22,10 +22,6 @@ import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 // INTERFACES
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- * Define all possible color keys in ThemedButtonColors.ts
- * These should match your color configuration (e.g., ThemedButtonColors).
- */
 type ThemeColorType =
   // DISABLED
   | "buttonDisabledBackgroundPrimary"
@@ -72,42 +68,30 @@ type ThemeColorType =
 
 type SupportedIconLibraries = "Ionicons" | "MaterialIcons" | "FontAwesome";
 
-/**
- * Props interface for ThemedButton
- */
 export interface ThemedButtonProps {
   // FUNCTIONALITY
-  /** The label for the button */
   title?: string;
-  /** Alternative to title */
   children?: React.ReactNode;
-  /** Callback when the button is pressed */
   onPress: () => void;
-  /** Disable the button */
   disabled?: boolean;
-  /** Custom styles for the button */
   style?: StyleProp<ViewStyle>;
-  /** Theme type to apply (primary, secondary, tertiary) */
   themeType?: "primary" | "secondary" | "tertiary";
-  /** Haptic feedback style on press */
   hapticFeedbackStyle?: Haptics.ImpactFeedbackStyle | null;
 
   // DIMENSIONS
-  /** Custom height for the button */
   customHeight?: number;
-  /** Custom width for the button */
   customWidth?: number;
-  /** Custom border radius for the button */
   customRadius?: number | "factor";
-  /** Whether to round all corners */
   roundedAllCorners?: boolean;
 
   // ANIMATION
-  /** Enable press animation */
   animatedPress?: boolean;
 
+  // NEW or UPDATED:
+  /** Elevation for the button (shadows). Defaults to 0, can be animated on press. */
+  elevation?: number;
+
   // DISABLED
-  /** Custom styles and colors when the button is disabled */
   disabledStyles?: {
     style?: ViewStyle;
     colors?: {
@@ -123,14 +107,12 @@ export interface ThemedButtonProps {
   };
 
   // BACKGROUND
-  /** Custom background colors */
   background?: {
     light?: string;
     dark?: string;
   };
 
   // TEXT
-  /** Custom text styles and colors */
   text?: {
     style?: TextStyle;
     color?: {
@@ -140,7 +122,6 @@ export interface ThemedButtonProps {
   };
 
   // ICONS
-  /** Configuration for icons within the button */
   icons?: {
     iconName?:
       | keyof typeof Ionicons.glyphMap
@@ -158,7 +139,6 @@ export interface ThemedButtonProps {
   };
 
   // BORDERS
-  /** Custom border styles */
   borders?: {
     color?: { light?: string; dark?: string };
     width?: number;
@@ -166,28 +146,26 @@ export interface ThemedButtonProps {
   };
 
   // SHADOWS
-  /** Custom shadow styles */
   shadows?: {
     color?: string;
     offset?: { width: number; height: number };
     opacity?: number;
     radius?: number;
+    /** Keep this around, but it’ll be overridden if elevation is also set top-level. */
     elevation?: number;
   };
 
   // PADDING
-  /** Custom padding styles */
   padding?: {
     internal?: number;
     color?: { light?: string; dark?: string };
   };
 
   // LOADING
-  /** Loading state configurations */
   loading?: {
-    isLoading: boolean; // Indicates if the button is in loading state
-    text?: string; // Text to display during loading
-    color?: string; // Optional: Override the loading spinner color
+    isLoading: boolean;
+    text?: string;
+    color?: string;
   };
 }
 
@@ -195,15 +173,6 @@ export interface ThemedButtonProps {
 // COMPONENT
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- * ThemedButton
- *
- * A themed and animated button component that adapts to the current theme.
- * It supports custom icons, loading states, animations, and extensive styling options.
- *
- * @param {ThemedButtonProps} props - Props for configuring the button.
- * @returns {React.ReactElement} The themed button component.
- */
 const ThemedButton: React.FC<ThemedButtonProps> = ({
   // FUNCTIONALITY
   title,
@@ -222,6 +191,10 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
 
   // ANIMATION
   animatedPress = false,
+
+  // NEW or UPDATED:
+  // default the top-level elevation to 0
+  elevation = 0,
 
   // DISABLED
   disabledStyles = {},
@@ -255,20 +228,11 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
   // HELPERS
   //////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Helper: Generate color key from base + themeType
-   *
-   * @param {string} base - Base name of the color key
-   * @param {"primary" | "secondary" | "tertiary"} theme - Current theme type
-   * @returns {ThemeColorType} - Generated color key
-   */
   const getColorKey = (
     base: string,
     theme: "primary" | "secondary" | "tertiary"
   ): ThemeColorType => {
-    return `${base}${
-      theme.charAt(0).toUpperCase() + theme.slice(1)
-    }` as ThemeColorType;
+    return `${base}${theme.charAt(0).toUpperCase() + theme.slice(1)}` as ThemeColorType;
   };
 
   //////////////////////////////////////////////////////////////////////////////
@@ -315,7 +279,7 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
     getColorKey("buttonText", themeType)
   );
 
-  // NOTE: Always call the icon hook; then conditionally use it:
+  // ICON COLOR
   const resolvedIconColor = useThemeColor(
     {},
     getColorKey("buttonIconColor", themeType)
@@ -340,8 +304,12 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
     offset = { width: 0, height: 2 },
     opacity = 0.2,
     radius = 4,
-    elevation = 5,
+    // renamed to avoid clashing with top-level `elevation`
+    elevation: shadowElevation,
   } = shadows;
+
+  // We use the top-level elevation if provided; otherwise, fallback to shadows.elevation or 0
+  const baseElevation = elevation ?? shadowElevation ?? 0;
 
   const resolvedShadowColor = useThemeColor(
     {
@@ -351,12 +319,16 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
     getColorKey("buttonShadowColor", themeType)
   );
 
+  // NEW or UPDATED: create an Animated.Value for the elevation
+  const elevationAnim = React.useRef(new Animated.Value(baseElevation)).current;
+
   const shadowStyle = {
     shadowColor: resolvedShadowColor,
     shadowOffset: offset,
     shadowOpacity: opacity,
     shadowRadius: radius,
-    elevation: elevation,
+    // IMPORTANT: apply the animated value here
+    elevation: elevationAnim,
   };
 
   // PADDING
@@ -383,20 +355,19 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
   //////////////////////////////////////////////////////////////////////////////
 
   const effectiveBorderRadius = roundedAllCorners
-    ? customHeight / 2 // Apply full rounding
+    ? customHeight / 2
     : customRadius === "factor"
-    ? customHeight / 2 // Factor logic for pill shape
-    : customRadius ?? 8; // Default to 8
+    ? customHeight / 2
+    : customRadius;
 
   //////////////////////////////////////////////////////////////////////////////
-  // ANIMATION
+  // ANIMATION (scale + elevation)
   //////////////////////////////////////////////////////////////////////////////
 
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
   /**
-   * Handles the press action.
-   * Triggers haptic feedback and the onPress callback if not disabled or loading.
+   * Handle onPress
    */
   const handlePress = () => {
     if (!disabled && !loading.isLoading) {
@@ -408,30 +379,46 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
   };
 
   /**
-   * Handles the press-in animation.
+   * Handle press-in: if animated, slightly shrink and raise elevation
    */
   const onPressIn = () => {
-    if (animatedPress && !loading.isLoading) {
-      Animated.timing(scaleAnim, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: true,
-        easing: Easing.out(Easing.quad),
-      }).start();
+    if (animatedPress && !disabled && !loading.isLoading) {
+      Animated.parallel([
+        Animated.timing(scaleAnim, {
+          toValue: 0.95,
+          duration: 100,
+          useNativeDriver: true,
+          easing: Easing.out(Easing.quad),
+        }),
+        Animated.timing(elevationAnim, {
+          toValue: baseElevation + 2, // you can adjust how much you raise it on press
+          duration: 100,
+          useNativeDriver: false,
+          easing: Easing.out(Easing.quad),
+        }),
+      ]).start();
     }
   };
 
   /**
-   * Handles the press-out animation.
+   * Handle press-out: revert scale and elevation
    */
   const onPressOut = () => {
-    if (animatedPress && !loading.isLoading) {
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-        easing: Easing.out(Easing.quad),
-      }).start();
+    if (animatedPress && !disabled && !loading.isLoading) {
+      Animated.parallel([
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+          easing: Easing.out(Easing.quad),
+        }),
+        Animated.timing(elevationAnim, {
+          toValue: baseElevation,
+          duration: 100,
+          useNativeDriver: false,
+          easing: Easing.out(Easing.quad),
+        }),
+      ]).start();
     }
   };
 
@@ -515,18 +502,8 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
   }
 
   if (textElement) {
-    switch (iconPosition) {
-      case "left":
-      case "right":
-        textContainerStyle = {};
-        break;
-      case "top":
-      case "bottom":
-        textContainerStyle = {};
-        break;
-      default:
-        textContainerStyle = {};
-    }
+    // For demonstration, you could add more styling here if needed
+    textContainerStyle = {};
   }
 
   switch (iconPosition) {
@@ -563,6 +540,7 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
           borderColor: disabled ? "transparent" : resolvedBorderColor,
           borderWidth: disabled ? 0 : borderWidth,
           borderStyle: borderStyle,
+          // also apply scale to the container
           transform: [{ scale: animatedPress ? scaleAnim : 1 }],
         },
       ]}
@@ -590,9 +568,9 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
               color={{
                 light: resolvedLoadingColor,
                 dark: resolvedLoadingColor,
-              }} // You can customize colors based on your theme
-              size={16} // Adjust the size as needed (ThemedActivityIndicator expects a number)
-              hidesWhenStopped={true} // Optional, defaults to true
+              }}
+              size={16}
+              hidesWhenStopped
               style={styles.loadingIndicator}
             />
             {loading.text && (
@@ -616,9 +594,7 @@ const ThemedButton: React.FC<ThemedButtonProps> = ({
                 {iconElement}
               </View>
             )}
-            {textElement && (
-              <View style={styles.textSpacing}>{textElement}</View>
-            )}
+            {textElement && <View style={styles.textSpacing}>{textElement}</View>}
           </View>
         )}
       </TouchableOpacity>
@@ -645,7 +621,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   loadingIndicator: {
-    marginRight: 8, // Space between spinner and text
+    marginRight: 8,
   },
   row: {
     flexDirection: "row",
@@ -663,16 +639,8 @@ const styles = StyleSheet.create({
     flexDirection: "column-reverse",
     alignItems: "center",
   },
-  iconOnly: {
-    // No margin when there is only an icon
-  },
-  textSpacing: {
-    // Can add additional spacing if needed
-  },
+  iconOnly: {},
+  textSpacing: {},
 });
-
-////////////////////////////////////////////////////////////////////////////////
-// EXPORT
-////////////////////////////////////////////////////////////////////////////////
 
 export default React.memo(ThemedButton);
