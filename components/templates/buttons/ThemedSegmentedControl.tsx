@@ -21,9 +21,6 @@ import { FontAwesome, Ionicons, MaterialIcons } from "@expo/vector-icons";
 // INTERFACES
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- * Define all possible color keys in Colors.ts
- */
 type ThemeColorType =
   // BACKGROUND
   | "segmentedUnselectedBackgroundPrimary"
@@ -92,41 +89,59 @@ type ThemeColorType =
 type SupportedIconLibraries = "Ionicons" | "MaterialIcons" | "FontAwesome";
 
 /**
+ * Configuration for rendering an underline instead of a filled highlight
+ */
+export interface SelectedIndicatorConfig {
+  /**
+   * If true, uses a bottom underline as the highlight,
+   * rather than a filled container.
+   */
+  useUnderline?: boolean;
+
+  /**
+   * The thickness (height) of the underline in pixels.
+   * @default 4
+   */
+  underlineThickness?: number;
+
+  /**
+   * The underline width in pixels, or "auto" to match
+   * the segment’s exact width.
+   * @default "auto"
+   */
+  underlineWidth?: number | "auto";
+
+  /**
+   * Alignment of the underline within the segment.
+   * "left" | "center" | "right".
+   * @default "center"
+   */
+  underlineAlignment?: "left" | "center" | "right";
+}
+
+/**
  * Props interface for ThemedSegmentedControl
  */
 export interface ThemedSegmentedControlProps {
   // FUNCTIONALITY
-  /** The labels for each segment */
   values: string[];
-  /** The currently selected index */
   selectedIndex: number;
-  /** Callback when the segment changes */
   onChange: (index: number) => void;
-  /** Custom styles for the container */
   style?: StyleProp<ViewStyle>;
-  /** Theme type to apply (primary, secondary, tertiary) */
   themeType?: "primary" | "secondary" | "tertiary";
-  /** Haptic feedback style on press */
   hapticFeedbackStyle?: Haptics.ImpactFeedbackStyle | null;
 
   // DIMENSIONS
-  /** Custom height for the segmented control */
   customHeight?: number;
-  /** Custom width for the segmented control */
   customWidth?: number;
-  /** Custom border radius for the segmented control */
   customRadius?: number | "factor";
-  /** Spacing between segments */
   segmentSpacing?: number;
-  /** Whether to round all corners */
   roundedAllCorners?: boolean;
 
   // ANIMATION
-  /** Enable animated switch for the selected segment */
   animatedSwitch?: boolean;
 
   // BACKGROUND
-  /** Custom background colors for selected and unselected segments */
   background?: {
     light?: {
       selected?: string;
@@ -139,7 +154,6 @@ export interface ThemedSegmentedControlProps {
   };
 
   // TEXT
-  /** Custom text styles and colors for selected and unselected segments */
   text?: {
     selectedStyle?: TextStyle;
     unselectedStyle?: TextStyle;
@@ -156,21 +170,15 @@ export interface ThemedSegmentedControlProps {
   };
 
   // ICONS
-  /** Configuration for icons within the segments */
   icons?: {
     definitions?: {
-      /** Name of the icon */
       iconName:
         | keyof typeof Ionicons.glyphMap
         | keyof typeof MaterialIcons.glyphMap
         | keyof typeof FontAwesome.glyphMap;
-      /** Library of the icon */
       iconLibrary?: SupportedIconLibraries;
-      /** Size of the icon */
       iconSize?: number;
-      /** Position of the icon relative to the text */
       iconPosition?: "left" | "right" | "top" | "bottom";
-      /** Padding around the icon */
       iconPadding?: {
         left?: number;
         right?: number;
@@ -178,7 +186,6 @@ export interface ThemedSegmentedControlProps {
         bottom?: number;
       };
     }[];
-    /** Colors for icons based on selection and theme */
     colors?: {
       light?: {
         selected?: string;
@@ -192,15 +199,10 @@ export interface ThemedSegmentedControlProps {
   };
 
   // SEPARATORS
-  /** Configuration for separators between segments */
   separator?: {
-    /** Whether to show separators */
     show?: boolean;
-    /** Thickness of the separator */
     width?: number;
-    /** Relative height of the separator */
     height?: number;
-    /** Colors of the separator based on theme */
     colors?: {
       light?: string;
       dark?: string;
@@ -208,27 +210,25 @@ export interface ThemedSegmentedControlProps {
   };
 
   // BORDERS
-  /** Custom border styles for main, selected, and unselected segments */
   borders?: {
     main?: {
       color?: { light?: string; dark?: string };
       width?: number;
-      style?: "solid" | "dashed" | "dotted"; // New Prop
+      style?: "solid" | "dashed" | "dotted";
     };
     selected?: {
       color?: { light?: string; dark?: string };
       width?: number;
-      style?: "solid" | "dashed" | "dotted"; // New Prop
+      style?: "solid" | "dashed" | "dotted";
     };
     unselected?: {
       color?: { light?: string; dark?: string };
       width?: number;
-      style?: "solid" | "dashed" | "dotted"; // New Prop
+      style?: "solid" | "dashed" | "dotted";
     };
   };
 
   // SHADOWS
-  /** Custom shadow styles for main, highlight, and segment shadows */
   shadows?: {
     main?: {
       color?: string;
@@ -251,7 +251,6 @@ export interface ThemedSegmentedControlProps {
       radius?: number;
       elevation?: number;
     };
-    /** Theme-based shadow colors */
     colors?: {
       light?: {
         main?: string;
@@ -267,13 +266,9 @@ export interface ThemedSegmentedControlProps {
   };
 
   // DISABLED
-  /** Configuration for disabled segments */
   disabled?: {
-    /** Indices of segments that are disabled */
     indices?: number[];
-    /** Custom styles for disabled segments */
     style?: ViewStyle;
-    /** Colors for disabled segments based on theme */
     colors?: {
       light?: {
         background?: string;
@@ -287,30 +282,22 @@ export interface ThemedSegmentedControlProps {
   };
 
   // PADDING
-  /** Custom padding styles */
   padding?: {
-    /** Internal padding for the segmented control */
     internal?: number;
-    /** Padding color based on theme */
     color?: { light?: string; dark?: string };
   };
+
+  /**
+   * Configuration for the selected segment indicator
+   */
+  selectedIndicator?: SelectedIndicatorConfig;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // COMPONENT
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- * ThemedSegmentedControl
- *
- * A themed and animated segmented control component that adapts to the current theme.
- * It supports custom icons, animations, disabled states, and extensive styling options.
- *
- * @param {ThemedSegmentedControlProps} props - Props for configuring the segmented control.
- * @returns {React.ReactElement} The themed segmented control component.
- */
 const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
-  // FUNCTIONALITY
   values,
   selectedIndex,
   onChange,
@@ -356,26 +343,26 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
 
   // PADDING
   padding = {},
+
+  // SELECTED INDICATOR
+  selectedIndicator = {},
 }) => {
   //////////////////////////////////////////////////////////////////////////////
-  // HELPERS
+  // HELPER: Build color keys
   //////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Helper: generate color key from base + themeType
-   *
-   * @param {string} base - Base name of the color key
-   * @param {"primary" | "secondary" | "tertiary"} theme - Current theme type
-   * @returns {ThemeColorType} - Generated color key
-   */
   const getColorKey = (
     base: string,
     theme: "primary" | "secondary" | "tertiary"
   ): ThemeColorType => {
-    return `${base}${
-      theme.charAt(0).toUpperCase() + theme.slice(1)
-    }` as ThemeColorType;
+    return `${base}${theme.charAt(0).toUpperCase() + theme.slice(1)}` as ThemeColorType;
   };
+
+  // Whether we're using the bottom underline for the selected segment
+  const useUnderline = selectedIndicator.useUnderline === true;
+  const underlineThickness = selectedIndicator.underlineThickness ?? 4;
+  const underlineWidth = selectedIndicator.underlineWidth ?? "auto";
+  const underlineAlignment = selectedIndicator.underlineAlignment ?? "center";
 
   //////////////////////////////////////////////////////////////////////////////
   // THEME COLORS
@@ -483,7 +470,7 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
   const { main = {}, highlight = {}, segment = {}, colors = {} } = shadows;
 
   const resolvedMainShadowStyle = {
-    shadowColor: main.color ?? 'transparent',
+    shadowColor: main.color ?? "transparent",
     shadowOffset: main.offset ?? { width: 0, height: 0 },
     shadowOpacity: main.opacity ?? 0,
     shadowRadius: main.radius ?? 0,
@@ -491,7 +478,7 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
   };
 
   const resolvedHighlightShadowStyle = {
-    shadowColor: highlight.color ?? 'transparent',
+    shadowColor: highlight.color ?? "transparent",
     shadowOffset: highlight.offset ?? { width: 0, height: 0 },
     shadowOpacity: highlight.opacity ?? 0,
     shadowRadius: highlight.radius ?? 0,
@@ -499,7 +486,7 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
   };
 
   const resolvedSegmentShadowStyle = {
-    shadowColor: segment.color ?? 'transparent',
+    shadowColor: segment.color ?? "transparent",
     shadowOffset: segment.offset ?? { width: 0, height: 0 },
     shadowOpacity: segment.opacity ?? 0,
     shadowRadius: segment.radius ?? 0,
@@ -529,12 +516,6 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
     getColorKey("segmentedDisabledText", themeType)
   );
 
-  /**
-   * Determines if a segment at the given index is disabled
-   *
-   * @param {number} index - Index of the segment
-   * @returns {boolean} - True if the segment is disabled, else false
-   */
   const isDisabled = (index: number) =>
     disabledIndices?.includes(index) ?? false;
 
@@ -559,10 +540,10 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
   const separatorThickness = separator?.width ?? 1;
   const separatorRelativeHeight = separator?.height ?? 0.8;
   const effectiveBorderRadius = roundedAllCorners
-    ? customHeight / 2 // Apply full rounding
+    ? customHeight / 2
     : customRadius === "factor"
-    ? customHeight / 2 // Factor logic for pill shape
-    : customRadius ?? 8; // Default to 8
+    ? customHeight / 2
+    : customRadius ?? 8;
   const adjustedHeight =
     customHeight - mainBorderWidth * 2 - customInternalPadding * 2;
   const adjustedWidth =
@@ -571,37 +552,69 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
     (adjustedWidth - segmentSpacing * (values.length - 1)) / values.length;
 
   //////////////////////////////////////////////////////////////////////////////
-  // ANIMATION
+  // ANIMATION & UNDERLINE POSITION
   //////////////////////////////////////////////////////////////////////////////
 
-  const translateAnim = useRef(new Animated.Value(0)).current;
+  // We'll store the final X coordinate of the highlight line in an Animated.Value.
+  const xAnim = useRef(new Animated.Value(0)).current;
 
+  // Recompute the "target" X for the underline or highlight whenever selectedIndex changes.
   useEffect(() => {
-    if (animatedSwitch && segmentWidth) {
-      Animated.timing(translateAnim, {
-        toValue: selectedIndex * (segmentWidth + segmentSpacing),
+    if (segmentWidth == null) return; // Not yet laid out
+
+    // If "auto", underline = the full segment width
+    const actualUnderlineWidth =
+      underlineWidth === "auto" ? segmentWidth : underlineWidth;
+
+    // Compute alignment offset:
+    let alignmentOffset = 0;
+    if (useUnderline) {
+      switch (underlineAlignment) {
+        case "center":
+          alignmentOffset =
+            (segmentWidth - (actualUnderlineWidth ?? 0)) / 2;
+          break;
+        case "right":
+          alignmentOffset =
+            segmentWidth - (actualUnderlineWidth ?? 0);
+          break;
+        case "left":
+        default:
+          alignmentOffset = 0;
+      }
+    }
+
+    // The base translation is the segment index times (segmentWidth + spacing).
+    // Then we add alignmentOffset if we're using underline.
+    const baseX = selectedIndex * (segmentWidth + segmentSpacing);
+    const finalX = baseX + alignmentOffset;
+
+    if (animatedSwitch) {
+      Animated.timing(xAnim, {
+        toValue: finalX,
         duration: 200,
         easing: Easing.out(Easing.quad),
         useNativeDriver: true,
       }).start();
+    } else {
+      // If not animated, just snap to final
+      xAnim.setValue(finalX);
     }
   }, [
     selectedIndex,
     animatedSwitch,
     segmentSpacing,
     segmentWidth,
-    translateAnim,
+    useUnderline,
+    underlineWidth,
+    underlineAlignment,
+    xAnim,
   ]);
 
   //////////////////////////////////////////////////////////////////////////////
-  // FUNCTIONALITY
+  // HANDLERS
   //////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Handles the press action on a segment
-   *
-   * @param {number} index - Index of the pressed segment
-   */
   const handlePress = (index: number) => {
     if (!isDisabled(index)) {
       if (hapticFeedbackStyle) {
@@ -628,7 +641,7 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
           borderRadius: effectiveBorderRadius,
           borderColor: mainBorderColorResolved,
           borderWidth: mainBorderWidth,
-          borderStyle: borders.main?.style ?? "solid",
+          borderStyle: mainBorderStyle,
           padding: customInternalPadding,
         },
       ]}
@@ -640,35 +653,69 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
             borderRadius: effectiveBorderRadius,
             height: adjustedHeight,
             width: adjustedWidth,
+            // If we are using underline, the container is always the unselected BG
             backgroundColor: unselectedBackgroundColor,
           },
         ]}
       >
-        {animatedSwitch && segmentWidth && (
+        {/** If useUnderline => place a single line at the bottom (animated).
+             If not => we do the classic highlight container if animatedSwitch is true. **/}
+
+        {useUnderline ? (
           <Animated.View
             style={[
               styles.highlight,
               resolvedHighlightShadowStyle,
               {
                 backgroundColor: selectedBackgroundColor,
-                width: segmentWidth,
-                height: adjustedHeight,
-                top: 0,
+                height: underlineThickness,
+                // Anchor to bottom
+                bottom: 0,
                 left: 0,
-                transform: [{ translateX: translateAnim }],
-                borderRadius: roundedAllCorners ? effectiveBorderRadius : 0,
-                borderColor: selectedBorderColorResolved,
-                borderWidth: selectedBorderWidth,
-                borderStyle: borders.selected?.style ?? "solid",
+                width: underlineWidth === "auto" ? segmentWidth : underlineWidth,
+                transform: [{ translateX: xAnim }],
               },
             ]}
           />
+        ) : (
+          animatedSwitch && (
+            <Animated.View
+              style={[
+                styles.highlight,
+                resolvedHighlightShadowStyle,
+                {
+                  backgroundColor: selectedBackgroundColor,
+                  width: segmentWidth,
+                  height: adjustedHeight,
+                  top: 0,
+                  left: 0,
+                  transform: [{ translateX: xAnim }],
+                  borderRadius: roundedAllCorners ? effectiveBorderRadius : 0,
+                  borderColor: selectedBorderColorResolved,
+                  borderWidth: selectedBorderWidth,
+                  borderStyle: selectedBorderStyle,
+                },
+              ]}
+            />
+          )
         )}
+
         {values.map((value, index) => {
           const isSelected = index === selectedIndex;
           const isFirst = index === 0;
           const isLast = index === values.length - 1;
           const icon = definitions[index];
+
+          // For non-animatedSwitch + no underline => fill the selected segment
+          // For underline => always keep the segment background transparent, unless disabled
+          const backgroundColorSegment =
+            useUnderline || (animatedSwitch && !isDisabled(index))
+              ? "transparent"
+              : isDisabled(index)
+              ? disabledBackgroundColor
+              : isSelected
+              ? selectedBackgroundColor
+              : "transparent";
 
           return (
             <React.Fragment key={index}>
@@ -682,29 +729,33 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
                     height: adjustedHeight,
                     backgroundColor: isDisabled(index)
                       ? disabledBackgroundColor
-                      : !animatedSwitch && isSelected
-                      ? selectedBackgroundColor
-                      : "transparent",
+                      : backgroundColorSegment,
                     borderTopLeftRadius: isFirst ? effectiveBorderRadius : 0,
                     borderBottomLeftRadius: isFirst ? effectiveBorderRadius : 0,
                     borderTopRightRadius: isLast ? effectiveBorderRadius : 0,
-                    borderBottomRightRadius: isLast ? effectiveBorderRadius : 0,
+                    borderBottomRightRadius: isLast
+                      ? effectiveBorderRadius
+                      : 0,
                     borderColor: !isDisabled(index)
-                      ? !isSelected
-                        ? unselectedBorderColorResolved
-                        : selectedBorderColorResolved
+                      ? // If not using underline or not animating => highlight border
+                        isSelected && !useUnderline && !animatedSwitch
+                        ? selectedBorderColorResolved
+                        : unselectedBorderColorResolved
                       : "transparent",
                     borderWidth: !isDisabled(index)
-                      ? !isSelected
-                        ? unselectedBorderWidth
-                        : selectedBorderWidth
+                      ? // same logic
+                        isSelected && !useUnderline && !animatedSwitch
+                        ? selectedBorderWidth
+                        : unselectedBorderWidth
                       : 0,
                     borderStyle: !isDisabled(index)
-                      ? !isSelected
-                        ? unselectedBorderStyle
-                        : selectedBorderStyle
+                      ? // same logic
+                        isSelected && !useUnderline && !animatedSwitch
+                        ? selectedBorderStyle
+                        : unselectedBorderStyle
                       : "solid",
-                    marginRight: index < values.length - 1 ? segmentSpacing : 0,
+                    marginRight:
+                      index < values.length - 1 ? segmentSpacing : 0,
                   },
                 ]}
               >
@@ -718,7 +769,7 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
                           icon.iconPosition === "right"
                             ? "row"
                             : "column",
-                        alignItems: "center", // Ensure center alignment
+                        alignItems: "center",
                         justifyContent: "center",
                       },
                     ]}
@@ -792,7 +843,8 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
                               icon.iconPosition === "left"
                                 ? { marginLeft: icon.iconPadding?.right ?? 8 }
                                 : {
-                                    marginBottom: icon.iconPadding?.bottom ?? 8,
+                                    marginBottom:
+                                      icon.iconPadding?.bottom ?? 8,
                                   },
                             ]}
                           >
@@ -820,6 +872,7 @@ const ThemedSegmentedControl: React.FC<ThemedSegmentedControlProps> = ({
                   </Text>
                 )}
               </TouchableOpacity>
+
               {separator?.show &&
                 index < values.length - 1 &&
                 (!animatedSwitch ||
@@ -882,13 +935,9 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   iconContainer: {
-    alignItems: "center", // Ensure icons and text are centered
+    alignItems: "center",
     justifyContent: "center",
   },
 });
-
-////////////////////////////////////////////////////////////////////////////////
-// EXPORT
-////////////////////////////////////////////////////////////////////////////////
 
 export default React.memo(ThemedSegmentedControl);

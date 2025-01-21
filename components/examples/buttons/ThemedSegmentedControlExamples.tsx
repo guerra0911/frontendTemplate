@@ -24,10 +24,14 @@ const ThemedSegmentedControlExamples: React.FC = () => {
   const [shadowDefault, setShadowDefault] = useState(0);
   const [shadowCustom, setShadowCustom] = useState(0);
   const [customSegmentMargins, setCustomSegmentMargins] = useState(0);
-  const [customSegmentMarginsTransparent, setCustomSegmentMarginsTransparent] =
-    useState(0);
+  const [
+    customSegmentMarginsTransparent,
+    setCustomSegmentMarginsTransparent,
+  ] = useState(0);
   const [disabledButtons, setDisabledButtons] = useState(0);
-  const [customGradients, setCustomGradients] = useState(0);
+
+  // NEW: underline example
+  const [underlineExample, setUnderlineExample] = useState(0);
 
   return (
     <View style={styles.container}>
@@ -84,7 +88,6 @@ const ThemedSegmentedControlExamples: React.FC = () => {
         }}
         style={[styles.segmentedControl, { borderRadius: 12 }]}
       />
-
       <ThemedText style={styles.selectedText}>
         Selected: {["Custom 1", "Custom 2"][customColors]}
       </ThemedText>
@@ -172,7 +175,7 @@ const ThemedSegmentedControlExamples: React.FC = () => {
         customWidth={300}
         padding={{
           internal: 10,
-          color: { light: "#e7f705", dark: "#00ffff" }, //yellow & teal
+          color: { light: "#e7f705", dark: "#00ffff" },
         }}
         style={styles.segmentedControl}
       />
@@ -187,7 +190,7 @@ const ThemedSegmentedControlExamples: React.FC = () => {
         onChange={setCustomAnimation}
         themeType="primary"
         customWidth={300}
-        animatedSwitch={true} // Enable animated sliding
+        animatedSwitch={true}
         padding={{
           internal: 10,
         }}
@@ -225,11 +228,11 @@ const ThemedSegmentedControlExamples: React.FC = () => {
         background={{
           light: {
             selected: "#FFD700", // Gold for light theme
-            unselected: "#EEE", // Light gray for light theme
+            unselected: "#EEE",   // Light gray
           },
           dark: {
             selected: "#FF8C00", // Dark orange for dark theme
-            unselected: "#222222", // Dark gray for dark theme
+            unselected: "#222222",
           },
         }}
         text={{
@@ -247,18 +250,17 @@ const ThemedSegmentedControlExamples: React.FC = () => {
           },
           colors: {
             light: {
-              selected: "#000000", // Black for light theme
-              unselected: "#555555", // Dark gray for light theme
+              selected: "#000000",
+              unselected: "#555555",
             },
             dark: {
-              selected: "#FFFFFF", // White for dark theme
-              unselected: "#BBBBBB", // Light gray for dark theme
+              selected: "#FFFFFF",
+              unselected: "#BBBBBB",
             },
           },
         }}
         style={styles.segmentedControl}
       />
-
       <ThemedText style={styles.selectedText}>
         Selected: {["First", "Second", "Third"][customText]}
       </ThemedText>
@@ -277,39 +279,39 @@ const ThemedSegmentedControlExamples: React.FC = () => {
             {
               iconName: "home",
               iconLibrary: "Ionicons",
-              iconSize: 24, // Custom icon size
-              iconPosition: "left", // Icon on the left
+              iconSize: 24,
+              iconPosition: "left",
               iconPadding: {
-                right: 12, // Padding between icon and text
+                right: 12,
               },
             },
             {
               iconName: "settings",
               iconLibrary: "MaterialIcons",
-              iconSize: 24, // Custom icon size
-              iconPosition: "right", // Icon on the right
+              iconSize: 24,
+              iconPosition: "right",
               iconPadding: {
-                left: 12, // Padding between text and icon
+                left: 12,
               },
             },
             {
               iconName: "user",
               iconLibrary: "FontAwesome",
-              iconSize: 24, // Custom icon size
+              iconSize: 24,
               iconPosition: "right",
               iconPadding: {
-                right: 12, // Padding between icon and text
+                right: 12,
               },
             },
           ],
           colors: {
             light: {
-              selected: "#ff0000", // Red for selected icons in light theme
-              unselected: "#cccccc", // Light gray for unselected icons in light theme
+              selected: "#ff0000",   // Red for selected icons in light theme
+              unselected: "#cccccc", // Light gray for unselected icons
             },
             dark: {
-              selected: "#00ff00", // Green for selected icons in dark theme
-              unselected: "#666666", // Dark gray for unselected icons in dark theme
+              selected: "#00ff00",   // Green for selected icons in dark theme
+              unselected: "#666666", // Dark gray for unselected icons
             },
           },
         }}
@@ -317,16 +319,11 @@ const ThemedSegmentedControlExamples: React.FC = () => {
         animatedSwitch={true}
         style={styles.segmentedControl}
       />
-
       <ThemedText style={styles.selectedText}>
         Selected: {["Home", "Settings", "Profile"][customIconsDisplay]}
       </ThemedText>
 
-      <ThemedText style={styles.sectionTitle}>
-        Icon Position Examples
-      </ThemedText>
-
-      {/* Icon Position: Top, Left, Right, Bottom */}
+      <ThemedText style={styles.sectionTitle}>Icon Position Examples</ThemedText>
       <ThemedSegmentedControl
         values={["Top Icon", "Middle", "Bottom Icon"]}
         selectedIndex={iconPositionExample}
@@ -340,28 +337,22 @@ const ThemedSegmentedControlExamples: React.FC = () => {
               iconName: "arrow-up",
               iconLibrary: "Ionicons",
               iconSize: 24,
-              iconPosition: "top", // Icon above the text
-              iconPadding: {
-                bottom: 10, // Padding below the icon
-              },
+              iconPosition: "top",
+              iconPadding: { bottom: 10 },
             },
             {
               iconName: "menu",
               iconLibrary: "Ionicons",
               iconSize: 24,
-              iconPosition: "left", // Icon to the left of the text
-              iconPadding: {
-                right: 10, // Padding to the right of the icon
-              },
+              iconPosition: "left",
+              iconPadding: { right: 10 },
             },
             {
               iconName: "arrow-down",
               iconLibrary: "Ionicons",
               iconSize: 24,
-              iconPosition: "bottom", // Icon below the text
-              iconPadding: {
-                top: 10, // Padding above the icon
-              },
+              iconPosition: "bottom",
+              iconPadding: { top: 10 },
             },
           ],
           colors: {
@@ -381,10 +372,9 @@ const ThemedSegmentedControlExamples: React.FC = () => {
         Selected: {["Top Icon", "Middle", "Bottom Icon"][iconPositionExample]}
       </ThemedText>
 
-      {/* Icon-Only Segments */}
       <ThemedText style={styles.sectionTitle}>Icon-Only Segments</ThemedText>
       <ThemedSegmentedControl
-        values={["", "", ""]} // Empty strings for icon-only segments
+        values={["", "", ""]}
         selectedIndex={iconOnlyExample}
         onChange={setIconOnlyExample}
         themeType="primary"
@@ -393,39 +383,33 @@ const ThemedSegmentedControlExamples: React.FC = () => {
             {
               iconName: "home",
               iconLibrary: "Ionicons",
-              iconSize: 24, // Custom icon size
-              iconPosition: "top", // Position can be top since there's no text
-              iconPadding: {
-                bottom: 0, // No padding needed as there's no text
-              },
+              iconSize: 24,
+              iconPosition: "top",
+              iconPadding: { bottom: 0 },
             },
             {
               iconName: "settings",
               iconLibrary: "MaterialIcons",
               iconSize: 24,
               iconPosition: "top",
-              iconPadding: {
-                bottom: 0,
-              },
+              iconPadding: { bottom: 0 },
             },
             {
               iconName: "user",
               iconLibrary: "FontAwesome",
               iconSize: 24,
               iconPosition: "top",
-              iconPadding: {
-                bottom: 0,
-              },
+              iconPadding: { bottom: 0 },
             },
           ],
           colors: {
             light: {
-              selected: "#ff0000", // Red for selected icons in light theme
-              unselected: "#cccccc", // Light gray for unselected icons in light theme
+              selected: "#ff0000",
+              unselected: "#cccccc",
             },
             dark: {
-              selected: "#00ff00", // Green for selected icons in dark theme
-              unselected: "#666666", // Dark gray for unselected icons in dark theme
+              selected: "#00ff00",
+              unselected: "#666666",
             },
           },
         }}
@@ -457,11 +441,11 @@ const ThemedSegmentedControlExamples: React.FC = () => {
         onChange={setCustomSeparators}
         separator={{
           show: true,
-          width: 2, // Thicker separator
-          height: 0.6, // 60% of the control height
+          width: 2,
+          height: 0.6,
           colors: {
-            light: "#00BFFF", // Light blue for light theme
-            dark: "#1E90FF", // Dark blue for dark theme
+            light: "#00BFFF",
+            dark: "#1E90FF",
           },
         }}
         animatedSwitch={true}
@@ -476,7 +460,6 @@ const ThemedSegmentedControlExamples: React.FC = () => {
         onChange={setShadowDefault}
         themeType="primary"
       />
-
       <ThemedText style={styles.selectedText}>
         Selected: {["Default 1", "Default 2", "Default 3"][shadowDefault]}
       </ThemedText>
@@ -523,7 +506,6 @@ const ThemedSegmentedControlExamples: React.FC = () => {
           },
         }}
       />
-
       <ThemedText style={styles.selectedText}>
         Selected: {["Custom 1", "Custom 2", "Custom 3"][shadowCustom]}
       </ThemedText>
@@ -546,8 +528,7 @@ const ThemedSegmentedControlExamples: React.FC = () => {
         }}
       />
       <ThemedText style={styles.selectedText}>
-        Selected:{" "}
-        {["Default 1", "Default 2", "Default 3"][customSegmentMargins]}
+        Selected: {["Default 1", "Default 2", "Default 3"][customSegmentMargins]}
       </ThemedText>
 
       <ThemedText style={styles.sectionTitle}>
@@ -587,17 +568,16 @@ const ThemedSegmentedControlExamples: React.FC = () => {
           },
           colors: {
             light: {
-              selected: "#000000", // Black for light theme
-              unselected: "#555555", // Dark gray for light theme
+              selected: "#000000",
+              unselected: "#555555",
             },
             dark: {
-              selected: "#FFFFFF", // White for dark theme
-              unselected: "#BBBBBB", // Light gray for dark theme
+              selected: "#FFFFFF",
+              unselected: "#BBBBBB",
             },
           },
         }}
       />
-
       <ThemedText style={styles.selectedText}>
         Selected:{" "}
         {
@@ -616,7 +596,7 @@ const ThemedSegmentedControlExamples: React.FC = () => {
         customWidth={300}
         customHeight={50}
         disabled={{
-          indices: [1, 2], // Disable the second and third segments
+          indices: [1, 2],
           colors: {
             light: {
               background: "#E0E0E0",
@@ -629,10 +609,30 @@ const ThemedSegmentedControlExamples: React.FC = () => {
           },
         }}
       />
-
       <ThemedText style={styles.selectedText}>
         Selected:{" "}
         {["Default 1", "Default 2", "Default 3", "Default 4"][disabledButtons]}
+      </ThemedText>
+
+      {/* UNDERLINE INDICATOR EXAMPLE */}
+      <ThemedText style={styles.sectionTitle}>Underline Indicator Example</ThemedText>
+      <ThemedSegmentedControl
+        values={["Underline 1", "Underline 2", "Underline 3"]}
+        selectedIndex={underlineExample}
+        onChange={setUnderlineExample}
+        themeType="primary"
+        customWidth={300}
+        customHeight={50}
+        animatedSwitch={true}
+        selectedIndicator={{
+          useUnderline: true,
+          underlineThickness: 4,  // try changing to 2 or 6 if you like
+          underlineWidth: 50, // or a fixed number
+        }}
+        style={styles.segmentedControl}
+      />
+      <ThemedText style={styles.selectedText}>
+        Selected: {["Underline 1", "Underline 2", "Underline 3"][underlineExample]}
       </ThemedText>
     </View>
   );
@@ -640,9 +640,9 @@ const ThemedSegmentedControlExamples: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Allow the container to fill available space
-    justifyContent: "center", // Center items vertically
-    alignItems: "center", // Center items horizontally
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   sectionTitle: {
