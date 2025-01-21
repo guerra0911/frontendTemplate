@@ -16,8 +16,8 @@ import ThemedCardActions from "@/components/templates/cards/ThemedCardActions";
 import { ThemedText } from "@/components/templates/typography/ThemedText";
 import ThemedButton from "@/components/templates/buttons/ThemedButton";
 import ThemedIcon from "@/components/templates/icons/ThemedIcon";
-import ThemedAvatar from "@/components/templates/avatars/ThemedAvatar"; // if you have a ThemedAvatar
-import { Ionicons } from "@expo/vector-icons"; // or similar
+import ThemedAvatar from "@/components/templates/avatars/ThemedAvatar";
+import { Ionicons } from "@expo/vector-icons";
 
 type CardMode = "elevated" | "outlined" | "contained";
 
@@ -172,17 +172,15 @@ export default function ThemedCardExamples() {
       <ThemedCard
         style={styles.card}
         mode={selectedMode}
-        contentPadding={16} // adds uniform padding inside the card
+        contentPadding={16}
       >
         <ThemedCardCover
           source={{ uri: "https://picsum.photos/seed/customPadding/600/300" }}
-          // margin around the cover subcomponent
           style={{ marginBottom: 8 }}
         />
         <ThemedCardTitle
           title="Custom Paddings"
           subtitle="Card & Subcomponents"
-          // margin around the title
           style={{ margin: 8 }}
         />
         <ThemedCardContent style={{ marginBottom: 8 }}>
@@ -192,9 +190,37 @@ export default function ThemedCardExamples() {
           </ThemedText>
         </ThemedCardContent>
         <ThemedCardActions style={{ marginTop: 8 }}>
-        <ThemedButton title="Action 1" onPress={() => Alert.alert("Action 1 pressed")} customWidth={162} />
-        <ThemedButton title="Action 2" onPress={() => Alert.alert("Action 2 pressed")} customWidth={162} />
+          <ThemedButton title="Action 1" onPress={() => Alert.alert("Action 1 pressed")} customWidth={162} />
+          <ThemedButton title="Action 2" onPress={() => Alert.alert("Action 2 pressed")} customWidth={162} />
         </ThemedCardActions>
+      </ThemedCard>
+
+      {/* 9) Card with cover rounded only at the top */}
+      <ThemedCard style={styles.card} mode={selectedMode}>
+        <ThemedCardCover
+          source={{ uri: "https://picsum.photos/seed/toponly/600/300" }}
+          roundTopOnly={true}
+        />
+        <ThemedCardTitle title="Top Rounded Only" style={{ margin: 8 }}/>
+        <ThemedCardContent>
+          <ThemedText>
+            This cover image rounds only the top corners.
+          </ThemedText>
+        </ThemedCardContent>
+      </ThemedCard>
+
+      {/* 10) Card with cover rounded only at the bottom */}
+      <ThemedCard style={styles.card} mode={selectedMode}>
+        <ThemedCardCover
+          source={{ uri: "https://picsum.photos/seed/bottomonly/600/300" }}
+          roundBottomOnly={true}
+        />
+        <ThemedCardTitle title="Bottom Rounded Only" style={{ margin: 8 }}/>
+        <ThemedCardContent>
+          <ThemedText>
+            This cover image rounds only the bottom corners.
+          </ThemedText>
+        </ThemedCardContent>
       </ThemedCard>
 
     </ScrollView>

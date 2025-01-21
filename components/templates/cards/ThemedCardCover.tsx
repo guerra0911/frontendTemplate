@@ -50,7 +50,10 @@ const ThemedCardCover: React.FC<ThemedCardCoverProps> = ({
   // Compute the border radius values based on the flags.
   let computedBorderStyle: ViewStyle = {};
 
-  if (roundTopOnly) {
+  // If both flags are true, then round all corners (same as default)
+  if (roundTopOnly && roundBottomOnly) {
+    computedBorderStyle = { borderRadius: cornerRadius };
+  } else if (roundTopOnly) {
     computedBorderStyle = {
       borderTopLeftRadius: cornerRadius,
       borderTopRightRadius: cornerRadius,
@@ -77,8 +80,9 @@ const ThemedCardCover: React.FC<ThemedCardCoverProps> = ({
       style={[
         styles.wrapper,
         { height },
+        // Apply computed border radii
         computedBorderStyle,
-        // This extra style allows the user to tweak the outer container.
+        // Allow the user to tweak the outer container.
         style,
       ]}
     >
