@@ -16,6 +16,7 @@ const ThemedCheckBoxExamples: React.FC = () => {
   const [loadingCheck, setLoadingCheck] = useState(false);
   const [disabledCheck, setDisabledCheck] = useState(true);
   const [transparentCheck, setTransparentCheck] = useState(false);
+  const [iconOnlyCheck, setIconOnlyCheck] = useState(false);
 
   // For loading demonstration:
   const handleLoadingPress = () => {
@@ -53,7 +54,6 @@ const ThemedCheckBoxExamples: React.FC = () => {
         customRadius="factor" // circular shape
         roundedAllCorners={true}
         animatedPress={true}
-        // iOS-like subtle styling might just be the default colors, but slightly tweaked if needed
         style={styles.checkBox}
       />
       <ThemedText style={styles.selectedText}>
@@ -194,7 +194,7 @@ const ThemedCheckBoxExamples: React.FC = () => {
       <ThemedCheckBox
         value={transparentCheck}
         onValueChange={setTransparentCheck}
-        backgroundUnchecked={{ light: "transparent", dark: "transparent" }}
+        backgroundUnchecked={{ light: "#34C759", dark: "#34C759" }}
         backgroundChecked={{ light: "#34C759", dark: "#34C759" }}
         borderColorUnchecked={{ light: "#34C759", dark: "#34C759" }}
         borderColorChecked={{ light: "#34C759", dark: "#34C759" }}
@@ -205,15 +205,32 @@ const ThemedCheckBoxExamples: React.FC = () => {
       <ThemedText style={styles.selectedText}>
         {transparentCheck ? "Green Check on Transparent" : "No Fill, Just Border"}
       </ThemedText>
+
+      {/* ICON-ONLY CHECKBOX */}
+      <ThemedText style={styles.sectionTitle}>Icon Only CheckBox</ThemedText>
+      <ThemedCheckBox
+        value={iconOnlyCheck}
+        onValueChange={setIconOnlyCheck}
+        // Set both unchecked and checked backgrounds and borders to transparent.
+        backgroundUnchecked={{ light: "transparent", dark: "transparent" }}
+        backgroundChecked={{ light: "transparent", dark: "transparent" }}
+        borderColorUnchecked={{ light: "transparent", dark: "transparent" }}
+        borderColorChecked={{ light: "transparent", dark: "transparent" }}
+        // Optionally set a distinct icon color so the checkmark stands out.
+        iconColorChecked={{ light: "#007AFF", dark: "#0A84FF" }}
+        customSize={40}
+        iconName="checkmark"
+        iconSize={24}
+        style={styles.checkBox}
+      />
+      <ThemedText style={styles.selectedText}>
+        {iconOnlyCheck ? "Icon Only (Checked)" : "Icon Only (Unchecked)"}
+      </ThemedText>
     </ScrollView>
   );
 };
 
 export default ThemedCheckBoxExamples;
-
-// ################################################################################
-// STYLES
-// ################################################################################
 
 const styles = StyleSheet.create({
   container: {

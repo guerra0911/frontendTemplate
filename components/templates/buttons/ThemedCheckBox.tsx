@@ -279,9 +279,9 @@ const ThemedCheckBox: React.FC<ThemedCheckBoxProps> = ({
   const {
     color: shadowColor,
     offset = { width: 0, height: 1 },
-    opacity = 0.2,
+    opacity = 0.0,
     radius = 2,
-    elevation = 2,
+    elevation = 0,
   } = shadows;
 
   const resolvedShadowColor = useThemeColor(
