@@ -127,6 +127,5 @@ const styles = StyleSheet.create({
   link: {
     fontSize: 16,
     lineHeight: 30,
-    // The color is determined by theme, but we can keep a fallback style if needed
   },
 });

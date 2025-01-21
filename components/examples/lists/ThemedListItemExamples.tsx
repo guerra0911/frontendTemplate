@@ -16,7 +16,8 @@ import ThemedListIcon from "@/components/templates/lists/ThemedListIcon";
 import ThemedListImage from "@/components/templates/lists/ThemedListImage";
 import ThemedCard from "@/components/templates/cards/ThemedCard";
 import ThemedActivityIndicator from "@/components/templates/loaders/ThemedActivityIndicator";
-
+import ThemedCardContent from "@/components/templates/cards/ThemedCardContent";
+import ThemedCardTitle from "@/components/templates/cards/ThemedCardTitle";
 // We'll mock a "CenteredCheckbox" component using ThemedCheckBox for demonstration
 function CenteredCheckbox() {
   return (
@@ -200,10 +201,10 @@ export default function ThemedListItemExamples() {
         middleChildren={
           <View style={{ marginTop: 8 }}>
             <ThemedCard style={{ padding: 10 }}>
-              <ThemedCard.Title title="I'm a ThemedCard in a list item!" />
-              <ThemedCard.Content>
+              <ThemedCardTitle title="I'm a ThemedCard in a list item!" />
+              <ThemedCardContent>
                 <ThemedText>Nested inside middleChildren</ThemedText>
-              </ThemedCard.Content>
+              </ThemedCardContent>
             </ThemedCard>
           </View>
         }
@@ -214,9 +215,9 @@ export default function ThemedListItemExamples() {
         title="Mixed children"
         leftChildren={
           <ThemedCard style={{ width: 80, height: 60 }}>
-            <ThemedCard.Content>
+            <ThemedCardContent>
               <ThemedText>Left Card</ThemedText>
-            </ThemedCard.Content>
+            </ThemedCardContent>
           </ThemedCard>
         }
         rightChildren={

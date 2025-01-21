@@ -7,6 +7,7 @@ import ThemedToggleSwitchListItem from "@/components/templates/lists/ThemedToggl
 import { ThemedText } from "@/components/templates/typography/ThemedText";
 import { ThemedDivider } from "@/components/templates/general/ThemedDivder";
 import ThemedCard from "@/components/templates/cards/ThemedCard";
+import ThemedCardTitle from "@/components/templates/cards/ThemedCardTitle";
 
 export default function ThemedToggleSwitchListItemExamples() {
   const [switchVal1, setSwitchVal1] = useState(false);
@@ -80,7 +81,7 @@ export default function ThemedToggleSwitchListItemExamples() {
         switchPosition="left"
         rightChildren={
           <ThemedCard style={{ padding: 8, width: 120 }}>
-            <ThemedCard.Title title="Right Card" />
+            <ThemedCardTitle title="Right Card" />
           </ThemedCard>
         }
         title="Switch on left, card on right"

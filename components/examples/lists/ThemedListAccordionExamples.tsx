@@ -12,6 +12,7 @@ import { ThemedDivider } from "@/components/templates/general/ThemedDivder";
 import ThemedListIcon from "@/components/templates/lists/ThemedListIcon";
 import ThemedActivityIndicator from "@/components/templates/loaders/ThemedActivityIndicator";
 import ThemedCard from "@/components/templates/cards/ThemedCard";
+import ThemedCardTitle from "@/components/templates/cards/ThemedCardTitle";
 
 export default function ThemedListAccordionExamples() {
   const [expanded, setExpanded] = useState(true);
@@ -138,7 +139,7 @@ export default function ThemedListAccordionExamples() {
         leftChildren={<ThemedActivityIndicator animating size={20} />}
         middleChildren={
           <ThemedCard style={{ padding: 8 }}>
-            <ThemedCard.Title title="Card inside the header" />
+            <ThemedCardTitle title="Card inside the header" />
           </ThemedCard>
         }
         rightChildren={

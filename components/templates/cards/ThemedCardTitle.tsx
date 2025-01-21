@@ -1,57 +1,38 @@
 /**
  * ThemedCardTitle.tsx
  *
- * A header area with a title and an optional subtitle. 
- * Optionally, you can add a left or right element (like an avatar or icon).
+ * Accepts style + title, subtitle, left/right icons, etc.
  */
 
 import React from "react";
-import {
-  View,
-  StyleSheet,
-  StyleProp,
-  ViewStyle,
-  TextStyle,
-} from "react-native";
+import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import { ThemedText } from "@/components/templates/typography/ThemedText";
 
-export interface ThemedCardTitleProps {
-  /** Title text (string). */
-  title?: string;
-
-  /** Subtitle text (string). */
+interface ThemedCardTitleProps {
+  title: string;
   subtitle?: string;
-
-  /** Style for the container wrapping the title/subtitle. */
-  style?: StyleProp<ViewStyle>;
-
-  /** Style for the title text. */
-  titleStyle?: StyleProp<TextStyle>;
-
-  /** Style for the subtitle text. */
-  subtitleStyle?: StyleProp<TextStyle>;
+  left?: () => React.ReactNode;
+  right?: () => React.ReactNode;
+  style?: StyleProp<ViewStyle>; // <--- NEW
 }
 
 const ThemedCardTitle: React.FC<ThemedCardTitleProps> = ({
   title,
   subtitle,
+  left,
+  right,
   style,
-  titleStyle,
-  subtitleStyle,
 }) => {
   return (
     <View style={[styles.container, style]}>
-      {title ? (
-        <ThemedText style={[styles.title, titleStyle]} type="defaultSemiBold">
-          {title}
-        </ThemedText>
-      ) : null}
-
-      {subtitle ? (
-        <ThemedText style={[styles.subtitle, subtitleStyle]} type="default">
-          {subtitle}
-        </ThemedText>
-      ) : null}
+      {left && <View style={styles.left}>{left()}</View>}
+      <View style={styles.textContainer}>
+        <ThemedText style={styles.title}>{title}</ThemedText>
+        {subtitle ? (
+          <ThemedText style={styles.subtitle}>{subtitle}</ThemedText>
+        ) : null}
+      </View>
+      {right && <View style={styles.right}>{right()}</View>}
     </View>
   );
 };
@@ -60,16 +41,24 @@ export default React.memo(ThemedCardTitle);
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    // By default, no extra padding
+  },
+  left: {
+    marginRight: 8,
+  },
+  right: {
+    marginLeft: "auto", // pushes right content to far end
+  },
+  textContainer: {
+    flexShrink: 1,
+    // typically no padding by default
   },
   title: {
-    fontSize: 18,
-    marginBottom: 2,
+    fontWeight: "bold",
   },
   subtitle: {
-    fontSize: 14,
-    color: "#666666",
+    color: "#666",
   },
 });

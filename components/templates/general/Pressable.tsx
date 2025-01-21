@@ -72,6 +72,8 @@ const Pressable: React.FC<PressableProps> = ({
   const [pressed, setPressed] = useState(false);
   const [focused, setFocused] = useState(false);
 
+  // Use a ref to always have the current pressed state
+  const pressedRef = useRef(false);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Web: handle hover
@@ -96,27 +98,29 @@ const Pressable: React.FC<PressableProps> = ({
     (e: GestureResponderEvent) => {
       if (!disabled) {
         setPressed(true);
+        pressedRef.current = true; // update ref immediately
         onPressIn?.(e);
 
-        // If user wants onLongPress and a delay
-        if (delayLongPress != null && onLongPress) {
-          // Start a timer to call onLongPress after the delay
+        // If user wants onLongPress, start the timer using a default delay of 500ms if not provided
+        if (onLongPress) {
+          const actualDelay = delayLongPress ?? 500;
           longPressTimer.current = setTimeout(() => {
             // Only invoke onLongPress if still pressed and not disabled
-            if (pressed && !disabled) {
-              onLongPress?.(e);
+            if (pressedRef.current && !disabled) {
+              onLongPress(e);
             }
-          }, delayLongPress);
+          }, actualDelay);
         }
       }
     },
-    [disabled, onPressIn, onLongPress, delayLongPress, pressed]
+    [disabled, onPressIn, onLongPress, delayLongPress]
   );
 
   const handlePressOut = useCallback(
     (e: GestureResponderEvent) => {
       if (!disabled) {
         setPressed(false);
+        pressedRef.current = false;
         onPressOut?.(e);
 
         // Cancel any pending long-press timer
@@ -134,7 +138,7 @@ const Pressable: React.FC<PressableProps> = ({
       if (!disabled) {
         onPress?.(e);
 
-        // If user tapped quickly, we also need to clear the timer
+        // If user tapped quickly, also clear the timer
         if (longPressTimer.current) {
           clearTimeout(longPressTimer.current);
           longPressTimer.current = null;

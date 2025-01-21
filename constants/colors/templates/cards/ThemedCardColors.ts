@@ -1,32 +1,64 @@
 /**
  * ThemedCardColors.ts
  *
- * Defines color keys for a Card in light/dark mode,
- * supporting primary, secondary, and tertiary variants,
- * as well as typed border colors.
+ * Contains color keys for ThemedCard with "elevated", "outlined", "contained" modes
+ * across primary, secondary, and tertiary.
+ * 
+ * The naming scheme is flexible: 
+ *   cardBackground{Mode}{ThemeType}, cardBorder{Mode}{ThemeType}, etc.
  */
+
 const ThemedCardColors = {
   light: {
-    // Background (for "contained" or general card background)
-    cardBackgroundPrimary: "#FFFFFF",
-    cardBackgroundSecondary: "#F5F5F5",
-    cardBackgroundTertiary: "#EFEFEF",
+    // ELEVATED mode background
+    cardBackgroundElevatedPrimary: "#fff",
+    cardBackgroundElevatedSecondary: "#fefefe",
+    cardBackgroundElevatedTertiary: "#fdfdfd",
 
-    // Border
-    cardBorderPrimary: "#CCCCCC",
-    cardBorderSecondary: "#BBBBBB",
-    cardBorderTertiary: "#AAAAAA",
+    // CONTAINED mode background
+    cardBackgroundContainedPrimary: "#e7fdff",
+    cardBackgroundContainedSecondary: "#e7fdff",
+    cardBackgroundContainedTertiary: "#e7fdff",
+
+    // OUTLINED mode background
+    cardBackgroundOutlinedPrimary: "#fff",
+    cardBackgroundOutlinedSecondary: "#fff",
+    cardBackgroundOutlinedTertiary: "#fff",
+
+    // Borders for OUTLINED mode
+    cardBorderOutlinedPrimary: "#cccccc",
+    cardBorderOutlinedSecondary: "#bdbdbd",
+    cardBorderOutlinedTertiary: "#aaaaaa",
+
+    // Shadows
+    cardShadowColorPrimary: "#000",
+    cardShadowColorSecondary: "#000",
+    cardShadowColorTertiary: "#000",
   },
   dark: {
-    // Background
-    cardBackgroundPrimary: "#2C2C2C",
-    cardBackgroundSecondary: "#333333",
-    cardBackgroundTertiary: "#3A3A3A",
+    // ELEVATED
+    cardBackgroundElevatedPrimary: "#1e1e1e",
+    cardBackgroundElevatedSecondary: "#1f1f1f",
+    cardBackgroundElevatedTertiary: "#202020",
 
-    // Border
-    cardBorderPrimary: "#555555",
-    cardBorderSecondary: "#666666",
-    cardBorderTertiary: "#777777",
+    // CONTAINED
+    cardBackgroundContainedPrimary: "#1c1c1c",
+    cardBackgroundContainedSecondary: "#1c1c1c",
+    cardBackgroundContainedTertiary: "#1c1c1c",
+
+    // OUTLINED
+    cardBackgroundOutlinedPrimary: "#1c1c1c",
+    cardBackgroundOutlinedSecondary: "#1c1c1c",
+    cardBackgroundOutlinedTertiary: "#1c1c1c",
+
+    cardBorderOutlinedPrimary: "#555555",
+    cardBorderOutlinedSecondary: "#666666",
+    cardBorderOutlinedTertiary: "#777777",
+
+    // Shadows
+    cardShadowColorPrimary: "#000",
+    cardShadowColorSecondary: "#000",
+    cardShadowColorTertiary: "#000",
   },
 };
 

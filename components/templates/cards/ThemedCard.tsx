@@ -1,26 +1,20 @@
 /**
  * ThemedCard.tsx
  *
- * A themed Card component supporting:
- *  - mode: "elevated", "outlined", "contained"
- *  - type: "primary", "secondary", "tertiary" (for background/border color variants)
- *  - optional onPress / onLongPress for pressable cards
- *  - custom styles
- *
- * Uses `ThemedSurface` for background/elevation and
- * `ThemedTouchableRipple` for press handling (if onPress is present).
+ * Implements a themable Card with modes "elevated", "outlined", "contained".
+ * Follows your existing Themed approach with useThemeColor, ThemedTouchableRipple, etc.
  */
 
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import {
-  Animated,
-  GestureResponderEvent,
   StyleProp,
   ViewStyle,
+  GestureResponderEvent,
+  Animated,
+  StyleSheet,
   View,
 } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import ThemedSurface from "@/components/templates/containers/ThemedSurface";
 import ThemedTouchableRipple from "@/components/templates/buttons/ThemedTouchableRipple";
 import ThemedCardContent from "./ThemedCardContent";
 import ThemedCardActions from "./ThemedCardActions";
@@ -28,203 +22,259 @@ import ThemedCardCover from "./ThemedCardCover";
 import ThemedCardTitle from "./ThemedCardTitle";
 
 ////////////////////////////////////////////////////////////////////////////////
-// TYPES
+// TYPE DEFINITIONS
 ////////////////////////////////////////////////////////////////////////////////
 
-export type ThemedCardMode = "elevated" | "outlined" | "contained";
-export type ThemedCardType = "primary" | "secondary" | "tertiary";
+type CardMode = "elevated" | "outlined" | "contained";
+type CardThemeType = "primary" | "secondary" | "tertiary";
 
-/** Color keys for background from ThemedCardColors. */
-type CardBackgroundColorType =
-  | "cardBackgroundPrimary"
-  | "cardBackgroundSecondary"
-  | "cardBackgroundTertiary";
+type ThemeColorType =
+  // ELEVATED
+  | "cardBackgroundElevatedPrimary"
+  | "cardBackgroundElevatedSecondary"
+  | "cardBackgroundElevatedTertiary"
+  // CONTAINED
+  | "cardBackgroundContainedPrimary"
+  | "cardBackgroundContainedSecondary"
+  | "cardBackgroundContainedTertiary"
+  // OUTLINED
+  | "cardBackgroundOutlinedPrimary"
+  | "cardBackgroundOutlinedSecondary"
+  | "cardBackgroundOutlinedTertiary"
+  // BORDERS
+  | "cardBorderOutlinedPrimary"
+  | "cardBorderOutlinedSecondary"
+  | "cardBorderOutlinedTertiary"
+  // SHADOWS
+  | "cardShadowColorPrimary"
+  | "cardShadowColorSecondary"
+  | "cardShadowColorTertiary";
 
-/** Color keys for border from ThemedCardColors. */
-type CardBorderColorType =
-  | "cardBorderPrimary"
-  | "cardBorderSecondary"
-  | "cardBorderTertiary";
-
-/**
- * Props for ThemedCard.
- * - Accepts optional color overrides for background/border
- *   but defaults to your theming system if not provided.
- */
 export interface ThemedCardProps {
-  /** The card's children (e.g. <ThemedCardTitle/>, <ThemedCardContent/>, etc.) */
+  /** The card children, e.g. <ThemedCardContent>, <ThemedCardCover>, etc. */
   children?: React.ReactNode;
 
-  /** The mode: "elevated", "outlined", or "contained". @default "elevated" */
-  mode?: ThemedCardMode;
+  /** The mode: "elevated", "outlined", "contained". @default "elevated" */
+  mode?: CardMode;
 
-  /** The color "type": primary, secondary, or tertiary. @default "primary" */
-  type?: ThemedCardType;
-
-  /** Elevation level if "mode=elevated". e.g. 2, 3, 6. @default 2 */
-  elevation?: number;
-
-  /** Optional press handlers => makes card pressable with ripple. */
-  onPress?: (event: GestureResponderEvent) => void;
-  onLongPress?: (event: GestureResponderEvent) => void;
-  disabled?: boolean;
-
-  /** Additional style for the card container. */
-  style?: StyleProp<ViewStyle>;
-
-  /** Additional style for the inner content container. */
-  contentStyle?: StyleProp<ViewStyle>;
-
-  /** An optional testID for testing. @default "themed-card" */
-  testID?: string;
+  /** The theme type: primary, secondary, or tertiary. @default "primary" */
+  themeType?: CardThemeType;
 
   /**
-   * Optional color overrides for the background or border.
-   * If not provided, defaults come from ThemedCardColors.ts
+   * Elevation (shadow depth) if "mode=elevated".
+   * If mode="outlined" or "contained", ignored.
+   * @default 4
    */
-  backgroundColor?: { light?: string; dark?: string };
-  borderColor?: { light?: string; dark?: string };
+  elevation?: number;
+
+  /** onPress => card is pressable. */
+  onPress?: (e: GestureResponderEvent) => void;
+  onLongPress?: (e: GestureResponderEvent) => void;
+  onPressIn?: (e: GestureResponderEvent) => void;
+  onPressOut?: (e: GestureResponderEvent) => void;
+  delayLongPress?: number;
+
+  /** If true, disable interaction. @default false */
+  disabled?: boolean;
+
+  /** Container styling. */
+  style?: StyleProp<ViewStyle>;
+
+  /** Inner content container styling. */
+  contentStyle?: StyleProp<ViewStyle>;
+
+  /**
+   * Uniform padding to apply around all children inside the card.
+   * Defaults to `0` so that it matches the "edge-touching" design.
+   */
+  contentPadding?: number;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// HELPER: getColorKey
-////////////////////////////////////////////////////////////////////////////////
-
-function getBackgroundColorKey(
-  base: "cardBackground",
-  type: ThemedCardType
-): CardBackgroundColorType {
-  return `${base}${type.charAt(0).toUpperCase() + type.slice(1)}` as CardBackgroundColorType;
-}
-
-function getBorderColorKey(
-  base: "cardBorder",
-  type: ThemedCardType
-): CardBorderColorType {
-  return `${base}${type.charAt(0).toUpperCase() + type.slice(1)}` as CardBorderColorType;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// BASE CARD COMPONENT
+// COMPONENT
 ////////////////////////////////////////////////////////////////////////////////
 
 const ThemedCardBase: React.FC<ThemedCardProps> = ({
   children,
   mode = "elevated",
-  type = "primary",
-  elevation = 2,
+  themeType = "primary",
+  elevation = 4, // default 4 for a noticeable shadow
   onPress,
   onLongPress,
+  onPressIn,
+  onPressOut,
+  delayLongPress,
   disabled = false,
   style,
   contentStyle,
-  testID = "themed-card",
-
-  // NEW color override props
-  backgroundColor = {},
-  borderColor = {},
+  contentPadding = 0, // <--- new prop with default 0
 }) => {
-  // Animated value for "pressed" elevation if mode=elevated
-  const elevationAnim = useRef(new Animated.Value(elevation)).current;
+  // ----------------------------------------------------------------------------
+  // 1) Resolve color keys via theme
+  // ----------------------------------------------------------------------------
+  function capitalize(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 
-  // Press-in or Press-out animation
-  const handlePressIn = () => {
-    if (mode === "elevated" && !disabled) {
-      Animated.timing(elevationAnim, {
-        toValue: Math.max(elevation + 2, 8),
-        duration: 100,
-        useNativeDriver: false,
-      }).start();
-    }
-  };
+  function getBgColorKey(cardMode: CardMode, type: CardThemeType): ThemeColorType {
+    // e.g. "cardBackgroundElevatedPrimary", "cardBackgroundContainedPrimary", etc.
+    return `cardBackground${capitalize(cardMode)}${capitalize(type)}` as ThemeColorType;
+  }
 
-  const handlePressOut = () => {
-    if (mode === "elevated" && !disabled) {
-      Animated.timing(elevationAnim, {
-        toValue: elevation,
-        duration: 100,
-        useNativeDriver: false,
-      }).start();
-    }
-  };
+  function getBorderColorKey(type: CardThemeType): ThemeColorType {
+    return `cardBorderOutlined${capitalize(type)}` as ThemeColorType;
+  }
 
-  // THEME COLORS
-  // Use the color override if provided, else default from color file
-  const bgColorKey = getBackgroundColorKey("cardBackground", type);
-  const resolvedBackgroundColor = useThemeColor(backgroundColor, bgColorKey);
+  function getShadowColorKey(type: CardThemeType): ThemeColorType {
+    return `cardShadowColor${capitalize(type)}` as ThemeColorType;
+  }
 
-  const borderKey = getBorderColorKey("cardBorder", type);
-  const resolvedBorderColor = useThemeColor(borderColor, borderKey);
+  // 1A) The background color (no fallback)
+  const backgroundColorKey = getBgColorKey(mode, themeType);
+  const resolvedBackgroundColor = useThemeColor({}, backgroundColorKey);
 
-  // Outline style if mode=outlined
-  const outlineStyle =
-    mode === "outlined"
-      ? { borderWidth: 1, borderColor: resolvedBorderColor }
+  // 1B) For outlined mode => border color
+  const borderColorKey = getBorderColorKey(themeType);
+  const resolvedBorderColor = useThemeColor({}, borderColorKey);
+
+  // 1C) For shadows => shadow color
+  const shadowColorKey = getShadowColorKey(themeType);
+  const resolvedShadowColor = useThemeColor({}, shadowColorKey);
+
+  // ----------------------------------------------------------------------------
+  // 2) Elevation & shadow styling
+  // ----------------------------------------------------------------------------
+  const cardElevation = useRef(new Animated.Value(mode === "elevated" ? elevation : 0)).current;
+
+  const shadowStyle =
+    mode === "elevated"
+      ? {
+          shadowColor: resolvedShadowColor,
+          shadowOffset: {
+            width: 0,
+            height: cardElevation, // iOS offset
+          },
+          shadowRadius: cardElevation, // iOS blur
+          shadowOpacity: 0.3,
+          elevation: cardElevation, // Android elevation
+        }
       : {};
 
-  // Elevation if mode=elevated
-  const containerElevation = mode === "elevated" ? elevationAnim : 0;
+  const outlineStyle =
+    mode === "outlined"
+      ? {
+          borderWidth: 1,
+          borderColor: resolvedBorderColor,
+        }
+      : {};
 
-  // The card content
-  const renderContent = () => (
-    <View style={[{ flex: 1 }, contentStyle]} testID={`${testID}-content`}>
+  // ----------------------------------------------------------------------------
+  // 3) Press-handling => animate from base => bigger
+  // ----------------------------------------------------------------------------
+  const handlePressIn = (e: GestureResponderEvent) => {
+    onPressIn?.(e);
+    if (mode === "elevated" && !disabled) {
+      Animated.spring(cardElevation, {
+        toValue: elevation * 3,
+        useNativeDriver: false,
+      }).start();
+    }
+  };
+
+  const handlePressOut = (e: GestureResponderEvent) => {
+    onPressOut?.(e);
+    if (mode === "elevated" && !disabled) {
+      Animated.spring(cardElevation, {
+        toValue: elevation,
+        useNativeDriver: false,
+      }).start();
+    }
+  };
+
+  const isPressable = onPress || onLongPress || onPressIn || onPressOut ? true : false;
+
+  // ----------------------------------------------------------------------------
+  // 4) Render
+  // ----------------------------------------------------------------------------
+  const content = (
+    <View
+      style={[
+        styles.innerContainer,
+        contentStyle,
+        { padding: contentPadding },
+      ]}
+    >
       {children}
     </View>
   );
 
-  return (
-    <ThemedSurface
-      testID={testID}
-      style={[
-        {
-          backgroundColor: resolvedBackgroundColor,
-          elevation: containerElevation as unknown as number, // Animated.Value => cast
-        },
-        outlineStyle,
-        style,
-      ]}
-    >
-      {onPress || onLongPress ? (
+  const innerWrapper = (
+    <View style={styles.innerWrapper}>
+      {isPressable ? (
         <ThemedTouchableRipple
           disabled={disabled}
           onPress={onPress}
           onLongPress={onLongPress}
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
+          delayLongPress={delayLongPress}
           style={{ flex: 1 }}
         >
-          {renderContent()}
+          {content}
         </ThemedTouchableRipple>
       ) : (
-        renderContent()
+        content
       )}
-    </ThemedSurface>
+    </View>
+  );
+
+  return (
+    <Animated.View
+      style={[
+        styles.container,
+        style,
+        { backgroundColor: resolvedBackgroundColor },
+        shadowStyle,
+        outlineStyle,
+      ]}
+    >
+      {innerWrapper}
+    </Animated.View>
   );
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// CREATE MEMO + ATTACH SUBCOMPONENTS
+// ATTACH SUBCOMPONENTS
 ////////////////////////////////////////////////////////////////////////////////
 
-/** 
- * 1. Define an interface that extends the base memoized component 
- * and includes subcomponents.
- */
-interface ThemedCardInterface
-  extends React.MemoExoticComponent<React.FC<ThemedCardProps>> {
+const ThemedCard = React.memo(ThemedCardBase) as unknown as React.FC<ThemedCardProps> & {
   Content: typeof ThemedCardContent;
   Actions: typeof ThemedCardActions;
   Cover: typeof ThemedCardCover;
   Title: typeof ThemedCardTitle;
-}
+};
 
-// 2. Memoize the base card
-const MemoizedThemedCard = React.memo(ThemedCardBase) as ThemedCardInterface;
+ThemedCard.Content = ThemedCardContent;
+ThemedCard.Actions = ThemedCardActions;
+ThemedCard.Cover = ThemedCardCover;
+ThemedCard.Title = ThemedCardTitle;
 
-// 3. Attach sub-components
-MemoizedThemedCard.Content = ThemedCardContent;
-MemoizedThemedCard.Actions = ThemedCardActions;
-MemoizedThemedCard.Cover = ThemedCardCover;
-MemoizedThemedCard.Title = ThemedCardTitle;
+export default ThemedCard;
 
-export default MemoizedThemedCard;
+////////////////////////////////////////////////////////////////////////////////
+// STYLES
+////////////////////////////////////////////////////////////////////////////////
+
+const styles = StyleSheet.create({
+  container: {
+    borderRadius: 8,
+  },
+  innerWrapper: {
+    flex: 1,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  innerContainer: {
+    flexShrink: 1,
+  },
+});
