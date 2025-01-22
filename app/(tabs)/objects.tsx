@@ -4,9 +4,9 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import AllObjectsTab from "../screens/objects/AllObjectsTab";
 import MyObjectsTab from "../screens/objects/MyObjectsTab";
-
-// Import the new ThemedSegmentedControlTabs
-import ThemedSegmentedControlTabs from "@/components/templates/buttons/ThemedSegmentedControlTabs";
+import ThemedSegmentedControlTabs, {
+  RefreshSetter,
+} from "@/components/templates/buttons/ThemedSegmentedControlTabs";
 
 export default function ObjectsScreen() {
   return (
@@ -16,29 +16,30 @@ export default function ObjectsScreen() {
           { label: "All Objects", component: <AllObjectsTab /> },
           { label: "My Objects", component: <MyObjectsTab /> },
         ]}
-        // DESIGN PROPS: these props will make the segmented control look like your example
+        // Now we use the new props:
+        scrollable={true}
+        refreshable={true} // each tab has a pull-to-refresh if scrollable is true
+
+        // If you want custom refresh logic, define onTabRefresh:
+        onTabRefresh={(tabIndex: number, setTabRefreshing: RefreshSetter) => {
+          // e.g. do an async fetch, then end refreshing:
+          console.log(`Refreshing tab: ${tabIndex}`);
+          setTimeout(() => {
+            setTabRefreshing(tabIndex, false);
+            console.log(`Done refreshing tab: ${tabIndex}`);
+          }, 1200);
+        }}
+
+        // Possibly also set animatedPageSlide, or pass the other design props:
+        animatedPageSlide={true}
         animatedSwitch={true}
         themeType="primary"
-        customWidth={300}
+        customWidth={350}
         customHeight={50}
         selectedIndicator={{
           useUnderline: true,
           underlineThickness: 4,
-          // underlineWidth: 50,
-        }}
-        // Optionally you can control alignment and container styling:
-        // By default, our ThemedSegmentedControlTabs centers the segmented control;
-        // you can change it via segmentControlAlignment ("left", "center", "right").
-        segmentControlAlignment="center"
-        segmentControlContainerStyle={{
-          padding: 8,
-          marginBottom: 8,
-        }}
-        // You can override the container background by setting tabsThemeType, for example:
-        tabsThemeType="primary"
-        tabsContainerStyle={{
-          flex: 1,
-          backgroundColor: "transparent",
+          underlineWidth: 50,
         }}
       />
     </View>
@@ -47,7 +48,6 @@ export default function ObjectsScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // fill the screen
-    backgroundColor: "transparent", // or a ThemedView, etc.
+    flex: 1,
   },
 });

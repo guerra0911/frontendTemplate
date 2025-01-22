@@ -1,9 +1,9 @@
 // app/screens/objects/AllObjectsTab.tsx
 
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet } from "react-native";
 import { ThemedText } from "@/components/templates/typography/ThemedText";
-import ThemedScrollContainer from "@/components/templates/containers/ThemedScrollContainer";
+import { ThemedView } from "@/components/templates/containers/ThemedView";
 import ThemedCard from "@/components/templates/cards/ThemedCard";
 import ThemedCardCover from "@/components/templates/cards/ThemedCardCover";
 import ThemedCardContent from "@/components/templates/cards/ThemedCardContent";
@@ -11,27 +11,11 @@ import ThemedCardTitle from "@/components/templates/cards/ThemedCardTitle";
 import ThemedButton from "@/components/templates/buttons/ThemedButton";
 
 export default function AllObjectsTab() {
-  const [refreshing, setRefreshing] = useState(false);
-
-  const handleRefresh = () => {
-    // Simulate an async refresh
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1500);
-  };
-
   return (
-    <ThemedScrollContainer
-      isScrollable
-      isRefreshable
-      onRefresh={handleRefresh}
-      refreshing={refreshing}
-      contentContainerStyle={styles.contentContainer}
-    >
-      <ThemedText type="title" margin={4} padding={2}>All Objects</ThemedText>
-      <ThemedText type="default" style={styles.description}>
-        Keep transparent backgrounds for these components...
+    <ThemedView style={styles.container}>
+      <ThemedText type="title">All Objects</ThemedText>
+      <ThemedText>
+        Keep transparent backgrounds for these components rendered so that the background color stays true to the theme
       </ThemedText>
 
       {/* Some ThemedCard examples */}
@@ -72,21 +56,15 @@ export default function AllObjectsTab() {
           </ThemedText>
         </ThemedCardContent>
       </ThemedCard>
-
-      {/* Extra space at the bottom */}
-      <ThemedText style={{ marginVertical: 20, textAlign: "center" }}>
-        End of All Objects
-      </ThemedText>
-    </ThemedScrollContainer>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  contentContainer: {
-    // optional additional styling
-  },
-  description: {
-    marginBottom: 16,
+  container: {
+    flex: 1,
+    // backgroundColor: 'transparent'
+    padding: 10,
   },
   card: {
     marginBottom: 20,

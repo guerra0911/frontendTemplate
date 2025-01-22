@@ -1,9 +1,9 @@
 // app/screens/objects/MyObjectsTab.tsx
 
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet } from "react-native";
 import { ThemedText } from "@/components/templates/typography/ThemedText";
-import ThemedScrollContainer from "@/components/templates/containers/ThemedScrollContainer";
+import { ThemedView } from "@/components/templates/containers/ThemedView";
 import ThemedCard from "@/components/templates/cards/ThemedCard";
 import ThemedCardCover from "@/components/templates/cards/ThemedCardCover";
 import ThemedCardContent from "@/components/templates/cards/ThemedCardContent";
@@ -12,25 +12,11 @@ import ThemedCardActions from "@/components/templates/cards/ThemedCardActions";
 import ThemedButton from "@/components/templates/buttons/ThemedButton";
 
 export default function MyObjectsTab() {
-  const [refreshing, setRefreshing] = useState(false);
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1500);
-  };
-
   return (
-    <ThemedScrollContainer
-      isScrollable
-      isRefreshable
-      onRefresh={handleRefresh}
-      refreshing={refreshing}
-    >
-      <ThemedText type="title" margin={8} padding={2}>My Objects</ThemedText>
+    <ThemedView style={styles.container}>
+      <ThemedText type="title">My Objects</ThemedText>
 
-      {/* Some more ThemedCard examples */}
+      {/* Some ThemedCard examples */}
       <ThemedCard style={styles.card} mode="outlined">
         <ThemedCardCover
           source={{ uri: "https://picsum.photos/seed/chameleon/600/300" }}
@@ -52,10 +38,7 @@ export default function MyObjectsTab() {
       </ThemedCard>
 
       <ThemedCard style={styles.card} mode="elevated">
-        <ThemedCardTitle
-          title="Long Pressable City"
-          style={{ margin: 8 }}
-        />
+        <ThemedCardTitle title="Long Pressable City" style={{ margin: 8 }} />
         <ThemedCardCover
           source={{ uri: "https://picsum.photos/seed/city/600/300" }}
         />
@@ -66,11 +49,7 @@ export default function MyObjectsTab() {
         </ThemedCardContent>
       </ThemedCard>
 
-      <ThemedCard
-        style={styles.card}
-        mode="outlined"
-        contentPadding={16}
-      >
+      <ThemedCard style={styles.card} mode="outlined" contentPadding={16}>
         <ThemedCardCover
           source={{ uri: "https://picsum.photos/seed/customPadding/600/300" }}
           style={{ marginBottom: 8 }}
@@ -86,28 +65,20 @@ export default function MyObjectsTab() {
           </ThemedText>
         </ThemedCardContent>
         <ThemedCardActions style={{ marginTop: 8 }}>
-          <ThemedButton
-            title="Action 1"
-            onPress={() => {}}
-            customWidth={162}
-          />
-          <ThemedButton
-            title="Action 2"
-            onPress={() => {}}
-            customWidth={162}
-          />
+          <ThemedButton title="Action 1" onPress={() => {}} customWidth={162} />
+          <ThemedButton title="Action 2" onPress={() => {}} customWidth={162} />
         </ThemedCardActions>
       </ThemedCard>
-
-      {/* Extra space at bottom */}
-      <ThemedText style={{ marginVertical: 20, textAlign: "center" }}>
-        End of My Objects
-      </ThemedText>
-    </ThemedScrollContainer>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    // backgroundColor: 'transparent'
+    padding: 10,
+  },
   card: {
     marginBottom: 20,
   },
