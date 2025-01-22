@@ -27,9 +27,8 @@ export default function MyObjectsTab() {
       isRefreshable
       onRefresh={handleRefresh}
       refreshing={refreshing}
-      contentContainerStyle={styles.contentContainer}
     >
-      <ThemedText type="title">My Objects</ThemedText>
+      <ThemedText type="title" margin={8} padding={2}>My Objects</ThemedText>
 
       {/* Some more ThemedCard examples */}
       <ThemedCard style={styles.card} mode="outlined">
@@ -109,14 +108,6 @@ export default function MyObjectsTab() {
 }
 
 const styles = StyleSheet.create({
-  contentContainer: {
-    // optional
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 12,
-  },
   card: {
     marginBottom: 20,
   },

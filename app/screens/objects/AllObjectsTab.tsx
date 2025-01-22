@@ -29,7 +29,7 @@ export default function AllObjectsTab() {
       refreshing={refreshing}
       contentContainerStyle={styles.contentContainer}
     >
-      <ThemedText style={styles.title}>All Objects</ThemedText>
+      <ThemedText type="title" margin={4} padding={2}>All Objects</ThemedText>
       <ThemedText type="default" style={styles.description}>
         Keep transparent backgrounds for these components...
       </ThemedText>
@@ -84,11 +84,6 @@ export default function AllObjectsTab() {
 const styles = StyleSheet.create({
   contentContainer: {
     // optional additional styling
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 12,
   },
   description: {
     marginBottom: 16,

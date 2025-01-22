@@ -16,23 +16,26 @@ export default function ObjectsScreen() {
           { label: "All Objects", component: <AllObjectsTab /> },
           { label: "My Objects", component: <MyObjectsTab /> },
         ]}
-        // (Optional) You can specify separate props for the underlying segmented control:
-        // themeType="primary"
-        // animatedSwitch={true}
-        // customWidth={350}
-        // customHeight={50}
-        // selectedIndicator={{ useUnderline: false }}
-
-        // (Optional) You can specify how you want the container behind the buttons:
-        tabsThemeType="secondary" // e.g. use the "segmentedTabsBackgroundSecondary" color
-        segmentControlContainerStyle={{
-          padding: 12, // INTERNAL SPACING BETWEEN BUTTONS AND THEIR OWN CONTAINER
-          marginBottom: 0, // MARGIN BETWEEN BUTTON CONTAINER & PAGES/CONTENT
+        // DESIGN PROPS: these props will make the segmented control look like your example
+        animatedSwitch={true}
+        themeType="primary"
+        customWidth={300}
+        customHeight={50}
+        selectedIndicator={{
+          useUnderline: true,
+          underlineThickness: 4,
+          // underlineWidth: 50,
         }}
-        // Center alignment is default, but you could do:
-        // segmentControlAlignment="left"
-
-        // This style is for the entire set of tabs content:
+        // Optionally you can control alignment and container styling:
+        // By default, our ThemedSegmentedControlTabs centers the segmented control;
+        // you can change it via segmentControlAlignment ("left", "center", "right").
+        segmentControlAlignment="center"
+        segmentControlContainerStyle={{
+          padding: 8,
+          marginBottom: 8,
+        }}
+        // You can override the container background by setting tabsThemeType, for example:
+        tabsThemeType="primary"
         tabsContainerStyle={{
           flex: 1,
           backgroundColor: "transparent",
