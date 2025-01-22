@@ -61,7 +61,7 @@ export default function MessagesScreen() {
       onRefresh={onRefresh}
       refreshing={refreshing}
     >
-      <ThemedText style={styles.title}>Messages</ThemedText>
+      <ThemedText type="title">MESSAGES</ThemedText>
 
       {/* Themed Text Examples */}
       <ThemedTextExamples />

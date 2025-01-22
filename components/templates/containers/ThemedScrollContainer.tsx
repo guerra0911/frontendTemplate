@@ -50,7 +50,7 @@ const ThemedScrollContainer: React.FC<ThemedScrollContainerProps> = ({
   style,
   contentContainerStyle,
   themeType = "primary",
-  backgroundColor = {}, // default to empty object
+  backgroundColor = {},
 }) => {
   // Helper to build color key
   const getColorKey = (
@@ -61,8 +61,6 @@ const ThemedScrollContainer: React.FC<ThemedScrollContainerProps> = ({
   };
 
   const backgroundColorKey = getColorKey("scrollContainerBackground", themeType);
-
-  // Resolve background color
   const resolvedBackgroundColor = useThemeColor(backgroundColor, backgroundColorKey);
 
   // Handler for pull-to-refresh
@@ -77,8 +75,8 @@ const ThemedScrollContainer: React.FC<ThemedScrollContainerProps> = ({
           style={styles.scrollView}
           contentContainerStyle={[
             styles.contentContainer,
-            contentContainerStyle,
             { backgroundColor: resolvedBackgroundColor },
+            contentContainerStyle,
           ]}
           scrollEnabled
           showsVerticalScrollIndicator={false}
@@ -94,8 +92,8 @@ const ThemedScrollContainer: React.FC<ThemedScrollContainerProps> = ({
         <View
           style={[
             styles.contentContainer,
-            contentContainerStyle,
             { backgroundColor: resolvedBackgroundColor },
+            contentContainerStyle,
           ]}
         >
           {children}
@@ -115,7 +113,8 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexGrow: 1,
-    padding: 15,
+    paddingTop: 15,
+    paddingHorizontal: 15,
     paddingBottom: 50,
   },
 });
