@@ -1,17 +1,25 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
-import { ThemedView } from '@/components/templates/containers/ThemedView';
-import { ThemedText } from '@/components/templates/typography/ThemedText';
-import ThemedScrollContainer from '@/components/templates/containers/ThemedScrollContainer';
+// app/settings/privacySettings.tsx
+import React from "react";
+import { useRouter } from "expo-router";
 
-export default function PrivacySettingsScreen() {  
+import ThemedScrollContainer from "@/components/templates/containers/ThemedScrollContainer";
+import { ThemedText } from "@/components/templates/typography/ThemedText";
+import ThemedCustomHeader from "@/components/templates/headers/ThemedCustomHeader";
+
+export default function PrivacySettingsScreen() {
+  const router = useRouter();
+
   return (
-    <ThemedScrollContainer
-      isScrollable={true}
-      isRefreshable={false}
-    >
-      <ThemedText type="title">Privacy Settings</ThemedText>
-      {/* Add Privacy Settings content here */}
-    </ThemedScrollContainer>
+    <>
+      <ThemedCustomHeader
+        title="Privacy Settings"
+        showBackButton
+        onBackPress={() => router.back()}
+      />
+      <ThemedScrollContainer>
+        <ThemedText type="title">Privacy Settings</ThemedText>
+        {/* content here */}
+      </ThemedScrollContainer>
+    </>
   );
 }

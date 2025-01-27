@@ -1,12 +1,17 @@
-import { Stack } from 'expo-router';
+// app/(auth)/_layout.tsx
+import { Stack } from "expo-router";
 
-const AuthLayout = () => {
+export default function AuthLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-      <Stack.Screen name="sign-up" options={{ headerShown: false }} />
+    <Stack
+      screenOptions={{
+        headerShown: false, // hide react-navigation's header
+        animation: "slide_from_right",
+        gestureEnabled: true,
+      }}
+    >
+      <Stack.Screen name="sign-in" />
+      <Stack.Screen name="sign-up" />
     </Stack>
   );
-};
-
-export default AuthLayout;
+}

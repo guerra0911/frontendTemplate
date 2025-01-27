@@ -1,6 +1,6 @@
+// colors.ts
 /**
  * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 import ThemedSegmentedControlColors from "./templates/buttons/ThemedSegmentedControlColors";
 import ThemedButtonColors from "./templates/buttons/ThemedButtonColors";
@@ -35,7 +35,7 @@ import ThemedExternalLinkColors from "./templates/typography/ThemedExternalLinkC
 import ThemedAvatarColors from "./templates/avatars/ThemedAvatarColors";
 import ThemedDividerColors from "./templates/general/ThemedDividerColors";
 import ThemedListColors from "./templates/lists/ThemedListColors";
-
+import ThemedCustomHeaderColors from "./templates/headers/ThemedCustomHeaderColors";
 
 const tintColorLight = "#0a7ea4";
 const tintColorDark = "#fff";
@@ -55,101 +55,70 @@ export const Colors = {
     // Text Colors
     ...ThemedTextColors.light,
 
-    // Animated Text Colors
+    // Animated Text
     ...ThemedAnimatedTextColors.light,
-
-    // External Link Colors
+    // External Link
     ...ThemedExternalLinkColors.light,
 
-    // Animated Scroll View Colors
+    // Animated Scroll View
     ...ThemedAnimatedScrollViewColors.light,
-
-    // Parallax Scroll View Colors
+    // Parallax Scroll
     ...ThemedParallaxScrollContainerColors.light,
-
-    // Scroll Container Colors
+    // Scroll Container
     ...ThemedScrollContainerColors.light,
-
-    // Tabbed Scroll Container Colors
+    // Tabbed Scroll Container
     ...ThemedTabbedScrollContainerColors.light,
 
-    // View Colors
+    // View
     ...ThemedViewColors.light,
-
-    // Collapsible Colors
+    // Collapsible
     ...ThemedCollapsibleColors.light,
 
-    // Icon Colors
+    // Icon
     ...ThemedIconColors.light,
-
-    // Cross Fade Icon Colors
+    // Cross Fade Icon
     ...ThemedCrossFadeIconColors.light,
 
-    // Button Colors
+    // Buttons
     ...ThemedButtonColors.light,
-
-    // Image Button Colors
     ...ThemedImageButtonColors.light,
-
-    // Text Button Colors
     ...ThemedTextButtonColors.light,
-
-    // Toggle Button Colors
     ...ThemedToggleButtonColors.light,
-
-    // Toggle Switch Colors
     ...ThemedToggleSwitchColors.light,
-
-    // Segmented Control Colors
     ...ThemedSegmentedControlColors.light,
-
-    // Choice Chips Colors
     ...ThemedChoiceChipsColors.light,
-
-    // Check Box Colors
     ...ThemedCheckBoxColors.light,
-
-    // Radio Button Colors
     ...ThemedRadioButtonColors.light,
-
-    // FAB Colors
     ...ThemedFABColors.light,
 
-    // Date Time Selector Colors
+    // Date Time, Calendar
     ...ThemedDateTimeSelectorColors.light,
-
-    // Calendar Selector Colors
     ...ThemedCalendarSelectorColors.light,
 
-    // Context Menu Colors
+    // Context Menu
     ...ThemedContextMenuColors.light,
-
-    // Drop Down Picker Colors
+    // Drop Down
     ...ThemedDropDownPickerColors.light,
 
-    // Card Colors
+    // Card
     ...ThemedCardColors.light,
-
-    // Surface Colors
+    // Surface
     ...ThemedSurfaceColors.light,
-
-    // Touchable Ripple Colors
+    // Ripple
     ...ThemedTouchableRippleColors.light,
-
-    // Activity Indicator Colors
+    // Activity Indicator
     ...ThemedActivityIndicatorColors.light,
-
-    // Chasing Dot Loading Indicator Colors
+    // Chasing Dot
     ...ThemedChasingDotLoadingIndicatorColors.light,
-
-    // Avatar Colors
+    // Avatar
     ...ThemedAvatarColors.light,
-
-    // Divider Colors
+    // Divider
     ...ThemedDividerColors.light,
-
-    // List Colors
+    // List
     ...ThemedListColors.light,
+
+    // Themed Custom Header
+    ...ThemedCustomHeaderColors.light,
   },
   dark: {
     text: "#ECEDEE",
@@ -162,103 +131,71 @@ export const Colors = {
     tabIconSelected: tintColorDark,
     border: "#555",
 
-    // Text Colors
+    // Text
     ...ThemedTextColors.dark,
-
-    // Animated Text Colors
+    // Animated Text
     ...ThemedAnimatedTextColors.dark,
-
-    // External Link Colors
+    // External Link
     ...ThemedExternalLinkColors.dark,
 
-    // Animated Scroll View Colors
+    // Animated Scroll
     ...ThemedAnimatedScrollViewColors.dark,
-
-    // Parallax Scroll View Colors
+    // Parallax
     ...ThemedParallaxScrollContainerColors.light,
-
-    // Scroll Container Colors
+    // Scroll Container
     ...ThemedScrollContainerColors.dark,
-
-    // Tabbed Scroll Container Colors
+    // Tabbed Scroll
     ...ThemedTabbedScrollContainerColors.dark,
 
-    // View Colors
+    // View
     ...ThemedViewColors.dark,
-
-    // Collapsible Colors
+    // Collapsible
     ...ThemedCollapsibleColors.dark,
 
-    // Icon Colors
+    // Icons
     ...ThemedIconColors.dark,
-
-    // Cross Fade Icon Colors
+    // Cross Fade
     ...ThemedCrossFadeIconColors.dark,
 
-    // Button Colors
+    // Buttons
     ...ThemedButtonColors.dark,
-
-    // Image Button Colors
     ...ThemedImageButtonColors.dark,
-
-    // Text Button Colors
     ...ThemedTextButtonColors.dark,
-
-    // Toggle Button Colors
     ...ThemedToggleButtonColors.dark,
-
-    // Toggle Switch Colors
     ...ThemedToggleSwitchColors.dark,
-
-    // Segmented Control Colors
     ...ThemedSegmentedControlColors.dark,
-
-    // Choice Chips Colors
     ...ThemedChoiceChipsColors.dark,
-
-    // Check Box Colors
     ...ThemedCheckBoxColors.dark,
-
-    // Radio Button Colors
     ...ThemedRadioButtonColors.dark,
-
-    // FAB Colors
     ...ThemedFABColors.dark,
 
-    // Date Time Selector Colors
+    // Date/Calendar
     ...ThemedDateTimeSelectorColors.dark,
-
-    // Calendar Selector Colors
     ...ThemedCalendarSelectorColors.dark,
 
-    // Context Menu Colors
+    // Context Menu
     ...ThemedContextMenuColors.dark,
-
-    // Drop Down Picker Colors
+    // Drop Down
     ...ThemedDropDownPickerColors.dark,
 
-    // Card Colors
+    // Card
     ...ThemedCardColors.dark,
-
-     // Surface Colors
-     ...ThemedSurfaceColors.dark,
-     
-    // Touchable Ripple Colors
+    // Surface
+    ...ThemedSurfaceColors.dark,
+    // Ripple
     ...ThemedTouchableRippleColors.dark,
-
-    // Activity Indicator Colors
+    // Activity Indicator
     ...ThemedActivityIndicatorColors.dark,
-
-    // Chasing Dot Loading Indicator Colors
+    // Chasing Dot
     ...ThemedChasingDotLoadingIndicatorColors.dark,
-
-    // Avatar Colors
+    // Avatar
     ...ThemedAvatarColors.dark,
-
-    // Divider Colors
+    // Divider
     ...ThemedDividerColors.dark,
-
-    // List Colors
+    // List
     ...ThemedListColors.dark,
+
+    // Themed Custom Header
+    ...ThemedCustomHeaderColors.dark,
   },
 };

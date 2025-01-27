@@ -1,5 +1,4 @@
-// app/screens/objects/MyObjectsTab.tsx
-
+// app/(tabs)/objects/MyObjectsTab.tsx
 import React from "react";
 import { StyleSheet } from "react-native";
 import { ThemedText } from "@/components/templates/typography/ThemedText";

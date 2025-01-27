@@ -1,5 +1,3 @@
-// app/screens/objects/AllObjectsTab.tsx
-
 import React from "react";
 import { StyleSheet } from "react-native";
 import { ThemedText } from "@/components/templates/typography/ThemedText";
@@ -8,7 +6,6 @@ import ThemedCard from "@/components/templates/cards/ThemedCard";
 import ThemedCardCover from "@/components/templates/cards/ThemedCardCover";
 import ThemedCardContent from "@/components/templates/cards/ThemedCardContent";
 import ThemedCardTitle from "@/components/templates/cards/ThemedCardTitle";
-import ThemedButton from "@/components/templates/buttons/ThemedButton";
 
 export default function AllObjectsTab() {
   return (

@@ -2,62 +2,68 @@
 import {
   DarkTheme,
   DefaultTheme,
-  ThemeProvider,
+  ThemeProvider as NavigationThemeProvider,
 } from "@react-navigation/native";
-import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import React, { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useFonts } from "expo-font";
 
-import { useColorScheme } from "@/hooks/useColorScheme";
 import GlobalProvider from "@/contexts/GlobalProvider";
-
 import PortalHost from "@/components/templates/portal/PortalHost";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
-// Prevent splash screen auto-hide
+// Prevent auto-hiding the splash screen
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
+
+  const [fontsLoaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   useEffect(() => {
-    if (loaded) {
+    if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [fontsLoaded]);
 
-  if (!loaded) {
-    // This might cause a "fewer hooks" warning if you had a mismatch
-    // but typically it's fine. If there's a mismatch, consider
-    // returning <SplashScreen /> or a loading component instead of null.
+  if (!fontsLoaded) {
     return null;
   }
 
   return (
     <GlobalProvider>
       <PortalHost>
-        <ThemeProvider
+        <NavigationThemeProvider
           value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
         >
           <Stack
             screenOptions={{
+              // Hide default header globally
               headerShown: false,
+              animation: "slide_from_right",
+              gestureEnabled: true,
             }}
           >
-            {/* Main App Screens */}
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            {/** 
+             * "index" chooses whether user sees auth or main tabs, depending on login state.
+             */}
+            <Stack.Screen name="index" />
 
-            {/* Global Settings Stack */}
-            <Stack.Screen name="settings" options={{ headerShown: false }} />
+            {/** Auth flow route */}
+            <Stack.Screen name="(auth)" />
+
+            {/** Main tabs route */}
+            <Stack.Screen name="(tabs)" />
+
+            {/** Global settings route */}
+            <Stack.Screen name="settings" />
           </Stack>
           <StatusBar style="auto" />
-        </ThemeProvider>
+        </NavigationThemeProvider>
       </PortalHost>
     </GlobalProvider>
   );

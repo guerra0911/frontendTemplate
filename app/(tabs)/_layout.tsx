@@ -1,141 +1,73 @@
 // app/(tabs)/_layout.tsx
+import { Tabs } from "expo-router";
+import { Platform } from "react-native";
 
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Colors } from "@/constants/colors/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import TabBarBackground from "@/components/ui/TabBarBackground";
+import { HapticTab } from "@/components/templates/general/HapticTab";
 
-import { HapticTab } from '@/components/templates/general/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/colors/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useThemeColor } from '@/hooks/useThemeColor';
-
-// Import custom header components
-import { HomeHeader } from '@/components/headers/tabs/HomeHeader';
-import { ExploreHeader } from '@/components/headers/tabs/ExploreHeader';
-import { MessagesHeader } from '@/components/headers/tabs/MessagesHeader';
-import { ObjectsHeader } from '@/components/headers/tabs/ObjectsHeader';
-import { ProfileHeader } from '@/components/headers/tabs/ProfileHeader';
-
-export default function TabLayout() {
+export default function TabsLayout() {
   const colorScheme = useColorScheme();
-
-  // Get header background color based on theme
-  const headerBackgroundColor = useThemeColor(
-    { light: Colors.light.headerBackground, dark: Colors.dark.headerBackground },
-    'headerBackground'
-  );
-
-  // Get header text color based on theme
-  const headerTextColor = Colors[colorScheme ?? 'light'].text;
+  const activeTint = Colors[colorScheme ?? "light"].tint;
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: true,
-        headerStyle: {
-          backgroundColor: headerBackgroundColor,
-        },
-        headerTintColor: headerTextColor,
-        tabBarButton: HapticTab,
+        headerShown: false, // No default headers on the tab screens
+        tabBarActiveTintColor: activeTint,
         tabBarBackground: TabBarBackground,
+        tabBarButton: HapticTab,
         tabBarStyle: Platform.select({
-          ios: {
-            position: 'absolute',
-          },
+          ios: { position: "absolute" },
           default: {},
         }),
       }}
     >
-      {/* Home Tab with Custom Header */}
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Home',
-          header: ({ navigation, route, options }) => (
-            <HomeHeader
-              title={options.title ?? 'Home'}
-              navigation={navigation}
-              route={route}
-              backgroundColor={headerBackgroundColor}
-              textColor={headerTextColor}
-            />
+          title: "Home",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="house.fill" color={color} />
           ),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
-
-      {/* Objects Tab with Custom Header */}
       <Tabs.Screen
         name="objects"
         options={{
-          title: 'Objects',
-          header: ({ navigation, route, options }) => (
-            <ObjectsHeader
-              title={options.title ?? 'Objects'}
-              navigation={navigation}
-              route={route}
-              backgroundColor={headerBackgroundColor}
-              textColor={headerTextColor}
-            />
+          title: "Objects",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="cube.fill" color={color} />
           ),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="cube.fill" color={color} />,
         }}
       />
-
-      {/* Explore Tab with Custom Header */}
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
-          header: ({ navigation, route, options }) => (
-            <ExploreHeader
-              title={options.title ?? 'Explore'}
-              navigation={navigation}
-              route={route}
-              backgroundColor={headerBackgroundColor}
-              textColor={headerTextColor}
-            />
+          title: "Explore",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="paperplane.fill" color={color} />
           ),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
         }}
       />
-
-      {/* Messages Tab with Custom Header */}
       <Tabs.Screen
         name="messages"
         options={{
-          title: 'Messages',
-          header: ({ navigation, route, options }) => (
-            <MessagesHeader
-              title={options.title ?? 'Messages'}
-              navigation={navigation}
-              route={route}
-              backgroundColor={headerBackgroundColor}
-              textColor={headerTextColor}
-            />
+          title: "Messages",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="t.bubble.fill" color={color} />
           ),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="t.bubble.fill" color={color} />,
         }}
       />
-
-      {/* Profile Tab with Custom Header */}
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
-          header: ({ navigation, route, options }) => (
-            <ProfileHeader
-              title={options.title ?? 'Profile'}
-              navigation={navigation}
-              route={route}
-              backgroundColor={headerBackgroundColor}
-              textColor={headerTextColor}
-            />
+          title: "Profile",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="person.fill" color={color} />
           ),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
         }}
       />
     </Tabs>

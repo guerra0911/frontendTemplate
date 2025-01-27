@@ -43,9 +43,9 @@ export const LogoutButton: React.FC<LogoutButtonProps> = () => {
 
   return (
     <ThemedButton
-      title="Logout"
+      title='Logout'
       onPress={handleLogout}
-      themeType="secondary"
+      themeType="primary"
       loading={{
         isLoading: isLoading,
         text: 'Logging Out...',
@@ -55,16 +55,16 @@ export const LogoutButton: React.FC<LogoutButtonProps> = () => {
       disabled={isLoading}
       animatedPress={true}
       roundedAllCorners={true}
-      customHeight={50}
-      customWidth={200}
+      customHeight={28}
+      customWidth={85}
       icons={{
         iconName: 'log-out',
         iconLibrary: 'Ionicons',
         iconPosition: 'left',
-        iconSize: 20,
+        iconSize: 18,
         iconPadding: {
-          right: 8,
-        },
+          right: 3
+        }
       }}
     />
   );

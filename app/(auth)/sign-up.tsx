@@ -1,3 +1,4 @@
+// app/(auth)/sign-up.tsx
 import React, { useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -5,17 +6,19 @@ import { useRouter } from "expo-router";
 
 import FormField from "@/components/forms/FormField";
 import { registerUser } from "@/services/authServices";
-import { validateEmail, validatePassword, validateUsername } from "@/utils/validation";
+import {
+  validateEmail,
+  validatePassword,
+  validateUsername,
+} from "@/utils/validation";
 import { ThemedText } from "@/components/templates/typography/ThemedText";
 import { ThemedView } from "@/components/templates/containers/ThemedView";
 
 import SignUpButton from "@/components/buttons/SignUpButton";
 import ThemedTextButton from "@/components/templates/buttons/ThemedTextButton";
-
-// NEW IMPORT
 import ThemedScrollContainer from "@/components/templates/containers/ThemedScrollContainer";
 
-const SignUpScreen: React.FC = () => {
+export default function SignUpScreen() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +27,6 @@ const SignUpScreen: React.FC = () => {
   const router = useRouter();
 
   const handleSubmit = async () => {
-    // Validate user data
     if (!validateUsername(username)) {
       Alert.alert(
         "Error",
@@ -35,7 +37,7 @@ const SignUpScreen: React.FC = () => {
     if (!validatePassword(password)) {
       Alert.alert(
         "Error",
-        "Password must be at least 6 characters long and contain at least one number."
+        "Password must be at least 6 characters and contain at least one number."
       );
       return;
     }
@@ -57,7 +59,7 @@ const SignUpScreen: React.FC = () => {
         email.trim()
       );
       Alert.alert("Registration Success", message || "Account created!");
-      router.replace("/sign-in");
+      router.replace("/(auth)/sign-in");
     } catch (error: any) {
       Alert.alert(
         "Registration Failed",
@@ -114,7 +116,6 @@ const SignUpScreen: React.FC = () => {
               secureTextEntry
             />
 
-            {/* Center the button */}
             <ThemedView style={{ marginTop: 24, alignItems: "center" }}>
               <SignUpButton isLoading={isLoading} onPress={handleSubmit} />
             </ThemedView>
@@ -130,7 +131,7 @@ const SignUpScreen: React.FC = () => {
                 Already have an account?
               </ThemedText>
               <ThemedTextButton
-                onPress={() => router.replace("/sign-in")}
+                onPress={() => router.replace("/(auth)/sign-in")}
                 themeType="secondary"
                 style={{ lineHeight: 30 }}
               >
@@ -142,6 +143,4 @@ const SignUpScreen: React.FC = () => {
       </SafeAreaView>
     </ThemedScrollContainer>
   );
-};
-
-export default SignUpScreen;
+}

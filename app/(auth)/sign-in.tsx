@@ -1,3 +1,4 @@
+// app/(auth)/sign-in.tsx
 import React, { useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -11,11 +12,9 @@ import { ThemedView } from "@/components/templates/containers/ThemedView";
 
 import SignInButton from "@/components/buttons/SignInButton";
 import ThemedTextButton from "@/components/templates/buttons/ThemedTextButton";
-
-// NEW IMPORT
 import ThemedScrollContainer from "@/components/templates/containers/ThemedScrollContainer";
 
-const SignInScreen: React.FC = () => {
+export default function SignInScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +27,7 @@ const SignInScreen: React.FC = () => {
       await loginUser(username.trim(), password.trim());
       await checkCurrentUser();
       setIsLogged(true);
-      router.replace("/home");
+      router.replace("/(tabs)/home");
     } catch (error: any) {
       Alert.alert(
         "Login Failed",
@@ -72,7 +71,6 @@ const SignInScreen: React.FC = () => {
               secureTextEntry
             />
 
-            {/* Center the button */}
             <ThemedView style={{ marginTop: 24, alignItems: "center" }}>
               <SignInButton isLoading={isLoading} onPress={handleSubmit} />
             </ThemedView>
@@ -89,7 +87,7 @@ const SignInScreen: React.FC = () => {
               </ThemedText>
 
               <ThemedTextButton
-                onPress={() => router.replace("/sign-up")}
+                onPress={() => router.replace("/(auth)/sign-up")}
                 themeType="secondary"
                 style={{ lineHeight: 30 }}
               >
@@ -101,6 +99,4 @@ const SignInScreen: React.FC = () => {
       </SafeAreaView>
     </ThemedScrollContainer>
   );
-};
-
-export default SignInScreen;
+}

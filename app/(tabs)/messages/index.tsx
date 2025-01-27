@@ -1,5 +1,4 @@
-// frontendTemplate/app/Messages.tsx
-
+// app/(tabs)/messages/index.tsx
 import React, { useState, useCallback } from "react";
 import { StyleSheet } from "react-native";
 import ThemedScrollContainer from "@/components/templates/containers/ThemedScrollContainer";
@@ -42,26 +41,31 @@ import ThemedCheckboxListItemExamples from "@/components/examples/lists/ThemedCh
 import ThemedRadioButtonListItemExamples from "@/components/examples/lists/ThemedRadioButtonListItemExamples";
 import ThemedToggleSwitchListItemExamples from "@/components/examples/lists/ThemedToggleSwitchListItemExamples";
 
+import ThemedCustomHeader from "@/components/templates/headers/ThemedCustomHeader";
+
 export default function MessagesScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-
-    // Simulate a refresh action, e.g., fetching new messages
+    // Simulate a refresh action
     setTimeout(() => {
       setRefreshing(false);
-    }, 1000); // Simulate 1-second refresh
+    }, 1000);
   }, []);
 
   return (
+    <>
+    <ThemedCustomHeader title="Messages" showBackButton={false} />
     <ThemedScrollContainer
-      isScrollable={true}
-      isRefreshable={true}
+      isScrollable
+      isRefreshable
       onRefresh={onRefresh}
       refreshing={refreshing}
     >
-      <ThemedText type="title" margin={8} padding={2}>MESSAGES</ThemedText>
+      <ThemedText type="title" margin={8} padding={2}>
+        MESSAGES
+      </ThemedText>
 
       {/* Themed Text Examples */}
       <ThemedTextExamples />
@@ -132,7 +136,7 @@ export default function MessagesScreen() {
       {/* Themed Choice Chips Examples */}
       <ThemedChoiceChipsExample />
 
-      {/* Themed Collapsible Examples*/}
+      {/* Themed Collapsible Examples */}
       <ThemedCollapsibleExamples />
 
       {/* Themed Context Menu Examples */}
@@ -167,8 +171,8 @@ export default function MessagesScreen() {
 
       {/* Themed FAB Examples 2 */}
       <ThemedFABExamples2 />
-
     </ThemedScrollContainer>
+    </>
   );
 }
 
