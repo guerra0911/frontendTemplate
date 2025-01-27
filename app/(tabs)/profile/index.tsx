@@ -1,12 +1,13 @@
 // app/(tabs)/profile/index.tsx
+
 import React, { useCallback, useState } from "react";
 import { useRouter } from "expo-router";
+import { Pressable } from "react-native";
 
 import { ThemedText } from "@/components/templates/typography/ThemedText";
-import ThemedScrollContainer from "@/components/templates/containers/ThemedScrollContainer";
-import ThemedCustomHeader from "@/components/templates/headers/ThemedCustomHeader";
-import { Pressable } from "react-native";
+import ThemedPage from "@/components/templates/pages/ThemedPage";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import ThemedButton from "@/components/templates/buttons/ThemedButton";
 
 export default function ProfileScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -20,32 +21,43 @@ export default function ProfileScreen() {
   }, []);
 
   return (
-    <>
-      {/* For the profile tab root, we do not show a back button, but we do show a gear icon on left */}
-      <ThemedCustomHeader
-        title="@username"
-        showBackButton={false}
-        leftIcon="cog"
-        onLeftPress={() => router.push("/settings")}
-        rightElement={
-          <Pressable onPress={() => {}} style={{ padding: 8 }}>
-            {/* Could be an avatar... for now let's do a symbol */}
-            <IconSymbol name="person.fill" size={28} color="#000" />
-          </Pressable>
-        }
-      />
-
-      <ThemedScrollContainer
-        isScrollable
-        isRefreshable
-        onRefresh={onRefresh}
-        refreshing={refreshing}
-      >
-        <ThemedText>Profile</ThemedText>
-        <ThemedText type="default">
-          Keep transparent backgrounds for these components so the theme background remains.
-        </ThemedText>
-      </ThemedScrollContainer>
-    </>
+    <ThemedPage
+      title="@username"
+      showBackButton={false}
+      leftElement={
+        <ThemedButton
+          onPress={() => router.push("/settings")}
+          icons={{
+            iconName: "heart",
+            iconLibrary: "FontAwesome",
+            iconPosition: "right", // Icon on the right
+            iconSize: 20,
+          }}
+          background={{
+            light: "transparent",
+            dark: "transparent",
+          }}
+          themeType="primary" // ThemeType can still be used for text/icon colors if needed
+        />
+      }
+      rightElement={
+        <Pressable onPress={() => {}} style={{ padding: 8 }}>
+          {/* Could be an avatar... for now let's do a symbol */}
+          <IconSymbol name="person.fill" size={28} color="#000" />
+        </Pressable>
+      }
+      scrollable
+      themeType="primary"
+      refreshable
+      onRefresh={onRefresh}
+      refreshing={refreshing}
+      isSticky={true}
+      refreshIndicatorPosition="above" // NEW PROP
+    >
+      <ThemedText>Profile</ThemedText>
+      <ThemedText type="default">
+        Keep transparent backgrounds for these components so the theme background remains.
+      </ThemedText>
+    </ThemedPage>
   );
 }

@@ -1,7 +1,7 @@
 // app/(tabs)/messages/index.tsx
+
 import React, { useState, useCallback } from "react";
 import { StyleSheet } from "react-native";
-import ThemedScrollContainer from "@/components/templates/containers/ThemedScrollContainer";
 import { ThemedText } from "@/components/templates/typography/ThemedText";
 
 // Importing the new example components
@@ -41,7 +41,7 @@ import ThemedCheckboxListItemExamples from "@/components/examples/lists/ThemedCh
 import ThemedRadioButtonListItemExamples from "@/components/examples/lists/ThemedRadioButtonListItemExamples";
 import ThemedToggleSwitchListItemExamples from "@/components/examples/lists/ThemedToggleSwitchListItemExamples";
 
-import ThemedCustomHeader from "@/components/templates/headers/ThemedCustomHeader";
+import ThemedPage from "@/components/templates/pages/ThemedPage";
 
 export default function MessagesScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -55,13 +55,17 @@ export default function MessagesScreen() {
   }, []);
 
   return (
-    <>
-    <ThemedCustomHeader title="Messages" showBackButton={false} />
-    <ThemedScrollContainer
-      isScrollable
-      isRefreshable
+    <ThemedPage
+      title="Messages"
+      showBackButton={false}
+      scrollable
+      themeType="primary"
+      refreshable
       onRefresh={onRefresh}
       refreshing={refreshing}
+      
+      isSticky={false}
+      
     >
       <ThemedText type="title" margin={8} padding={2}>
         MESSAGES
@@ -171,8 +175,7 @@ export default function MessagesScreen() {
 
       {/* Themed FAB Examples 2 */}
       <ThemedFABExamples2 />
-    </ThemedScrollContainer>
-    </>
+    </ThemedPage>
   );
 }
 

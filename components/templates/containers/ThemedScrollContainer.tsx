@@ -1,4 +1,4 @@
-// components/ThemedScrollContainer.tsx
+// components/ui/containers/ThemedScrollContainer.tsx
 
 import React, { useCallback } from "react";
 import {
@@ -36,6 +36,9 @@ interface ThemedScrollContainerProps {
   // Theming
   themeType?: "primary" | "secondary" | "tertiary";
   backgroundColor?: { light?: string; dark?: string };
+
+  // Sticky headers indices
+  stickyHeaderIndices?: number[];
 }
 
 // ----------------------------------------------------------------------------
@@ -51,6 +54,7 @@ const ThemedScrollContainer: React.FC<ThemedScrollContainerProps> = ({
   contentContainerStyle,
   themeType = "primary",
   backgroundColor = {},
+  stickyHeaderIndices = [],
 }) => {
   // Helper to build color key
   const getColorKey = (
@@ -85,6 +89,7 @@ const ThemedScrollContainer: React.FC<ThemedScrollContainerProps> = ({
               <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
             ) : undefined
           }
+          stickyHeaderIndices={stickyHeaderIndices}
         >
           {children}
         </Animated.ScrollView>

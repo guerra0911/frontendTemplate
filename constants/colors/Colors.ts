@@ -1,6 +1,8 @@
 // colors.ts
+
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
+ * colors.ts
+ * Updated to include ThemedPageColors and ThemedHeaderColors.
  */
 import ThemedSegmentedControlColors from "./templates/buttons/ThemedSegmentedControlColors";
 import ThemedButtonColors from "./templates/buttons/ThemedButtonColors";
@@ -36,6 +38,8 @@ import ThemedAvatarColors from "./templates/avatars/ThemedAvatarColors";
 import ThemedDividerColors from "./templates/general/ThemedDividerColors";
 import ThemedListColors from "./templates/lists/ThemedListColors";
 import ThemedCustomHeaderColors from "./templates/headers/ThemedCustomHeaderColors";
+import ThemedPageColors from "./templates/pages/ThemedPageColors";
+import ThemedHeaderColors from "./templates/headers/ThemedHeaderColors";
 
 const tintColorLight = "#0a7ea4";
 const tintColorDark = "#fff";
@@ -119,6 +123,12 @@ export const Colors = {
 
     // Themed Custom Header
     ...ThemedCustomHeaderColors.light,
+
+    // Themed Page
+    ...ThemedPageColors.light,
+
+    // Themed Header
+    ...ThemedHeaderColors.light,
   },
   dark: {
     text: "#ECEDEE",
@@ -141,7 +151,7 @@ export const Colors = {
     // Animated Scroll
     ...ThemedAnimatedScrollViewColors.dark,
     // Parallax
-    ...ThemedParallaxScrollContainerColors.light,
+    ...ThemedParallaxScrollContainerColors.dark,
     // Scroll Container
     ...ThemedScrollContainerColors.dark,
     // Tabbed Scroll
@@ -197,5 +207,11 @@ export const Colors = {
 
     // Themed Custom Header
     ...ThemedCustomHeaderColors.dark,
+
+    // Themed Page
+    ...ThemedPageColors.dark,
+
+    // Themed Header
+    ...ThemedHeaderColors.dark,
   },
 };
