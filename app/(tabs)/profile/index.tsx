@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from "react";
 import { useRouter } from "expo-router";
-import { Pressable } from "react-native";
+import { Pressable, View } from "react-native";
 
 import { ThemedText } from "@/components/templates/typography/ThemedText";
 import ThemedPage from "@/components/templates/pages/ThemedPage";
@@ -56,8 +56,87 @@ export default function ProfileScreen() {
     >
       <ThemedText>Profile</ThemedText>
       <ThemedText type="default">
-        Keep transparent backgrounds for these components so the theme background remains.
+        Keep transparent backgrounds for these components so the theme
+        background remains.
       </ThemedText>
+
+      <View style={{ marginBottom: 16 }}>
+        <ThemedButton
+          title="Static Header"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/StaticHeaderExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Absolute Header Blur Surface"
+          onPress={() =>
+            router.push(
+              "/(tabs)/profile/screens/AbsoluteHeaderBlurSurfaceExample"
+            )
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Arbitrary Y Transition Header"
+          onPress={() =>
+            router.push(
+              "/(tabs)/profile/screens/ArbitraryYTransitionHeaderExample"
+            )
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Custom Worklet"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/CustomWorkletExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="FlashList"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/FlashListExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="FlatList"
+          onPress={() => router.push("/(tabs)/profile/screens/FlatListExample")}
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Inverted"
+          onPress={() => router.push("/(tabs)/profile/screens/InvertedExample")}
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Masonry FlashList"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/MasonryFlashListExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="SectionList"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/SectionListExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Simple"
+          onPress={() => router.push("/(tabs)/profile/screens/SimpleExample")}
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Surface Component"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/SurfaceComponentExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+      </View>
     </ThemedPage>
   );
 }

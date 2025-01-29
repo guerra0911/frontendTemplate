@@ -41,6 +41,19 @@ import ThemedCustomHeaderColors from "./templates/headers/ThemedCustomHeaderColo
 import ThemedPageColors from "./templates/pages/ThemedPageColors";
 import ThemedHeaderColors from "./templates/headers/ThemedHeaderColors";
 
+import ThemedAbsoluteHeaderBlurSurfaceColors from "./templates/pages/ThemedAbsoluteHeaderBlurSurfaceColors";
+import ThemedArbitraryYTransitionHeaderColors from "./templates/pages/ThemedArbitraryYTransitionHeaderColors";
+import ThemedCustomWorkletColors from "./templates/pages/ThemedCustomWorkletColors";
+import ThemedFlashListColors from "./templates/pages/ThemedFlashListColors";
+import ThemedFlatListColors from "./templates/pages/ThemedFlatListColors";
+import ThemedStaticHeaderColors from "./templates/pages/ThemedStaticHeaderColors";
+import ThemedScrollingHeaderColors from "./templates/pages/ThemedScrollingHeaderColors";
+import ThemedInvertedColors from "./templates/pages/ThemedInvertedColors";
+import ThemedMasonryFlashListColors from "./templates/pages/ThemedMasonryFlashListColors";
+import ThemedSectionListColors from "./templates/pages/ThemedSectionListColors";
+import ThemedSimpleColors from "./templates/pages/ThemedSimpleColors";
+import ThemedSurfaceComponentColors from "./templates/pages/ThemedSurfaceComponentColors";
+
 const tintColorLight = "#0a7ea4";
 const tintColorDark = "#fff";
 
@@ -129,6 +142,20 @@ export const Colors = {
 
     // Themed Header
     ...ThemedHeaderColors.light,
+
+    // Pages
+    ...ThemedAbsoluteHeaderBlurSurfaceColors.light,
+    ...ThemedArbitraryYTransitionHeaderColors.light,
+    ...ThemedCustomWorkletColors.light,
+    ...ThemedFlashListColors.light,
+    ...ThemedFlatListColors.light,
+    ...ThemedInvertedColors.light,
+    ...ThemedMasonryFlashListColors.light,
+    ...ThemedSectionListColors.light,
+    ...ThemedSimpleColors.light,
+    ...ThemedSurfaceComponentColors.light,
+    ...ThemedStaticHeaderColors.light,
+    ...ThemedScrollingHeaderColors.light,
   },
   dark: {
     text: "#ECEDEE",
@@ -213,5 +240,19 @@ export const Colors = {
 
     // Themed Header
     ...ThemedHeaderColors.dark,
+
+    // Pages
+    ...ThemedAbsoluteHeaderBlurSurfaceColors.dark,
+    ...ThemedArbitraryYTransitionHeaderColors.dark,
+    ...ThemedCustomWorkletColors.dark,
+    ...ThemedFlashListColors.dark,
+    ...ThemedFlatListColors.dark,
+    ...ThemedInvertedColors.dark,
+    ...ThemedMasonryFlashListColors.dark,
+    ...ThemedSectionListColors.dark,
+    ...ThemedSimpleColors.dark,
+    ...ThemedSurfaceComponentColors.dark,
+    ...ThemedStaticHeaderColors.dark,
+    ...ThemedScrollingHeaderColors.dark,
   },
 };
