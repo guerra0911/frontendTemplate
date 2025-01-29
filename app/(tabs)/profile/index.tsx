@@ -69,6 +69,13 @@ export default function ProfileScreen() {
           style={{ marginVertical: 8 }}
         />
         <ThemedButton
+          title="Hide-On-Scroll Header"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/HideOnScrollHeaderExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
           title="Absolute Header Blur Surface"
           onPress={() =>
             router.push(
@@ -136,6 +143,7 @@ export default function ProfileScreen() {
           }
           style={{ marginVertical: 8 }}
         />
+        
       </View>
     </ThemedPage>
   );
