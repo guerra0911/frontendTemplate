@@ -1,9 +1,16 @@
 // app/(tabs)/profile/screens/FlashListExample.tsx
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text } from "react-native";
 import { ThemedFlashList } from "@/components/templates/pages/ThemedFlashList";
 
 export default function FlashListExample() {
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1500);
+  }, []);
+
   const data = Array.from({ length: 50 }).map((_, i) => `Item #${i}`);
 
   return (
@@ -26,7 +33,11 @@ export default function FlashListExample() {
         enableScaling: true,
       }}
       keyExtractor={(item) => item}
+      containerStyle={{ flex: 1 }}
       contentContainerStyle={{ paddingBottom: 16 }}
+      isRefreshable
+      refreshing={refreshing}
+      onRefresh={onRefresh}
     />
   );
 }

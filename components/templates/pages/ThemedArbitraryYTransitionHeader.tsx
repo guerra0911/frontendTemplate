@@ -1,7 +1,7 @@
 // app/components/screens/ThemedArbitraryYTransitionHeader.tsx
 
 import React, { ReactNode } from "react";
-import { StyleSheet, StyleProp, ViewStyle } from "react-native";
+import { StyleSheet, RefreshControl, StyleProp, ViewStyle } from "react-native";
 import {
   Header as LibHeader,
   LargeHeader as LibLargeHeader,
@@ -10,32 +10,10 @@ import {
 } from "@codeherence/react-native-header";
 import ThemedHeaderBackButton from "../headers/ThemedHeaderBackButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
+import { router } from "expo-router";
 
 type ScrollViewWithHeadersExtendedProps = React.ComponentProps<typeof ScrollViewWithHeaders>;
-
-interface LocalHeaderProps {
-  headerStyle?: StyleProp<ViewStyle>;
-  headerLeftStyle?: StyleProp<ViewStyle>;
-  headerCenterStyle?: StyleProp<ViewStyle>;
-  headerRightStyle?: StyleProp<ViewStyle>;
-  headerLeftFadesIn?: boolean;
-  headerCenterFadesIn?: boolean;
-  headerRightFadesIn?: boolean;
-  ignoreTopSafeArea?: boolean;
-  noBottomBorder?: boolean;
-  initialBorderColor?: string;
-  borderColor?: string;
-  borderWidth?: number;
-  renderLeft?: () => ReactNode;
-  renderCenter?: () => ReactNode;
-  renderRight?: () => ReactNode;
-}
-
-interface LocalLargeHeaderProps {
-  headerStyle?: StyleProp<ViewStyle>;
-  renderLargeHeader?: (scrollY: any, showNavBar: any) => ReactNode;
-  enableScaling?: boolean;
-}
 
 type ThemeColorType =
   | "arbitraryYTransitionHeaderBackgroundPrimary"
@@ -46,16 +24,41 @@ function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+interface LocalHeaderProps {
+  renderLeft?: () => ReactNode;
+  renderCenter?: () => ReactNode;
+  renderRight?: () => ReactNode;
+  headerStyle?: StyleProp<ViewStyle>;
+  headerLeftStyle?: StyleProp<ViewStyle>;
+  headerCenterStyle?: StyleProp<ViewStyle>;
+  headerRightStyle?: StyleProp<ViewStyle>;
+  noBottomBorder?: boolean;
+  ignoreTopSafeArea?: boolean;
+  initialBorderColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+}
+
+interface LocalLargeHeaderProps {
+  renderLargeHeader?: (scrollY: any, showNavBar: any) => ReactNode;
+  enableScaling?: boolean;
+  headerStyle?: StyleProp<ViewStyle>;
+}
+
 export interface ThemedArbitraryYTransitionHeaderProps
   extends Omit<
     ScrollViewWithHeadersExtendedProps,
-    "HeaderComponent" | "LargeHeaderComponent" | "children"
+    "HeaderComponent" | "LargeHeaderComponent" | "children" | "refreshControl"
   > {
   themeType?: "primary" | "secondary" | "tertiary";
   backgroundColor?: { light?: string; dark?: string };
 
   headerProps?: Partial<LocalHeaderProps>;
   largeHeaderProps?: Partial<LocalLargeHeaderProps>;
+
+  isRefreshable?: boolean;
+  refreshing?: boolean;
+  onRefresh?: () => void;
 
   children?: ReactNode;
 }
@@ -70,6 +73,9 @@ export function ThemedArbitraryYTransitionHeader(
     largeHeaderProps = {},
     style,
     contentContainerStyle,
+    isRefreshable,
+    refreshing,
+    onRefresh,
     ...scrollProps
   } = props;
 
@@ -81,6 +87,14 @@ export function ThemedArbitraryYTransitionHeader(
     renderCenter,
     renderRight,
     headerStyle,
+    headerLeftStyle,
+    headerCenterStyle,
+    headerRightStyle,
+    noBottomBorder,
+    ignoreTopSafeArea,
+    initialBorderColor,
+    borderColor,
+    borderWidth,
   } = headerProps;
 
   const {
@@ -89,12 +103,31 @@ export function ThemedArbitraryYTransitionHeader(
     headerStyle: largeHeaderStyle,
   } = largeHeaderProps;
 
+  /** Create a combined refresh control if isRefreshable. */
+  const maybeRefreshControl = isRefreshable && onRefresh ? (
+    <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} />
+  ) : undefined;
+
+  /** Merge your BOTTOM_FOOTER_HEIGHT into the content container style. */
+  const mergedContentContainerStyle = [
+    { paddingBottom: BOTTOM_FOOTER_HEIGHT },
+    contentContainerStyle,
+  ];
+
   const HeaderComponent = ({ showNavBar }: { showNavBar: any }) => {
     return (
       <LibHeader
         showNavBar={showNavBar}
+        noBottomBorder={noBottomBorder}
+        ignoreTopSafeArea={ignoreTopSafeArea}
+        initialBorderColor={initialBorderColor}
+        borderColor={borderColor}
+        borderWidth={borderWidth}
         headerStyle={[{ backgroundColor: resolvedBg }, headerStyle]}
-        headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton onPress={() => {}} />}
+        headerLeftStyle={[{ marginLeft: 0, paddingLeft: 0 }, headerLeftStyle]}
+        headerCenterStyle={headerCenterStyle}
+        headerRightStyle={headerRightStyle}
+        headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton onPress={() => router.back()} />}
         headerCenter={renderCenter?.()}
         headerRight={renderRight?.()}
       />
@@ -106,9 +139,7 @@ export function ThemedArbitraryYTransitionHeader(
     return (
       <LibLargeHeader headerStyle={largeHeaderStyle}>
         {enableScaling ? (
-          <ScalingView scrollY={scrollY}>
-            {renderLargeHeader(scrollY, showNavBar)}
-          </ScalingView>
+          <ScalingView scrollY={scrollY}>{renderLargeHeader(scrollY, showNavBar)}</ScalingView>
         ) : (
           renderLargeHeader(scrollY, showNavBar)
         )}
@@ -120,8 +151,9 @@ export function ThemedArbitraryYTransitionHeader(
     <ScrollViewWithHeaders
       HeaderComponent={HeaderComponent}
       LargeHeaderComponent={LargeHeaderComponent}
+      refreshControl={maybeRefreshControl}
       style={[styles.container, style]}
-      contentContainerStyle={contentContainerStyle}
+      contentContainerStyle={mergedContentContainerStyle}
       {...scrollProps}
     />
   );

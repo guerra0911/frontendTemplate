@@ -1,12 +1,7 @@
 // app/components/screens/ThemedAbsoluteHeaderBlurSurface.tsx
 
 import React, { ReactNode } from "react";
-import {
-  StyleSheet,
-  View,
-  StyleProp,
-  ViewStyle,
-} from "react-native";
+import { StyleSheet, View, RefreshControl } from "react-native";
 import {
   FadingView,
   Header as LibHeader,
@@ -19,49 +14,11 @@ import { BlurView } from "expo-blur";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedHeaderBackButton from "../headers/ThemedHeaderBackButton";
+import { router } from "expo-router";
+import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
 
-// ---------------------------------------------------
-// 1) Define local typed props for the library
-// ---------------------------------------------------
 type ScrollViewWithHeadersExtendedProps = React.ComponentProps<typeof ScrollViewWithHeaders>;
-type FadingViewExtendedProps = React.ComponentProps<typeof FadingView>;
 
-/**
- * Props for the smaller header portion (LibHeader).
- * We replicate what's in the docs: headerStyle, noBottomBorder, etc.
- */
-interface LocalHeaderProps {
-  headerStyle?: StyleProp<ViewStyle>;
-  headerLeftStyle?: StyleProp<ViewStyle>;
-  headerCenterStyle?: StyleProp<ViewStyle>;
-  headerRightStyle?: StyleProp<ViewStyle>;
-  headerLeftFadesIn?: boolean;
-  headerCenterFadesIn?: boolean;
-  headerRightFadesIn?: boolean;
-  ignoreTopSafeArea?: boolean;
-  noBottomBorder?: boolean;
-  initialBorderColor?: string;
-  borderColor?: string;
-  borderWidth?: number;
-  renderLeft?: () => ReactNode;
-  renderCenter?: () => ReactNode;
-  renderRight?: () => ReactNode;
-}
-
-/**
- * For the large header portion (LargeHeader).
- */
-interface LocalLargeHeaderProps {
-  headerStyle?: StyleProp<ViewStyle>;
-  // Potentially "renderLargeHeader?: (scrollY: number, showNavBar: number) => ReactNode"
-  // BUT we use 'any' to avoid sharedValue mismatch:
-  renderLargeHeader?: (scrollY: any, showNavBar: any) => ReactNode;
-  enableScaling?: boolean;
-}
-
-// ---------------------------------------------------
-// 2) Theme Color Keys
-// ---------------------------------------------------
 type ThemeColorType =
   | "absoluteHeaderBlurSurfaceBackgroundPrimary"
   | "absoluteHeaderBlurSurfaceBackgroundSecondary"
@@ -71,35 +28,58 @@ function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-// ---------------------------------------------------
-// 3) The main component props
-// ---------------------------------------------------
+interface LocalHeaderProps {
+  renderLeft?: () => ReactNode;
+  renderCenter?: () => ReactNode;
+  renderRight?: () => ReactNode;
+  headerStyle?: any;
+  headerLeftStyle?: any;
+  headerCenterStyle?: any;
+  headerRightStyle?: any;
+  headerLeftFadesIn?: boolean;
+  headerCenterFadesIn?: boolean;
+  headerRightFadesIn?: boolean;
+  ignoreTopSafeArea?: boolean;
+  noBottomBorder?: boolean;
+  initialBorderColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+}
+
+interface LocalLargeHeaderProps {
+  renderLargeHeader?: (scrollY: any, showNavBar: any) => ReactNode;
+  enableScaling?: boolean;
+  headerStyle?: any;
+}
+
 export interface ThemedAbsoluteHeaderBlurSurfaceProps
   extends Omit<
     ScrollViewWithHeadersExtendedProps,
-    "HeaderComponent" | "LargeHeaderComponent" | "children"
+    "HeaderComponent" | "LargeHeaderComponent" | "children" | "refreshControl"
   > {
   themeType?: "primary" | "secondary" | "tertiary";
   backgroundColor?: { light?: string; dark?: string };
 
-  // "surfaceProps" for customizing the FadingView + BlurView
   surfaceProps?: Partial<SurfaceComponentProps> & {
-    fadingViewProps?: Partial<FadingViewExtendedProps>;
+    fadingViewProps?: Partial<React.ComponentProps<typeof FadingView>>;
     blurViewProps?: Partial<React.ComponentProps<typeof BlurView>>;
   };
 
   headerProps?: Partial<LocalHeaderProps>;
   largeHeaderProps?: Partial<LocalLargeHeaderProps>;
 
-  /** The scrollable content below the headers */
+  /** Add optional refresh props */
+  isRefreshable?: boolean;
+  refreshing?: boolean;
+  onRefresh?: () => void;
+
   children?: ReactNode;
 }
 
-// A small surface subcomponent for blur + fading
 const HeaderSurface: React.FC<SurfaceComponentProps & {
   themeType: "primary" | "secondary" | "tertiary";
   backgroundColor?: { light?: string; dark?: string };
-  fadingViewProps?: Partial<FadingViewExtendedProps>;
+  fadingViewProps?: Partial<React.ComponentProps<typeof FadingView>>;
   blurViewProps?: Partial<React.ComponentProps<typeof BlurView>>;
 }> = ({
   showNavBar,
@@ -133,9 +113,6 @@ const HeaderSurface: React.FC<SurfaceComponentProps & {
   );
 };
 
-// ---------------------------------------------------
-// 4) The main ThemedAbsoluteHeaderBlurSurface
-// ---------------------------------------------------
 export function ThemedAbsoluteHeaderBlurSurface(props: ThemedAbsoluteHeaderBlurSurfaceProps) {
   const {
     themeType = "primary",
@@ -145,19 +122,19 @@ export function ThemedAbsoluteHeaderBlurSurface(props: ThemedAbsoluteHeaderBlurS
     largeHeaderProps = {},
     style,
     contentContainerStyle,
+    isRefreshable,
+    refreshing,
+    onRefresh,
     ...scrollProps
   } = props;
 
   const insets = useSafeAreaInsets();
-
-  // destructure from surfaceProps
   const {
     fadingViewProps,
     blurViewProps,
     ...restSurfaceProps
   } = surfaceProps || {};
 
-  // destructure from headerProps
   const {
     renderLeft,
     renderCenter,
@@ -176,17 +153,29 @@ export function ThemedAbsoluteHeaderBlurSurface(props: ThemedAbsoluteHeaderBlurS
     borderWidth,
   } = headerProps;
 
-  // destructure from largeHeaderProps
-  const { renderLargeHeader, enableScaling, headerStyle: largeHeaderStyle } = largeHeaderProps;
+  const {
+    renderLargeHeader,
+    enableScaling,
+    headerStyle: largeHeaderStyle,
+  } = largeHeaderProps;
 
-  // The small (regular) header
+  /** Build refreshControl if needed */
+  const maybeRefreshControl = isRefreshable && onRefresh ? (
+    <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} />
+  ) : undefined;
+
+  const mergedContentContainerStyle = [
+      { paddingBottom: BOTTOM_FOOTER_HEIGHT },
+      contentContainerStyle,
+    ];
+    
   const HeaderComponent = ({ showNavBar }: { showNavBar: any }) => {
     return (
       <LibHeader
         showNavBar={showNavBar}
         noBottomBorder={noBottomBorder}
         headerStyle={[{ height: 44 + insets.top }, headerStyle]}
-        headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton onPress={() => {}} />}
+        headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton onPress={() => router.back()} />}
         headerLeftStyle={headerLeftStyle}
         headerLeftFadesIn={headerLeftFadesIn}
         headerCenter={renderCenter?.()}
@@ -213,15 +202,12 @@ export function ThemedAbsoluteHeaderBlurSurface(props: ThemedAbsoluteHeaderBlurS
     );
   };
 
-  // The large header
   const LargeHeaderComponent = ({ scrollY, showNavBar }: { scrollY: any; showNavBar: any }) => {
     if (!renderLargeHeader) return null;
     return (
       <LibLargeHeader headerStyle={largeHeaderStyle}>
         {enableScaling ? (
-          <ScalingView scrollY={scrollY}>
-            {renderLargeHeader(scrollY, showNavBar)}
-          </ScalingView>
+          <ScalingView scrollY={scrollY}>{renderLargeHeader(scrollY, showNavBar)}</ScalingView>
         ) : (
           renderLargeHeader(scrollY, showNavBar)
         )}
@@ -234,8 +220,9 @@ export function ThemedAbsoluteHeaderBlurSurface(props: ThemedAbsoluteHeaderBlurS
       absoluteHeader
       HeaderComponent={HeaderComponent}
       LargeHeaderComponent={LargeHeaderComponent}
+      refreshControl={maybeRefreshControl}
       style={[styles.container, style]}
-      contentContainerStyle={[{ paddingBottom: insets.bottom }, contentContainerStyle]}
+      contentContainerStyle={mergedContentContainerStyle}
       {...scrollProps}
     />
   );

@@ -1,9 +1,18 @@
 // app/(tabs)/profile/screens/ArbitraryYTransitionHeaderExample.tsx
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text } from "react-native";
 import { ThemedArbitraryYTransitionHeader } from "@/components/templates/pages/ThemedArbitraryYTransitionHeader";
 
 export default function ArbitraryYTransitionHeaderExample() {
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1500);
+  }, []);
+
+  const data = Array.from({ length: 50 }).map((_, i) => i);
+
   return (
     <ThemedArbitraryYTransitionHeader
       headerProps={{
@@ -17,9 +26,15 @@ export default function ArbitraryYTransitionHeaderExample() {
         ),
         enableScaling: true,
       }}
+      style={{ flex: 1 }}
       contentContainerStyle={{ padding: 16 }}
+      isRefreshable
+      refreshing={refreshing}
+      onRefresh={onRefresh}
     >
-      <Text>Scroll content for arbitrary y transition.</Text>
+      {data.map((val) => (
+        <Text key={val}>Scroll item: {val}</Text>
+      ))}
     </ThemedArbitraryYTransitionHeader>
   );
 }

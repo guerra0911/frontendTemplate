@@ -1,7 +1,7 @@
 // app/components/screens/ThemedStaticHeader.tsx
 
 import React, { ReactNode } from "react";
-import { StyleSheet, ViewStyle, StyleProp } from "react-native";
+import { StyleSheet, ViewStyle, StyleProp, RefreshControl } from "react-native";
 import {
   Header as LibHeader,
   ScrollViewWithHeaders,
@@ -10,8 +10,12 @@ import { useSharedValue } from "react-native-reanimated";
 
 import ThemedHeaderBackButton from "../headers/ThemedHeaderBackButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { router } from "expo-router";
+import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
 
-type ScrollViewWithHeadersProps = React.ComponentProps<typeof ScrollViewWithHeaders>;
+type ScrollViewWithHeadersProps = React.ComponentProps<
+  typeof ScrollViewWithHeaders
+>;
 
 interface LocalHeaderProps {
   headerStyle?: StyleProp<ViewStyle>;
@@ -25,7 +29,7 @@ interface LocalHeaderProps {
   renderRight?: () => ReactNode;
 }
 
-/** Keys from ThemedStaticHeaderColors.ts */
+/** Color keys from ThemedStaticHeaderColors */
 type ThemeColorType =
   | "staticHeaderBackgroundPrimary"
   | "staticHeaderBackgroundSecondary"
@@ -36,37 +40,43 @@ function capitalize(s: string) {
 }
 
 export interface ThemedStaticHeaderProps
-  extends Omit<ScrollViewWithHeadersProps, "HeaderComponent" | "LargeHeaderComponent" | "children"> {
+  extends Omit<
+    ScrollViewWithHeadersProps,
+    "HeaderComponent" | "LargeHeaderComponent" | "children" | "refreshControl"
+  > {
   themeType?: "primary" | "secondary" | "tertiary";
   backgroundColor?: { light?: string; dark?: string };
 
   headerProps?: Partial<LocalHeaderProps>;
-  /** The content below the static (pinned) header. */
+
+  isRefreshable?: boolean;
+  refreshing?: boolean;
+  onRefresh?: () => void;
+
   children?: ReactNode;
 }
 
-/**
- * A pinned header that never fades in/out, always fully visible. 
- * No large header, no scrolling animation.
- */
 export function ThemedStaticHeader(props: ThemedStaticHeaderProps) {
   const {
     themeType = "primary",
-    backgroundColor={},
+    backgroundColor = {},
     headerProps = {},
     style,
     contentContainerStyle,
+    isRefreshable,
+    refreshing,
+    onRefresh,
     ...scrollProps
   } = props;
 
-  // This is essential to keep the header children visible at all times:
-  const showNavBar = useSharedValue(1); // pinned at 1 => full visibility
+  // A pinned header is always visible => showNavBar = 1
+  const showNavBar = useSharedValue(1);
 
-  // Resolve theme color
-  const colorKey = `staticHeaderBackground${capitalize(themeType)}` as ThemeColorType;
+  const colorKey = `staticHeaderBackground${capitalize(
+    themeType
+  )}` as ThemeColorType;
   const resolvedBg = useThemeColor(backgroundColor, colorKey);
 
-  // De-structure from headerProps
   const {
     noBottomBorder,
     ignoreTopSafeArea,
@@ -79,30 +89,44 @@ export function ThemedStaticHeader(props: ThemedStaticHeaderProps) {
     renderRight,
   } = headerProps;
 
-  // Minimal pinned header
+  const maybeRefreshControl =
+    isRefreshable && onRefresh ? (
+      <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} />
+    ) : undefined;
+
+  const mergedContentContainerStyle = [
+    { paddingBottom: BOTTOM_FOOTER_HEIGHT },
+    contentContainerStyle,
+  ];
+
   const HeaderComponent = ({ showNavBar: _unused }: { showNavBar: any }) => {
     return (
       <LibHeader
-        showNavBar={showNavBar} // Our shared value pinned at 1
-        headerStyle={[{ backgroundColor: resolvedBg }, headerStyle]}
+        showNavBar={showNavBar}
         noBottomBorder={noBottomBorder}
         ignoreTopSafeArea={ignoreTopSafeArea}
         initialBorderColor={initialBorderColor}
         borderColor={borderColor}
         borderWidth={borderWidth}
-        headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton onPress={() => {}} />}
+        headerStyle={[{ backgroundColor: resolvedBg }, headerStyle]}
+        headerLeft={
+          renderLeft ? (
+            renderLeft()
+          ) : (
+            <ThemedHeaderBackButton onPress={() => router.back()} />
+          )
+        }
         headerCenter={renderCenter?.()}
         headerRight={renderRight?.()}
       />
     );
   };
-
   return (
     <ScrollViewWithHeaders
-      // We supply a pinned header => no large header
       HeaderComponent={HeaderComponent}
+      refreshControl={maybeRefreshControl}
       style={[styles.container, style]}
-      contentContainerStyle={contentContainerStyle}
+      contentContainerStyle={mergedContentContainerStyle}
       {...scrollProps}
     />
   );

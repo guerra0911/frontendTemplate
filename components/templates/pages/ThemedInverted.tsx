@@ -1,7 +1,13 @@
 // app/components/screens/ThemedInverted.tsx
 
 import React, { ReactNode } from "react";
-import { StyleSheet, View, StyleProp, ViewStyle } from "react-native";
+import {
+  StyleSheet,
+  RefreshControl,
+  StyleProp,
+  ViewStyle,
+  View,
+} from "react-native";
 import { BlurView } from "expo-blur";
 import {
   Header as LibHeader,
@@ -10,9 +16,21 @@ import {
 } from "@codeherence/react-native-header";
 import ThemedHeaderBackButton from "../headers/ThemedHeaderBackButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { router } from "expo-router";
+import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
 
-type FlatListWithHeadersExtendedProps<T> = React.ComponentProps<typeof FlatListWithHeaders<T>>;
-type SurfaceComponentExtendedProps = React.ComponentProps<typeof LibHeader>["SurfaceComponent"];
+type FlatListWithHeadersExtendedProps<T> = React.ComponentProps<
+  typeof FlatListWithHeaders<T>
+>;
+
+type ThemeColorType =
+  | "invertedBackgroundPrimary"
+  | "invertedBackgroundSecondary"
+  | "invertedBackgroundTertiary";
+
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
 interface LocalHeaderProps {
   headerStyle?: StyleProp<ViewStyle>;
@@ -27,34 +45,31 @@ interface LocalSurfaceProps extends Partial<SurfaceComponentProps> {
   blurViewProps?: Partial<React.ComponentProps<typeof BlurView>>;
 }
 
-type ThemeColorType =
-  | "invertedBackgroundPrimary"
-  | "invertedBackgroundSecondary"
-  | "invertedBackgroundTertiary";
-
-function capitalize(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
 export interface ThemedInvertedProps<T>
-  extends Omit<FlatListWithHeadersExtendedProps<T>, "HeaderComponent"> {
+  extends Omit<
+    FlatListWithHeadersExtendedProps<T>,
+    "HeaderComponent" | "refreshControl"
+  > {
   themeType?: "primary" | "secondary" | "tertiary";
   backgroundColor?: { light?: string; dark?: string };
   surfaceProps?: LocalSurfaceProps;
   headerProps?: Partial<LocalHeaderProps>;
+
+  isRefreshable?: boolean;
+  refreshing?: boolean;
+  onRefresh?: () => void;
 }
 
-const HeaderSurface: React.FC<SurfaceComponentProps & {
-  themeType: "primary" | "secondary" | "tertiary";
-  backgroundColor?: { light?: string; dark?: string };
-  blurViewProps?: Partial<React.ComponentProps<typeof BlurView>>;
-}> = ({
-  showNavBar,
-  themeType,
-  backgroundColor = {},
-  blurViewProps,
-}) => {
-  const colorKey = `invertedBackground${capitalize(themeType)}` as ThemeColorType;
+const HeaderSurface: React.FC<
+  SurfaceComponentProps & {
+    themeType: "primary" | "secondary" | "tertiary";
+    backgroundColor?: { light?: string; dark?: string };
+    blurViewProps?: Partial<React.ComponentProps<typeof BlurView>>;
+  }
+> = ({ showNavBar, themeType, backgroundColor = {}, blurViewProps }) => {
+  const colorKey = `invertedBackground${capitalize(
+    themeType
+  )}` as ThemeColorType;
   const resolvedBg = useThemeColor(backgroundColor, colorKey);
 
   return (
@@ -65,7 +80,10 @@ const HeaderSurface: React.FC<SurfaceComponentProps & {
       {...blurViewProps}
     >
       <View
-        style={[StyleSheet.absoluteFill, { backgroundColor: resolvedBg, opacity: 0.3 }]}
+        style={[
+          StyleSheet.absoluteFill,
+          { backgroundColor: resolvedBg, opacity: 0.3 },
+        ]}
       />
     </BlurView>
   );
@@ -77,6 +95,9 @@ export function ThemedInverted<T>(props: ThemedInvertedProps<T>) {
     backgroundColor,
     surfaceProps,
     headerProps = {},
+    isRefreshable,
+    refreshing,
+    onRefresh,
     style,
     contentContainerStyle,
     ...listProps
@@ -93,13 +114,29 @@ export function ThemedInverted<T>(props: ThemedInvertedProps<T>) {
     ignoreTopSafeArea,
   } = headerProps;
 
+  const maybeRefreshControl =
+    isRefreshable && onRefresh ? (
+      <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} />
+    ) : undefined;
+
+  const mergedContentContainerStyle = [
+    { paddingBottom: BOTTOM_FOOTER_HEIGHT },
+    contentContainerStyle,
+  ];
+
   const HeaderComponent = ({ showNavBar }: { showNavBar: any }) => (
     <LibHeader
       showNavBar={showNavBar}
       noBottomBorder={noBottomBorder}
       headerStyle={headerStyle}
       ignoreTopSafeArea={ignoreTopSafeArea}
-      headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton onPress={() => {}} />}
+      headerLeft={
+        renderLeft ? (
+          renderLeft()
+        ) : (
+          <ThemedHeaderBackButton onPress={() => router.back()} />
+        )
+      }
       headerCenter={renderCenter?.()}
       headerRight={renderRight?.()}
       SurfaceComponent={(sProps) => (
@@ -119,8 +156,9 @@ export function ThemedInverted<T>(props: ThemedInvertedProps<T>) {
       HeaderComponent={HeaderComponent}
       inverted
       absoluteHeader
+      refreshControl={maybeRefreshControl}
       style={[styles.container, style]}
-      contentContainerStyle={contentContainerStyle}
+      contentContainerStyle={mergedContentContainerStyle}
       {...listProps}
     />
   );

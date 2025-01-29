@@ -8,7 +8,7 @@ export const HEADER_TO_SCROLLVIEW_PADDING = 10;
 export const HEADER_BOTTOM_INNER_PADDING = 15;
 export const HEADER_ICON_BUTTON_SIZE = 20;
 export const HEADER_BACK_BUTTON_SIZE = 22;
-export const BOTTOM_FOOTER_HEIGHT = 75;
+export const BOTTOM_FOOTER_HEIGHT = 95;
 
 // Fonts
 export const DEFAULT_APP_FONT = 'Avenir';

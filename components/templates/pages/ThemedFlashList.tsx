@@ -1,20 +1,27 @@
 // app/components/screens/ThemedFlashList.tsx
+
 import React, { ReactNode } from "react";
-import { StyleSheet, StyleProp, ViewStyle, View } from "react-native";
+import {
+  StyleSheet,
+  ViewStyle,
+  StyleProp,
+  View,
+  RefreshControl,
+} from "react-native";
 import {
   Header as LibHeader,
   LargeHeader as LibLargeHeader,
   FlashListWithHeaders,
   ScalingView,
 } from "@codeherence/react-native-header";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedHeaderBackButton from "../headers/ThemedHeaderBackButton";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { router } from "expo-router";
+import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
 
-/** 
- * We define local props, removing the usage of `style` on the FlashList itself
- * to avoid the FlashList styling warning.
- */
-type FlashListWithHeadersExtendedProps<T> = React.ComponentProps<typeof FlashListWithHeaders<T>>;
+type FlashListWithHeadersExtendedProps<T> = React.ComponentProps<
+  typeof FlashListWithHeaders<T>
+>;
 
 interface LocalHeaderProps {
   headerStyle?: StyleProp<ViewStyle>;
@@ -41,53 +48,92 @@ function capitalize(s: string) {
 export interface ThemedFlashListProps<T>
   extends Omit<
     FlashListWithHeadersExtendedProps<T>,
-    "HeaderComponent" | "LargeHeaderComponent" | "style"
+    "HeaderComponent" | "LargeHeaderComponent" | "refreshControl"
   > {
   themeType?: "primary" | "secondary" | "tertiary";
   backgroundColor?: { light?: string; dark?: string };
 
-  // We'll remove 'style' from the direct FlashList usage, 
-  // and handle it with a parent container instead.
   containerStyle?: StyleProp<ViewStyle>;
 
   headerProps?: Partial<LocalHeaderProps>;
   largeHeaderProps?: Partial<LocalLargeHeaderProps>;
+
+  isRefreshable?: boolean;
+  refreshing?: boolean;
+  onRefresh?: () => void;
+
+  /** Provide a default for estimatedItemSize if not passed */
+  estimatedItemSize?: number;
 }
 
 export function ThemedFlashList<T>(props: ThemedFlashListProps<T>) {
   const {
     themeType = "primary",
-    backgroundColor={},
+    backgroundColor = {},
     headerProps = {},
     largeHeaderProps = {},
-    containerStyle, // instead of style
+    containerStyle,
     contentContainerStyle,
-    estimatedItemSize = 50, // Provide a default to remove the warning
+    isRefreshable,
+    refreshing,
+    onRefresh,
+    estimatedItemSize = 50,
     ...flashListProps
   } = props;
 
-  const colorKey = `flashListBackground${capitalize(themeType)}` as ThemeColorType;
+  const colorKey = `flashListBackground${capitalize(
+    themeType
+  )}` as ThemeColorType;
   const resolvedBg = useThemeColor(backgroundColor, colorKey);
 
   const { renderLeft, renderCenter, renderRight, headerStyle } = headerProps;
-  const { renderLargeHeader, enableScaling, headerStyle: lhStyle } = largeHeaderProps;
+  const {
+    renderLargeHeader,
+    enableScaling,
+    headerStyle: lhStyle,
+  } = largeHeaderProps;
+
+  /** We build a refreshControl for the underlying FlashList */
+  const maybeRefreshControl =
+    isRefreshable && onRefresh ? (
+      <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} />
+    ) : undefined;
+
+  const mergedContentContainerStyle = [
+    { paddingBottom: BOTTOM_FOOTER_HEIGHT },
+    contentContainerStyle,
+  ];
 
   const HeaderComponent = ({ showNavBar }: { showNavBar: any }) => (
     <LibHeader
       showNavBar={showNavBar}
       headerStyle={[{ backgroundColor: resolvedBg }, headerStyle]}
-      headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton onPress={() => {}} />}
+      headerLeft={
+        renderLeft ? (
+          renderLeft()
+        ) : (
+          <ThemedHeaderBackButton onPress={() => router.back()} />
+        )
+      }
       headerCenter={renderCenter?.()}
       headerRight={renderRight?.()}
     />
   );
 
-  const LargeHeaderComponent = ({ scrollY, showNavBar }: { scrollY: any; showNavBar: any }) => {
+  const LargeHeaderComponent = ({
+    scrollY,
+    showNavBar,
+  }: {
+    scrollY: any;
+    showNavBar: any;
+  }) => {
     if (!renderLargeHeader) return null;
     return (
       <LibLargeHeader headerStyle={lhStyle}>
         {enableScaling ? (
-          <ScalingView scrollY={scrollY}>{renderLargeHeader(scrollY, showNavBar)}</ScalingView>
+          <ScalingView scrollY={scrollY}>
+            {renderLargeHeader(scrollY, showNavBar)}
+          </ScalingView>
         ) : (
           renderLargeHeader(scrollY, showNavBar)
         )}
@@ -100,7 +146,8 @@ export function ThemedFlashList<T>(props: ThemedFlashListProps<T>) {
       <FlashListWithHeaders
         HeaderComponent={HeaderComponent}
         LargeHeaderComponent={LargeHeaderComponent}
-        contentContainerStyle={contentContainerStyle}
+        contentContainerStyle={mergedContentContainerStyle}
+        refreshControl={maybeRefreshControl}
         estimatedItemSize={estimatedItemSize}
         {...flashListProps}
       />

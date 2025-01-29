@@ -1,9 +1,16 @@
 // app/(tabs)/profile/screens/FlatListExample.tsx
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text } from "react-native";
 import { ThemedFlatList } from "@/components/templates/pages/ThemedFlatList";
 
 export default function FlatListExample() {
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1500);
+  }, []);
+
   const data = Array.from({ length: 20 }).map((_, i) => `FlatList item #${i}`);
 
   return (
@@ -26,8 +33,11 @@ export default function FlatListExample() {
         enableScaling: true,
       }}
       keyExtractor={(item) => item}
-      style={{ flex: 1 }}
+      containerStyle={{ flex: 1 }}
       contentContainerStyle={{ paddingBottom: 16 }}
+      isRefreshable
+      refreshing={refreshing}
+      onRefresh={onRefresh}
     />
   );
 }

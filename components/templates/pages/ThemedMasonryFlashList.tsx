@@ -1,6 +1,13 @@
 // app/components/screens/ThemedMasonryFlashList.tsx
+
 import React, { ReactNode } from "react";
-import { StyleSheet, ViewStyle, StyleProp, View } from "react-native";
+import {
+  StyleSheet,
+  ViewStyle,
+  StyleProp,
+  View,
+  RefreshControl,
+} from "react-native";
 import {
   Header as LibHeader,
   LargeHeader as LibLargeHeader,
@@ -9,6 +16,8 @@ import {
 } from "@codeherence/react-native-header";
 import ThemedHeaderBackButton from "../headers/ThemedHeaderBackButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { router } from "expo-router";
+import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
 
 type MasonryFlashListWithHeadersExtendedProps<T> = React.ComponentProps<
   typeof MasonryFlashListWithHeaders<T>
@@ -39,55 +48,92 @@ function capitalize(s: string) {
 export interface ThemedMasonryFlashListProps<T>
   extends Omit<
     MasonryFlashListWithHeadersExtendedProps<T>,
-    "HeaderComponent" | "LargeHeaderComponent" | "style"
+    "HeaderComponent" | "LargeHeaderComponent" | "refreshControl"
   > {
   themeType?: "primary" | "secondary" | "tertiary";
   backgroundColor?: { light?: string; dark?: string };
-  
-  // We'll remove 'style' from direct usage, do a containerStyle instead
+
   containerStyle?: StyleProp<ViewStyle>;
 
   headerProps?: Partial<LocalHeaderProps>;
   largeHeaderProps?: Partial<LocalLargeHeaderProps>;
 
-  // We also have "estimatedItemSize" if needed:
+  isRefreshable?: boolean;
+  refreshing?: boolean;
+  onRefresh?: () => void;
+
   estimatedItemSize?: number;
 }
 
-export function ThemedMasonryFlashList<T>(props: ThemedMasonryFlashListProps<T>) {
+export function ThemedMasonryFlashList<T>(
+  props: ThemedMasonryFlashListProps<T>
+) {
   const {
     themeType = "primary",
-    backgroundColor={},
+    backgroundColor = {},
     headerProps = {},
     largeHeaderProps = {},
     containerStyle,
     contentContainerStyle,
-    estimatedItemSize = 100, // example default
+    isRefreshable,
+    refreshing,
+    onRefresh,
+    estimatedItemSize = 100,
     ...rest
   } = props;
 
-  const colorKey = `masonryFlashListBackground${capitalize(themeType)}` as ThemeColorType;
+  const colorKey = `masonryFlashListBackground${capitalize(
+    themeType
+  )}` as ThemeColorType;
   const resolvedBg = useThemeColor(backgroundColor, colorKey);
 
   const { renderLeft, renderCenter, renderRight, headerStyle } = headerProps;
-  const { renderLargeHeader, enableScaling, headerStyle: lhStyle } = largeHeaderProps;
+  const {
+    renderLargeHeader,
+    enableScaling,
+    headerStyle: lhStyle,
+  } = largeHeaderProps;
+
+  const maybeRefreshControl =
+    isRefreshable && onRefresh ? (
+      <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} />
+    ) : undefined;
+
+  const mergedContentContainerStyle = [
+    { paddingBottom: BOTTOM_FOOTER_HEIGHT },
+    contentContainerStyle,
+  ];
 
   const HeaderComponent = ({ showNavBar }: { showNavBar: any }) => (
     <LibHeader
       showNavBar={showNavBar}
       headerStyle={[{ backgroundColor: resolvedBg }, headerStyle]}
-      headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton onPress={() => {}} />}
+      headerLeft={
+        renderLeft ? (
+          renderLeft()
+        ) : (
+          <ThemedHeaderBackButton onPress={() => router.back()} />
+        )
+      }
       headerCenter={renderCenter?.()}
       headerRight={renderRight?.()}
     />
   );
 
-  const LargeHeaderComponent = ({ scrollY, showNavBar }: { scrollY: any; showNavBar: any }) => {
+  const LargeHeaderComponent = ({
+    scrollY,
+    showNavBar,
+  }: {
+    scrollY: any;
+    showNavBar: any;
+  }) => {
     if (!renderLargeHeader) return null;
     return (
       <LibLargeHeader headerStyle={lhStyle}>
         {enableScaling ? (
-          <ScalingView scrollY={scrollY}>{renderLargeHeader(scrollY, showNavBar)}</ScalingView>
+          <ScalingView scrollY={scrollY}>
+            {renderLargeHeader(scrollY, showNavBar)}
+          </ScalingView>
         ) : (
           renderLargeHeader(scrollY, showNavBar)
         )}
@@ -100,7 +146,8 @@ export function ThemedMasonryFlashList<T>(props: ThemedMasonryFlashListProps<T>)
       <MasonryFlashListWithHeaders
         HeaderComponent={HeaderComponent}
         LargeHeaderComponent={LargeHeaderComponent}
-        contentContainerStyle={contentContainerStyle}
+        contentContainerStyle={mergedContentContainerStyle}
+        refreshControl={maybeRefreshControl}
         estimatedItemSize={estimatedItemSize}
         {...rest}
       />
