@@ -26,7 +26,13 @@ import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
 type ThemeColorType =
   | "hideOnScrollHeaderBackgroundPrimary"
   | "hideOnScrollHeaderBackgroundSecondary"
-  | "hideOnScrollHeaderBackgroundTertiary";
+  | "hideOnScrollHeaderBackgroundTertiary"
+  | "hideOnScrollScrollViewBackgroundPrimary"
+  | "hideOnScrollScrollViewBackgroundSecondary"
+  | "hideOnScrollScrollViewBackgroundTertiary"
+  | "hideOnScrollTopSafeAreaBackgroundPrimary"
+  | "hideOnScrollTopSafeAreaBackgroundSecondary"
+  | "hideOnScrollTopSafeAreaBackgroundTertiary";
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -44,6 +50,8 @@ export interface ThemedHideOnScrollHeaderProps {
   renderRight?: () => ReactNode;
   themeType?: "primary" | "secondary" | "tertiary";
   backgroundColor?: { light?: string; dark?: string };
+  scrollViewBackgroundColor?: { light?: string; dark?: string };
+  topSafeAreaBackgroundColor?: { light?: string; dark?: string };
   isRefreshable?: boolean;
   refreshing?: boolean;
   onRefresh?: () => void;
@@ -66,6 +74,8 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
     renderRight,
     themeType = "primary",
     backgroundColor = {},
+    scrollViewBackgroundColor,
+    topSafeAreaBackgroundColor,
     isRefreshable,
     refreshing,
     onRefresh,
@@ -73,10 +83,25 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
     headerHeight = DEFAULT_HEADER_HEIGHT,
   } = props;
 
-  const colorKey = `hideOnScrollHeaderBackground${
-    themeType.charAt(0).toUpperCase() + themeType.slice(1)
-  }` as ThemeColorType;
-  const resolvedBgColor = useThemeColor(backgroundColor, colorKey);
+  // Resolve header background
+  const capitalizedThemeType =
+    themeType.charAt(0).toUpperCase() + themeType.slice(1);
+  const headerColorKey = `hideOnScrollHeaderBackground${capitalizedThemeType}` as ThemeColorType;
+  const resolvedBgColor = useThemeColor(backgroundColor, headerColorKey);
+
+  // Resolve scrollView background
+  const scrollViewColorKey = `hideOnScrollScrollViewBackground${capitalizedThemeType}` as ThemeColorType;
+  const resolvedScrollViewBg = useThemeColor(
+    scrollViewBackgroundColor || {},
+    scrollViewColorKey
+  );
+
+  // Resolve top safe area color
+  const topSafeAreaColorKey = `hideOnScrollTopSafeAreaBackground${capitalizedThemeType}` as ThemeColorType;
+  const resolvedTopSafeAreaBg = useThemeColor(
+    topSafeAreaBackgroundColor || {},
+    topSafeAreaColorKey
+  );
 
   const [lastScrollY, setLastScrollY] = useState(0);
   const isUserDragging = useRef(false);
@@ -168,11 +193,11 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
         // Added platform-specific props
         {...Platform.select({
           android: {
-            progressBackgroundColor: '#ffffff',
-            colors: ['#999999'],
+            progressBackgroundColor: resolvedScrollViewBg,
+            colors: [resolvedScrollViewBg],
           },
           ios: {
-            tintColor: '#999999',
+            tintColor: resolvedScrollViewBg,
           },
         })}
       />
@@ -180,11 +205,9 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
 
   return (
     <View style={styles.fullScreenContainer}>
-      <SafeAreaView
-        style={styles.container}
-        edges={["left", "right", "bottom"]}
-      >
-        <View style={[styles.topSafeArea, { height: insets.top }]} />
+      <SafeAreaView style={[styles.container, { backgroundColor: resolvedScrollViewBg }]} edges={["left", "right", "bottom"]}>
+        {/* The topSafeArea view explicitly uses a theme color */}
+        <View style={[styles.topSafeArea, { backgroundColor: resolvedTopSafeAreaBg, height: insets.top }]} />
 
         <View style={{ flex: 1 }}>
           <Animated.View
@@ -194,7 +217,6 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
                 const bottom = insets.top + height;
                 setHeaderBottom(bottom);
                 layoutCalculated.current = true;
-                console.log("Header layout calculated, bottom:", bottom);
               }
             }}
             style={[
@@ -226,7 +248,7 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
           </Animated.View>
 
           <ScrollView
-            style={styles.scrollView}
+            style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
             contentContainerStyle={{
               paddingTop: headerHeight,
               paddingBottom: BOTTOM_FOOTER_HEIGHT,
@@ -255,10 +277,10 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#fafafa",
+    // backgroundColor is now dynamically set via resolvedScrollViewBg
   },
   topSafeArea: {
-    backgroundColor: "green",
+    // backgroundColor is now dynamically set via resolvedTopSafeAreaBg
     zIndex: 1000,
   },
   headerContainer: {

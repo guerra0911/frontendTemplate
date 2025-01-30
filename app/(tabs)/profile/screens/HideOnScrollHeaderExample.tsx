@@ -25,7 +25,11 @@ export default function ThemedHideOnScrollHeaderExample() {
       refreshing={refreshing}
       onRefresh={onRefresh}
       // Could pass headerStyle if you want bigger background color:
+      // For demonstration, override the header background color
       headerStyle={{ backgroundColor: "#6200ea" }}
+      // Optionally override other backgrounds:
+      scrollViewBackgroundColor={{ light: "#E1BEE7", dark: "#333" }}
+      topSafeAreaBackgroundColor={{ light: "#BA68C8", dark: "#222" }}
     >
       {/**
        * This children block is the scrollable area below the hideable header
