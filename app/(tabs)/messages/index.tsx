@@ -42,6 +42,7 @@ import ThemedRadioButtonListItemExamples from "@/components/examples/lists/Theme
 import ThemedToggleSwitchListItemExamples from "@/components/examples/lists/ThemedToggleSwitchListItemExamples";
 
 import ThemedPage from "@/components/templates/pages/ThemedPage";
+import { ThemedStaticHeader } from "@/components/templates/pages/ThemedStaticHeader";
 
 export default function MessagesScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -55,22 +56,27 @@ export default function MessagesScreen() {
   }, []);
 
   return (
-    <ThemedPage
-      title="Messages"
-      showBackButton={false}
-      scrollable
-      themeType="primary"
-      refreshable
-      onRefresh={onRefresh}
+    <ThemedStaticHeader
+      headerProps={{
+        renderCenter: () => (
+          <ThemedText type="subtitle" margin={8} padding={2}>
+            MESSAGES
+          </ThemedText>
+        ),
+        renderLeft: () => null,
+        noBottomBorder: false,
+        
+      }}
+      scrollViewBackgroundColor={{
+        light: "#d1c4e9", // Custom light background color
+        dark: "#512da8",  // Custom dark background color
+      }}
+      isRefreshable
       refreshing={refreshing}
-      
-      isSticky={false}
-      
+      onRefresh={onRefresh}
+      style={{ flex: 1 }}
+      contentContainerStyle={{ padding: 16 }}
     >
-      <ThemedText type="title" margin={8} padding={2}>
-        MESSAGES
-      </ThemedText>
-
       {/* Themed Text Examples */}
       <ThemedTextExamples />
 
@@ -175,7 +181,7 @@ export default function MessagesScreen() {
 
       {/* Themed FAB Examples 2 */}
       <ThemedFABExamples2 />
-    </ThemedPage>
+    </ThemedStaticHeader>
   );
 }
 
