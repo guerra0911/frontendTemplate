@@ -53,6 +53,7 @@ import ThemedMasonryFlashListColors from "./templates/pages/ThemedMasonryFlashLi
 import ThemedSectionListColors from "./templates/pages/ThemedSectionListColors";
 import ThemedSimpleColors from "./templates/pages/ThemedSimpleColors";
 import ThemedSurfaceComponentColors from "./templates/pages/ThemedSurfaceComponentColors";
+import ThemedHideOnScrollHeaderColors from "./templates/pages/ThemedHideOnScrollColors";
 
 const tintColorLight = "#0a7ea4";
 const tintColorDark = "#fff";
@@ -156,6 +157,7 @@ export const Colors = {
     ...ThemedSurfaceComponentColors.light,
     ...ThemedStaticHeaderColors.light,
     ...ThemedScrollingHeaderColors.light,
+    ...ThemedHideOnScrollHeaderColors.light,
   },
   dark: {
     text: "#ECEDEE",
@@ -254,5 +256,6 @@ export const Colors = {
     ...ThemedSurfaceComponentColors.dark,
     ...ThemedStaticHeaderColors.dark,
     ...ThemedScrollingHeaderColors.dark,
+    ...ThemedHideOnScrollHeaderColors.dark,
   },
 };

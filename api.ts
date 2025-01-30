@@ -11,7 +11,7 @@ interface CustomAxiosInstance extends AxiosInstance {
 }
 
 const api: CustomAxiosInstance = axios.create({
-  baseURL: 'http://192.168.2.215:8000',
+  baseURL: 'http://192.168.2.211:8000',
   headers: {
     "Content-Type": "application/json",
   },
@@ -22,7 +22,7 @@ api.setAuthToken = (token: string) => {
 };
 
 export const apiWithoutAuth = axios.create({
-  baseURL: 'http://192.168.2.215:8000',
+  baseURL: 'http://192.168.2.211:8000',
   headers: {
     "Content-Type": "application/json",
   },
