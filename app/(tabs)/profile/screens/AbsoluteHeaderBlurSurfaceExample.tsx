@@ -2,6 +2,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { ThemedAbsoluteHeaderBlurSurface } from "@/components/templates/pages/ThemedAbsoluteHeaderBlurSurface";
+import ThemedCardExamples from "@/components/examples/cards/ThemedCardExamples";
 
 export default function AbsoluteHeaderBlurSurfaceExample() {
   return (
@@ -20,9 +21,7 @@ export default function AbsoluteHeaderBlurSurfaceExample() {
       }}
       style={{ flex: 1 }}
     >
-      <View style={{ padding: 16 }}>
-        <Text>Scroll content here for Blur Surface.</Text>
-      </View>
+      <ThemedCardExamples />
     </ThemedAbsoluteHeaderBlurSurface>
   );
 }

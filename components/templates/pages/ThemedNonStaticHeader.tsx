@@ -22,6 +22,7 @@ import { useSharedValue } from "react-native-reanimated";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedHeaderBackButton from "../headers/ThemedHeaderBackButton";
 import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
+import { BlurView } from "@react-native-community/blur";
 
 type ThemeColorType =
   | "hideOnScrollHeaderBackgroundPrimary"
@@ -38,7 +39,7 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-export interface ThemedHideOnScrollHeaderProps {
+export interface ThemedNonStaticHeaderProps {
   headerStyle?: StyleProp<ViewStyle>;
   noBottomBorder?: boolean;
   ignoreTopSafeArea?: boolean;
@@ -57,11 +58,14 @@ export interface ThemedHideOnScrollHeaderProps {
   onRefresh?: () => void;
   children?: ReactNode;
   headerHeight?: number;
+  blurOnSlide?: boolean;
+  maxBlurAmount?: number;
 }
 
 const DEFAULT_HEADER_HEIGHT = 60;
+const DEFAULT_MAX_BLUR = 20;
 
-export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
+export function ThemedNonStaticHeader(props: ThemedNonStaticHeaderProps) {
   const {
     headerStyle,
     noBottomBorder,
@@ -81,6 +85,8 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
     onRefresh,
     children,
     headerHeight = DEFAULT_HEADER_HEIGHT,
+    blurOnSlide = false,
+    maxBlurAmount = DEFAULT_MAX_BLUR,
   } = props;
 
   // Resolve header background
@@ -120,6 +126,27 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
   const [headerBottom, setHeaderBottom] = useState(0);
   const insets = useSafeAreaInsets();
 
+  // Change blurAmount to a number state instead of Animated.Value
+  const [blurAmount, setBlurAmount] = useState(0);
+
+  useEffect(() => {
+    if (blurOnSlide) {
+      const listenerId = headerOffset.addListener(({ value }) => {
+        // Calculate blur intensity based on scroll position
+        const progress = Math.abs(value / MIN_TRANSLATE);
+        const newBlurAmount = clamp(progress * maxBlurAmount, 0, maxBlurAmount);
+        setBlurAmount(newBlurAmount);
+      });
+
+      return () => {
+        headerOffset.removeListener(listenerId);
+      };
+    }
+  }, [blurOnSlide, maxBlurAmount, headerOffset, MIN_TRANSLATE]);
+
+  // Track the last scroll delta
+  const lastScrollDelta = useRef(0);
+
   // Enhanced initialization logic
   const [initialized, setInitialized] = useState(false);
   useEffect(() => {
@@ -127,20 +154,20 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
       // Calculate initial headerBottom value
       const calculatedBottom = insets.top + headerHeight;
       setHeaderBottom(calculatedBottom);
-      
+
       currentHeaderTranslateRef.current = INITIAL_HEADER_OFFSET;
       headerOffset.setValue(INITIAL_HEADER_OFFSET);
       setInitialized(true);
-      
+
       // Force a layout pass
       layoutCalculated.current = true;
     }
-  }, [initialized, headerHeight, insets.top]);
+  }, [initialized, headerHeight, insets.top, headerOffset]);
 
   const animateHeaderTo = (newVal: number) => {
     Animated.timing(headerOffset, {
       toValue: newVal,
-      duration: 0,
+      duration: 300, // Smooth transition duration
       useNativeDriver: true,
     }).start();
   };
@@ -152,11 +179,13 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
       return;
     }
     const delta = offsetY - lastScrollY;
+    lastScrollDelta.current = delta; // Track the last delta
+
     const newTranslate = currentHeaderTranslateRef.current - delta;
     const clamped = clamp(newTranslate, MIN_TRANSLATE, MAX_TRANSLATE);
 
     currentHeaderTranslateRef.current = clamped;
-    animateHeaderTo(clamped);
+    headerOffset.setValue(clamped); // Directly set the value without animation
 
     setLastScrollY(offsetY);
   };
@@ -164,14 +193,34 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
   const handleScrollBeginDrag = () => {
     isUserDragging.current = true;
   };
+
   const handleScrollEndDrag = () => {
     isUserDragging.current = false;
+
+    // Decide to animate to final position based on last delta
+    if (lastScrollDelta.current > 0) {
+      // User scrolled up - hide header
+      animateHeaderTo(MIN_TRANSLATE);
+      currentHeaderTranslateRef.current = MIN_TRANSLATE;
+    } else if (lastScrollDelta.current < 0) {
+      // User scrolled down - show header
+      animateHeaderTo(MAX_TRANSLATE);
+      currentHeaderTranslateRef.current = MAX_TRANSLATE;
+    }
   };
+
   const handleMomentumScrollBegin = () => {
     isUserDragging.current = false;
   };
+
   const handleMomentumScrollEnd = () => {
-    /* no-op */
+    if (lastScrollDelta.current > 0) {
+      animateHeaderTo(MIN_TRANSLATE);
+      currentHeaderTranslateRef.current = MIN_TRANSLATE;
+    } else if (lastScrollDelta.current < 0) {
+      animateHeaderTo(MAX_TRANSLATE);
+      currentHeaderTranslateRef.current = MAX_TRANSLATE;
+    }
   };
 
   const { top: safeTop } = useSafeAreaInsets();
@@ -189,7 +238,7 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
       <RefreshControl
         refreshing={!!refreshing}
         onRefresh={onRefresh}
-        progressViewOffset={headerBottom-56}
+        progressViewOffset={headerBottom - 56}
         // Added platform-specific props
         {...Platform.select({
           android: {
@@ -203,11 +252,39 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
       />
     ) : undefined;
 
+  const renderHeader = () => (
+    <LibHeader
+      showNavBar={showNavBar}
+      noBottomBorder={noBottomBorder}
+      ignoreTopSafeArea={true}
+      initialBorderColor={initialBorderColor}
+      borderColor={borderColor}
+      borderWidth={borderWidth}
+      headerStyle={[
+        { backgroundColor: resolvedBgColor, height: headerHeight },
+        headerStyle,
+      ]}
+      headerLeftStyle={{ marginLeft: 0, paddingLeft: 0 }}
+      headerLeft={
+        renderLeft ? renderLeft() : <ThemedHeaderBackButton />
+      }
+      headerCenter={renderCenter?.()}
+      headerRight={renderRight?.()}
+    />
+  );
+
   return (
     <View style={styles.fullScreenContainer}>
-      <SafeAreaView style={[styles.container, { backgroundColor: resolvedScrollViewBg }]} edges={["left", "right", "bottom"]}>
-        {/* The topSafeArea view explicitly uses a theme color */}
-        <View style={[styles.topSafeArea, { backgroundColor: resolvedTopSafeAreaBg, height: insets.top }]} />
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: resolvedScrollViewBg }]}
+        edges={["left", "right", "bottom"]}
+      >
+        <View
+          style={[
+            styles.topSafeArea,
+            { backgroundColor: resolvedTopSafeAreaBg, height: insets.top },
+          ]}
+        />
 
         <View style={{ flex: 1 }}>
           <Animated.View
@@ -227,24 +304,19 @@ export function ThemedHideOnScrollHeader(props: ThemedHideOnScrollHeaderProps) {
               },
             ]}
           >
-            <LibHeader
-              showNavBar={showNavBar}
-              noBottomBorder={noBottomBorder}
-              ignoreTopSafeArea={true}
-              initialBorderColor={initialBorderColor}
-              borderColor={borderColor}
-              borderWidth={borderWidth}
-              headerStyle={[
-                { backgroundColor: resolvedBgColor, height: headerHeight },
-                headerStyle,
-              ]}
-              headerLeftStyle={{ marginLeft: 0, paddingLeft: 0 }}
-              headerLeft={
-                renderLeft ? renderLeft() : <ThemedHeaderBackButton />
-              }
-              headerCenter={renderCenter?.()}
-              headerRight={renderRight?.()}
-            />
+            {blurOnSlide ? (
+              <View style={StyleSheet.absoluteFill}>
+                <BlurView
+                  style={StyleSheet.absoluteFill}
+                  blurType={Platform.select({ ios: "light", android: "light" })}
+                  blurAmount={blurAmount} // Now a number
+                  reducedTransparencyFallbackColor={resolvedBgColor}
+                />
+                {renderHeader()}
+              </View>
+            ) : (
+              renderHeader()
+            )}
           </Animated.View>
 
           <ScrollView

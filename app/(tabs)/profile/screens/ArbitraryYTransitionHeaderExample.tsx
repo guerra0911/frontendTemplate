@@ -2,6 +2,7 @@
 import React, { useState, useCallback } from "react";
 import { View, Text } from "react-native";
 import { ThemedArbitraryYTransitionHeader } from "@/components/templates/pages/ThemedArbitraryYTransitionHeader";
+import ThemedCardExamples from "@/components/examples/cards/ThemedCardExamples";
 
 export default function ArbitraryYTransitionHeaderExample() {
   const [refreshing, setRefreshing] = useState(false);
@@ -32,9 +33,7 @@ export default function ArbitraryYTransitionHeaderExample() {
       refreshing={refreshing}
       onRefresh={onRefresh}
     >
-      {data.map((val) => (
-        <Text key={val}>Scroll item: {val}</Text>
-      ))}
+      <ThemedCardExamples />
     </ThemedArbitraryYTransitionHeader>
   );
 }

@@ -28,7 +28,7 @@ export default function ThemedCardExamples() {
   const modes: CardMode[] = ["elevated", "outlined", "contained"];
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <>
       {/* Mode selection row */}
       <View style={styles.modeSelector}>
         {modes.map((mode) => (
@@ -223,7 +223,7 @@ export default function ThemedCardExamples() {
         </ThemedCardContent>
       </ThemedCard>
 
-    </ScrollView>
+    </>
   );
 }
 

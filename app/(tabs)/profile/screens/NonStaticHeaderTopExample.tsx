@@ -1,10 +1,11 @@
-// app/(tabs)/profile/screens/ThemedHideOnScrollHeaderExample.tsx
+// app/components/screens/NonStaticHeaderTopExample.tsx
+
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/templates/typography/ThemedText";
-import { ThemedHideOnScrollHeader } from "@/components/templates/pages/ThemedHideOnScrollHeader";
+import ThemedNonStaticHeaderTop from "@/components/templates/pages/ThemedNonStaticHeaderTop";
 
-export default function ThemedHideOnScrollHeaderExample() {
+export default function NonStaticHeaderTopExample() {
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = () => {
@@ -13,30 +14,29 @@ export default function ThemedHideOnScrollHeaderExample() {
   };
 
   return (
-    <ThemedHideOnScrollHeader
+    <ThemedNonStaticHeaderTop
       themeType="primary"
-      headerHeight={45}
-      // e.g. noBottomBorder
-      // noBottomBorder={true}
-      // You can pass custom left/center if you want:
-      // renderLeft={() => <MyCustomLeft/>}
-      renderCenter={() => <ThemedText style={{ color:'#f3f3f3'}}>Title</ThemedText>}
+      headerHeight={60}
+      // If we want to hide bottom border:
+      noBottomBorder
+      renderCenter={() => (
+        <ThemedText style={{ color:'#f3f3f3'}}>
+          Scroll & Release = Snap
+        </ThemedText>
+      )}
       isRefreshable
       refreshing={refreshing}
       onRefresh={onRefresh}
-      // Could pass headerStyle if you want bigger background color:
-      // For demonstration, override the header background color
+      // Example style override
       headerStyle={{ backgroundColor: "#6200ea" }}
-      // Optionally override other backgrounds:
       scrollViewBackgroundColor={{ light: "#E1BEE7", dark: "#333" }}
       topSafeAreaBackgroundColor={{ light: "#BA68C8", dark: "#222" }}
+      blurOnSlide={false}
     >
-      {/**
-       * This children block is the scrollable area below the hideable header
-       */}
       <View style={[styles.placeholder, { backgroundColor: "#E1BEE7" }]}>
         <ThemedText style={{ textAlign: "center" }}>
-          The header hides or shows proportionally on scroll
+          Scroll away from top = partial hide
+          {"\n"}Release = snaps fully open/closed
         </ThemedText>
       </View>
 
@@ -45,7 +45,7 @@ export default function ThemedHideOnScrollHeaderExample() {
           <ThemedText>Item #{i + 1}</ThemedText>
         </View>
       ))}
-    </ThemedHideOnScrollHeader>
+    </ThemedNonStaticHeaderTop>
   );
 }
 

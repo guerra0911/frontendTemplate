@@ -2,6 +2,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { ThemedCustomWorklet } from "@/components/templates/pages/ThemedCustomWorklet";
+import ThemedCardExamples from "@/components/examples/cards/ThemedCardExamples";
 
 /**
  * If you want a custom Reanimated worklet, 
@@ -29,7 +30,7 @@ export default function CustomWorkletExample() {
         // Custom reanimated logic here
       }}
     >
-      <Text>Scroll to see a custom onScrollWorklet in action!</Text>
+      <ThemedCardExamples />
     </ThemedCustomWorklet>
   );
 }

@@ -60,7 +60,7 @@ export default function ProfileScreen() {
         background remains.
       </ThemedText>
 
-      <View style={{ marginBottom: 16 }}>
+      <View style={{ marginBottom: 16, paddingBottom: 100}}>
         <ThemedButton
           title="Static Header"
           onPress={() =>
@@ -69,12 +69,68 @@ export default function ProfileScreen() {
           style={{ marginVertical: 8 }}
         />
         <ThemedButton
-          title="Hide-On-Scroll Header"
+          title="Static Header Static Tabbed"
           onPress={() =>
-            router.push("/(tabs)/profile/screens/HideOnScrollHeaderExample")
+            router.push("/(tabs)/profile/screens/StaticHeaderStaticTabbedExample")
           }
           style={{ marginVertical: 8 }}
         />
+        <ThemedButton
+          title="Static Header NonStatic Tabbed"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/StaticHeaderNonStaticTabbedExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Non Static Header"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/NonStaticHeaderExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Non Static Header Non Static Tabbed"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/NonStaticHeaderNonStaticTabbedExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Non Static Header Static Tabbed"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/NonStaticHeaderStaticTabbedExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Non Static Header Top"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/NonStaticHeaderTopExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Non Static Header Non Static Tabbed Top"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/NonStaticHeaderNonStaticTabbedTopExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="Spotify Example"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/SpotifyExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        {/* <ThemedButton
+          title="Dynamic Tabs"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/DynamicTabExample")
+          }
+          style={{ marginVertical: 8 }}
+        /> */}
         <ThemedButton
           title="Absolute Header Blur Surface"
           onPress={() =>
@@ -93,37 +149,37 @@ export default function ProfileScreen() {
           }
           style={{ marginVertical: 8 }}
         />
-        <ThemedButton
+        {/* <ThemedButton
           title="Custom Worklet"
           onPress={() =>
             router.push("/(tabs)/profile/screens/CustomWorkletExample")
           }
           style={{ marginVertical: 8 }}
-        />
-        <ThemedButton
+        /> */}
+        {/* <ThemedButton
           title="FlashList"
           onPress={() =>
             router.push("/(tabs)/profile/screens/FlashListExample")
           }
           style={{ marginVertical: 8 }}
-        />
-        <ThemedButton
+        /> */}
+        {/* <ThemedButton
           title="FlatList"
           onPress={() => router.push("/(tabs)/profile/screens/FlatListExample")}
           style={{ marginVertical: 8 }}
-        />
+        /> */}
         <ThemedButton
           title="Inverted"
           onPress={() => router.push("/(tabs)/profile/screens/InvertedExample")}
           style={{ marginVertical: 8 }}
         />
-        <ThemedButton
+        {/* <ThemedButton
           title="Masonry FlashList"
           onPress={() =>
             router.push("/(tabs)/profile/screens/MasonryFlashListExample")
           }
           style={{ marginVertical: 8 }}
-        />
+        /> */}
         <ThemedButton
           title="SectionList"
           onPress={() =>
@@ -131,18 +187,18 @@ export default function ProfileScreen() {
           }
           style={{ marginVertical: 8 }}
         />
-        <ThemedButton
+        {/* <ThemedButton
           title="Simple"
           onPress={() => router.push("/(tabs)/profile/screens/SimpleExample")}
           style={{ marginVertical: 8 }}
-        />
-        <ThemedButton
+        /> */}
+        {/* <ThemedButton
           title="Surface Component"
           onPress={() =>
             router.push("/(tabs)/profile/screens/SurfaceComponentExample")
           }
           style={{ marginVertical: 8 }}
-        />
+        /> */}
         
       </View>
     </ThemedPage>

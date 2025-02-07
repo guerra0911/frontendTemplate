@@ -2,6 +2,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { ThemedSimple } from "@/components/templates/pages/ThemedSimple";
+import ThemedCardExamples from "@/components/examples/cards/ThemedCardExamples";
 
 export default function SimpleExample() {
   return (
@@ -20,7 +21,7 @@ export default function SimpleExample() {
       style={{ flex: 1 }}
       contentContainerStyle={{ padding: 16 }}
     >
-      <Text>Hello from ThemedSimple screen!</Text>
+      <ThemedCardExamples />
     </ThemedSimple>
   );
 }

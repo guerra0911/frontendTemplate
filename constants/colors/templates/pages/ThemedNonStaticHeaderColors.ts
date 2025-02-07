@@ -5,7 +5,7 @@
  * We include header background, scrollView background, and top safe area background
  * for "primary", "secondary", and "tertiary".
  */
-const ThemedHideOnScrollHeaderColors = {
+const ThemedNonStaticHeaderColors = {
   light: {
     hideOnScrollHeaderBackgroundPrimary: "#ffffff",
     hideOnScrollHeaderBackgroundSecondary: "#f5f5f5",
@@ -14,6 +14,10 @@ const ThemedHideOnScrollHeaderColors = {
     hideOnScrollScrollViewBackgroundPrimary: "#ffffff",
     hideOnScrollScrollViewBackgroundSecondary: "#f5f5f5",
     hideOnScrollScrollViewBackgroundTertiary: "#ebebeb",
+
+    segmentedControlBackgroundPrimary: "#ffffff",
+    segmentedControlBackgroundSecondary: "#f5f5f5",
+    segmentedControlBackgroundTertiary: "#ebebeb",
 
     hideOnScrollTopSafeAreaBackgroundPrimary: "#ffffff",
     hideOnScrollTopSafeAreaBackgroundSecondary: "#f5f5f5",
@@ -28,10 +32,14 @@ const ThemedHideOnScrollHeaderColors = {
     hideOnScrollScrollViewBackgroundSecondary: "#1e1e1e",
     hideOnScrollScrollViewBackgroundTertiary: "#2b2b2b",
 
+    segmentedControlBackgroundPrimary: "#1a1a1a",
+    segmentedControlBackgroundSecondary: "#2b2b2b",
+    segmentedControlBackgroundTertiary: "#3c3c3c",
+
     hideOnScrollTopSafeAreaBackgroundPrimary: "#000000",
     hideOnScrollTopSafeAreaBackgroundSecondary: "#1a1a1a",
     hideOnScrollTopSafeAreaBackgroundTertiary: "#333333",
   },
 };
 
-export default ThemedHideOnScrollHeaderColors;
+export default ThemedNonStaticHeaderColors;

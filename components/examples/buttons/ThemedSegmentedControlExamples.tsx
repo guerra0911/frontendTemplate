@@ -209,7 +209,7 @@ const ThemedSegmentedControlExamples: React.FC = () => {
         roundedAllCorners={true}
         animatedSwitch={true}
         padding={{
-          internal: 4,
+          internal: 10,
         }}
         style={styles.segmentedControl}
       />
@@ -404,11 +404,11 @@ const ThemedSegmentedControlExamples: React.FC = () => {
           ],
           colors: {
             light: {
-              selected: "#ff0000",
-              unselected: "#cccccc",
+              selected: "#0000FF",
+              unselected: "#999999",
             },
             dark: {
-              selected: "#00ff00",
+              selected: "#00FFFF",
               unselected: "#666666",
             },
           },
