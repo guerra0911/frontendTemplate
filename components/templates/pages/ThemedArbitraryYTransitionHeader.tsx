@@ -61,6 +61,9 @@ export interface ThemedArbitraryYTransitionHeaderProps
   onRefresh?: () => void;
 
   children?: ReactNode;
+
+  // New prop to control when the header should fade in
+  headerFadeInThreshold?: number;
 }
 
 export function ThemedArbitraryYTransitionHeader(
@@ -68,7 +71,7 @@ export function ThemedArbitraryYTransitionHeader(
 ) {
   const {
     themeType = "primary",
-    backgroundColor={},
+    backgroundColor = {},
     headerProps = {},
     largeHeaderProps = {},
     style,
@@ -76,6 +79,7 @@ export function ThemedArbitraryYTransitionHeader(
     isRefreshable,
     refreshing,
     onRefresh,
+    headerFadeInThreshold = 1, // Default value
     ...scrollProps
   } = props;
 
@@ -103,12 +107,12 @@ export function ThemedArbitraryYTransitionHeader(
     headerStyle: largeHeaderStyle,
   } = largeHeaderProps;
 
-  /** Create a combined refresh control if isRefreshable. */
+  /** Create a refresh control if needed */
   const maybeRefreshControl = isRefreshable && onRefresh ? (
     <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} />
   ) : undefined;
 
-  /** Merge your BOTTOM_FOOTER_HEIGHT into the content container style. */
+  /** Merge BOTTOM_FOOTER_HEIGHT into the content container style */
   const mergedContentContainerStyle = [
     { paddingBottom: BOTTOM_FOOTER_HEIGHT },
     contentContainerStyle,
@@ -127,7 +131,9 @@ export function ThemedArbitraryYTransitionHeader(
         headerLeftStyle={[{ marginLeft: 0, paddingLeft: 0 }, headerLeftStyle]}
         headerCenterStyle={headerCenterStyle}
         headerRightStyle={headerRightStyle}
-        headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton onPress={() => router.back()} />}
+        headerLeft={
+          renderLeft ? renderLeft() : <ThemedHeaderBackButton onPress={() => router.back()} />
+        }
         headerCenter={renderCenter?.()}
         headerRight={renderRight?.()}
       />
@@ -139,7 +145,9 @@ export function ThemedArbitraryYTransitionHeader(
     return (
       <LibLargeHeader headerStyle={largeHeaderStyle}>
         {enableScaling ? (
-          <ScalingView scrollY={scrollY}>{renderLargeHeader(scrollY, showNavBar)}</ScalingView>
+          <ScalingView scrollY={scrollY}>
+            {renderLargeHeader(scrollY, showNavBar)}
+          </ScalingView>
         ) : (
           renderLargeHeader(scrollY, showNavBar)
         )}
@@ -149,6 +157,7 @@ export function ThemedArbitraryYTransitionHeader(
 
   return (
     <ScrollViewWithHeaders
+      headerFadeInThreshold={headerFadeInThreshold}
       HeaderComponent={HeaderComponent}
       LargeHeaderComponent={LargeHeaderComponent}
       refreshControl={maybeRefreshControl}

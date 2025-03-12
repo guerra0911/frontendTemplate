@@ -140,7 +140,7 @@ export function ThemedNonStaticHeaderStaticTabbed(
     headerSegmentedControlPaddingRight = 0,
   } = headerProps;
 
-  const [activeIndexState, setActiveIndexState] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const capitalizedThemeType =
     themeType.charAt(0).toUpperCase() + themeType.slice(1);
@@ -164,12 +164,12 @@ export function ThemedNonStaticHeaderStaticTabbed(
     `segmentedControlBackground${capitalize(themeType)}` as ThemeColorType
   );
 
-  // We'll measure ONLY the top LibHeader portion that can fully hide
+  // We'll measure ONLY the top LibHeader portion that can fully hide.
   const [libHeaderHeight, setLibHeaderHeight] = useState(0);
-  // We'll measure only the segmented control portion that remains pinned
+  // We'll measure only the segmented control portion that remains pinned.
   const [tabsHeight, setTabsHeight] = useState(0);
 
-  // Animate the sliding of the LibHeader
+  // Animate the sliding of the LibHeader (the pinned tabs will always be visible)
   const headerOffset = useRef(
     new Animated.Value(initialHeaderOffset)
   ).current;
@@ -178,11 +178,8 @@ export function ThemedNonStaticHeaderStaticTabbed(
   const [blurAmount, setBlurAmount] = useState(0);
   const [lastScrollY, setLastScrollY] = useState(0);
   const isUserDragging = useRef(false);
-
-  // *** REMOVED: isAnimatingRef
   const lastScrollDelta = useRef(0);
 
-  // When blurOnSlide = true, track blur based on how much header is hidden
   useEffect(() => {
     if (blurOnSlide) {
       const listenerId = headerOffset.addListener(({ value }) => {
@@ -196,68 +193,81 @@ export function ThemedNonStaticHeaderStaticTabbed(
     }
   }, [blurOnSlide, maxBlurAmount, libHeaderHeight, headerOffset]);
 
+  // MIN_TRANSLATE is how far the LibHeader can hide (pushing it fully out of view)
   const MIN_TRANSLATE = libHeaderHeight ? -libHeaderHeight : 0;
   const MAX_TRANSLATE = 0;
 
-  // *** ADDED: simpler animate function
-  const animateHeaderTo = (toValue: number) => {
+  // Updated animateHeaderTo accepts a dynamic duration.
+  const animateHeaderTo = (toValue: number, duration: number = 300) => {
     Animated.timing(headerOffset, {
       toValue,
-      duration: 300,
+      duration,
       useNativeDriver: true,
     }).start(() => {
-      // Update the reference after finishing
       currentHeaderTranslateRef.current = toValue;
     });
   };
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    // *** CHANGED: No checks for isAnimatingRef — just do the normal drag logic
     if (!libHeaderHeight) return;
-
-    if (!isUserDragging.current) {
-      setLastScrollY(e.nativeEvent.contentOffset.y);
+    const offsetY = e.nativeEvent.contentOffset.y;
+    // Edge case: When at the very top, header must be fully visible.
+    if (offsetY <= 0) {
+      if (currentHeaderTranslateRef.current !== MAX_TRANSLATE) {
+        animateHeaderTo(MAX_TRANSLATE, 200);
+      }
+      setLastScrollY(offsetY);
       return;
     }
-    const offsetY = e.nativeEvent.contentOffset.y;
+    if (!isUserDragging.current) {
+      setLastScrollY(offsetY);
+      return;
+    }
     const delta = offsetY - lastScrollY;
+    // For downward swipe (finger moves from bottom to top), update header proportionally.
+    if (delta > 0) {
+      const newTranslate = currentHeaderTranslateRef.current - delta;
+      const clamped = clamp(newTranslate, MIN_TRANSLATE, MAX_TRANSLATE);
+      currentHeaderTranslateRef.current = clamped;
+      headerOffset.setValue(clamped);
+    }
+    // For upward swipe (delta < 0), do not update header in real time.
     lastScrollDelta.current = delta;
-
-    const newTranslate = currentHeaderTranslateRef.current - delta;
-    const clamped = clamp(newTranslate, MIN_TRANSLATE, MAX_TRANSLATE);
-
-    headerOffset.setValue(clamped);
-    currentHeaderTranslateRef.current = clamped;
     setLastScrollY(offsetY);
   };
 
   const handleScrollBeginDrag = () => {
     isUserDragging.current = true;
   };
+
   const handleScrollEndDrag = () => {
     isUserDragging.current = false;
-    // *** CHANGED: we now only animate the header offset,
-    // *** no forced scrollTo for the rest of the content
     if (lastScrollDelta.current > 0) {
-      // user scrolled up => hide header
-      animateHeaderTo(MIN_TRANSLATE);
+      // User scrolled down (finger moves from bottom to top): hide the header.
+      animateHeaderTo(MIN_TRANSLATE, 300);
     } else if (lastScrollDelta.current < 0) {
-      // user scrolled down => show header
-      animateHeaderTo(MAX_TRANSLATE);
-    }
-  };
-  const handleMomentumScrollBegin = () => {
-    isUserDragging.current = false;
-  };
-  const handleMomentumScrollEnd = () => {
-    if (lastScrollDelta.current > 0) {
-      animateHeaderTo(MIN_TRANSLATE);
-    } else if (lastScrollDelta.current < 0) {
-      animateHeaderTo(MAX_TRANSLATE);
+      // User scrolled up (finger moves from top to bottom): reveal header.
+      const absDelta = Math.abs(lastScrollDelta.current);
+      const duration = Math.max(100, 300 - absDelta * 15);
+      animateHeaderTo(MAX_TRANSLATE, duration);
     }
   };
 
-  // The pinned area is the tabs portion => always visible at top after LibHeader slides up
+  const handleMomentumScrollBegin = () => {
+    isUserDragging.current = false;
+  };
+
+  const handleMomentumScrollEnd = () => {
+    if (lastScrollDelta.current > 0) {
+      animateHeaderTo(MIN_TRANSLATE, 300);
+    } else if (lastScrollDelta.current < 0) {
+      const absDelta = Math.abs(lastScrollDelta.current);
+      const duration = Math.max(100, 300 - absDelta * 15);
+      animateHeaderTo(MAX_TRANSLATE, duration);
+    }
+  };
+
+  // Total top block is the sum of the LibHeader and pinned tabs heights.
   const totalTopBlock = libHeaderHeight + tabsHeight;
 
   const maybeRefreshControl =
@@ -278,7 +288,7 @@ export function ThemedNonStaticHeaderStaticTabbed(
       />
     ) : undefined;
 
-  // Merge segmented control props
+  // Merge segmented control props.
   const defaultSelectedIndicator: SelectedIndicatorConfig = {
     useUnderline: true,
     underlineThickness: 4,
@@ -292,13 +302,13 @@ export function ThemedNonStaticHeaderStaticTabbed(
       ? segmentedControlProps.animatedSwitch
       : true;
   const finalSegmentedThemeType = segmentedControlProps.themeType || themeType;
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
 
   const finalValues =
     segmentedControlProps.values ?? tabs.map((tab) => tab.title);
   const finalSelectedIndex =
-    segmentedControlProps.selectedIndex ?? activeIndex;
-  const finalOnChange = segmentedControlProps.onChange ?? setActiveIndex;
+    segmentedControlProps.selectedIndex ?? activeTabIndex;
+  const finalOnChange = segmentedControlProps.onChange ?? setActiveTabIndex;
 
   function renderLibHeader() {
     return (
@@ -317,9 +327,7 @@ export function ThemedNonStaticHeaderStaticTabbed(
           borderColor={borderColor}
           borderWidth={borderWidth}
           headerStyle={[{ backgroundColor: resolvedHeaderBg }, headerStyle]}
-          headerLeft={
-            renderLeft ? renderLeft() : <ThemedHeaderBackButton />
-          }
+          headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton />}
           headerCenter={renderCenter?.()}
           headerRight={renderRight?.()}
         />
@@ -374,7 +382,6 @@ export function ThemedNonStaticHeaderStaticTabbed(
 
   const effectiveTabIndex =
     finalSelectedIndex < tabs.length ? finalSelectedIndex : 0;
-
   const insets = useSafeAreaInsets();
   const insetsTop = insets.top;
 
@@ -417,7 +424,6 @@ export function ThemedNonStaticHeaderStaticTabbed(
           <ScrollView
             style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
             contentContainerStyle={{
-              // so the top of the scroll content accounts for the pinned area
               paddingTop: libHeaderHeight + tabsHeight,
               paddingBottom: BOTTOM_FOOTER_HEIGHT,
             }}
@@ -438,9 +444,6 @@ export function ThemedNonStaticHeaderStaticTabbed(
   );
 }
 
-/**
- * STYLES
- */
 const { width } = Dimensions.get("window");
 const styles = StyleSheet.create({
   fullScreenContainer: {

@@ -1,4 +1,4 @@
-import React, { ReactNode, useRef, useState, useEffect } from "react";
+import React, { ReactNode, useState, useRef, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -26,10 +26,11 @@ import ThemedSegmentedControl, {
 } from "../buttons/ThemedSegmentedControl";
 
 /**
- * ---------------------------------------------------------------------------
+ * --------------------------------------------------------------------------------
  * TYPES & INTERFACES
- * ---------------------------------------------------------------------------
+ * --------------------------------------------------------------------------------
  */
+
 type ThemeColorType =
   | "hideOnScrollHeaderBackgroundPrimary"
   | "hideOnScrollHeaderBackgroundSecondary"
@@ -44,6 +45,11 @@ type ThemeColorType =
   | "segmentedControlBackgroundSecondary"
   | "segmentedControlBackgroundTertiary";
 
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/** A single tab definition */
 export interface Tab {
   title: string;
   content: ReactNode;
@@ -68,9 +74,8 @@ export interface LocalHeaderProps {
   headerSegmentedControlPaddingRight?: number;
 }
 
-export interface ThemedNonStaticHeaderNonStaticTabbedTopProps {
+export interface ThemedNonStaticHeaderStaticTabbed2Props {
   themeType?: "primary" | "secondary" | "tertiary";
-
   backgroundColor?: { light?: string; dark?: string };
   scrollViewBackgroundColor?: { light?: string; dark?: string };
   topSafeAreaBackgroundColor?: { light?: string; dark?: string };
@@ -85,50 +90,21 @@ export interface ThemedNonStaticHeaderNonStaticTabbedTopProps {
   tabs: Tab[];
   segmentedControlProps?: Partial<ThemedSegmentedControlProps>;
   headerProps?: Partial<LocalHeaderProps>;
-
-  /**
-   * The total "header" (header + tabs) height in px.
-   * If 0 => measure dynamically.
-   * We restrict partial hide to this range: offsetY in [0..headerHeight].
-   */
-  headerHeight?: number;
-
-  /**
-   * If true => treat `headerHeight` as a fixed dimension;
-   * if false => measure if it's 0.
-   */
-  useFixedHeaderHeight?: boolean;
+  initialHeaderOffset?: number;
 }
 
 /**
- * ---------------------------------------------------------------------------
- * HELPERS
- * ---------------------------------------------------------------------------
+ * The top LibHeader can slide fully behind the safe area,
+ * while the segmented control remains pinned at the top.
  */
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-function capitalize(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
 const DEFAULT_MAX_BLUR = 20;
 
-/**
- * ---------------------------------------------------------------------------
- * COMPONENT
- * ---------------------------------------------------------------------------
- *
- * Behavior:
- * 1) The user can scroll offset=0..headerHeight to partially hide the header+tabs.
- * 2) If offset < 0 => fully shown, offset > headerHeight => fully hidden.
- * 3) On release, if offset is within [0..headerHeight], the header snaps open or closed
- *    and forces the content offset so that the header and page move together.
- * 4) To preserve momentum, if the scroll velocity is above a threshold, we delay snapping.
- */
-export function ThemedNonStaticHeaderNonStaticTabbedTop(
-  props: ThemedNonStaticHeaderNonStaticTabbedTopProps
+export function ThemedNonStaticHeaderStaticTabbed2(
+  props: ThemedNonStaticHeaderStaticTabbed2Props
 ) {
   const {
     themeType = "primary",
@@ -143,11 +119,9 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
     tabs,
     segmentedControlProps = {},
     headerProps = {},
-    headerHeight = 0,
-    useFixedHeaderHeight = false,
+    initialHeaderOffset = 0,
   } = props;
 
-  // 1) LOCAL HEADER PROPS
   const {
     headerStyle,
     noBottomBorder = true,
@@ -166,8 +140,145 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
     headerSegmentedControlPaddingRight = 0,
   } = headerProps;
 
-  // 2) TABS / SEGMENTED CONTROL
   const [activeIndexState, setActiveIndexState] = useState(0);
+
+  const capitalizedThemeType =
+    themeType.charAt(0).toUpperCase() + themeType.slice(1);
+  const headerColorKey = `hideOnScrollHeaderBackground${capitalizedThemeType}` as ThemeColorType;
+  const scrollViewColorKey = `hideOnScrollScrollViewBackground${capitalizedThemeType}` as ThemeColorType;
+  const topSafeAreaColorKey = `hideOnScrollTopSafeAreaBackground${capitalizedThemeType}` as ThemeColorType;
+
+  const resolvedHeaderBg = useThemeColor(backgroundColor, headerColorKey);
+  const resolvedScrollViewBg = useThemeColor(
+    scrollViewBackgroundColor || {},
+    scrollViewColorKey
+  );
+  const resolvedTopSafeAreaBg = useThemeColor(
+    topSafeAreaBackgroundColor || {},
+    topSafeAreaColorKey
+  );
+
+  // For segmented control background
+  const segmentedControlBg = useThemeColor(
+    {},
+    `segmentedControlBackground${capitalize(themeType)}` as ThemeColorType
+  );
+
+  // We'll measure ONLY the top LibHeader portion that can fully hide
+  const [libHeaderHeight, setLibHeaderHeight] = useState(0);
+  // We'll measure only the segmented control portion that remains pinned
+  const [tabsHeight, setTabsHeight] = useState(0);
+
+  // Animate the sliding of the LibHeader
+  const headerOffset = useRef(
+    new Animated.Value(initialHeaderOffset)
+  ).current;
+  const currentHeaderTranslateRef = useRef(initialHeaderOffset);
+
+  const [blurAmount, setBlurAmount] = useState(0);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const isUserDragging = useRef(false);
+
+  // *** REMOVED: isAnimatingRef
+  const lastScrollDelta = useRef(0);
+
+  // When blurOnSlide = true, track blur based on how much header is hidden
+  useEffect(() => {
+    if (blurOnSlide) {
+      const listenerId = headerOffset.addListener(({ value }) => {
+        if (libHeaderHeight > 0) {
+          const progress = Math.abs(value / -libHeaderHeight);
+          const newBlur = clamp(progress * maxBlurAmount, 0, maxBlurAmount);
+          setBlurAmount(newBlur);
+        }
+      });
+      return () => headerOffset.removeListener(listenerId);
+    }
+  }, [blurOnSlide, maxBlurAmount, libHeaderHeight, headerOffset]);
+
+  const MIN_TRANSLATE = libHeaderHeight ? -libHeaderHeight : 0;
+  const MAX_TRANSLATE = 0;
+
+  // *** ADDED: simpler animate function
+  const animateHeaderTo = (toValue: number) => {
+    Animated.timing(headerOffset, {
+      toValue,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      // Update the reference after finishing
+      currentHeaderTranslateRef.current = toValue;
+    });
+  };
+
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    // *** CHANGED: No checks for isAnimatingRef — just do the normal drag logic
+    if (!libHeaderHeight) return;
+
+    if (!isUserDragging.current) {
+      setLastScrollY(e.nativeEvent.contentOffset.y);
+      return;
+    }
+    const offsetY = e.nativeEvent.contentOffset.y;
+    const delta = offsetY - lastScrollY;
+    lastScrollDelta.current = delta;
+
+    const newTranslate = currentHeaderTranslateRef.current - delta;
+    const clamped = clamp(newTranslate, MIN_TRANSLATE, MAX_TRANSLATE);
+
+    headerOffset.setValue(clamped);
+    currentHeaderTranslateRef.current = clamped;
+    setLastScrollY(offsetY);
+  };
+
+  const handleScrollBeginDrag = () => {
+    isUserDragging.current = true;
+  };
+  const handleScrollEndDrag = () => {
+    isUserDragging.current = false;
+    // *** CHANGED: we now only animate the header offset,
+    // *** no forced scrollTo for the rest of the content
+    if (lastScrollDelta.current > 0) {
+      // user scrolled up => hide header
+      animateHeaderTo(MIN_TRANSLATE);
+    } else if (lastScrollDelta.current < 0) {
+      // user scrolled down => show header
+      animateHeaderTo(MAX_TRANSLATE);
+    }
+  };
+  const handleMomentumScrollBegin = () => {
+    isUserDragging.current = false;
+  };
+  const handleMomentumScrollEnd = () => {
+    if (lastScrollDelta.current > 0) {
+      animateHeaderTo(MIN_TRANSLATE);
+    } else if (lastScrollDelta.current < 0) {
+      animateHeaderTo(MAX_TRANSLATE);
+    }
+  };
+
+  // The pinned area is the tabs portion => always visible at top after LibHeader slides up
+  const totalTopBlock = libHeaderHeight + tabsHeight;
+
+  const maybeRefreshControl =
+    isRefreshable && onRefresh ? (
+      <RefreshControl
+        refreshing={!!refreshing}
+        onRefresh={onRefresh}
+        progressViewOffset={totalTopBlock}
+        {...Platform.select({
+          android: {
+            progressBackgroundColor: resolvedScrollViewBg,
+            colors: [resolvedScrollViewBg],
+          },
+          ios: {
+            tintColor: resolvedScrollViewBg,
+          },
+        })}
+      />
+    ) : undefined;
+
+  // Merge segmented control props
   const defaultSelectedIndicator: SelectedIndicatorConfig = {
     useUnderline: true,
     underlineThickness: 4,
@@ -181,167 +292,21 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
       ? segmentedControlProps.animatedSwitch
       : true;
   const finalSegmentedThemeType = segmentedControlProps.themeType || themeType;
+  const [activeIndex, setActiveIndex] = useState(0);
+
   const finalValues =
     segmentedControlProps.values ?? tabs.map((tab) => tab.title);
   const finalSelectedIndex =
-    segmentedControlProps.selectedIndex ?? activeIndexState;
-  const finalOnChange =
-    segmentedControlProps.onChange ?? setActiveIndexState;
+    segmentedControlProps.selectedIndex ?? activeIndex;
+  const finalOnChange = segmentedControlProps.onChange ?? setActiveIndex;
 
-  // 3) THEME
-  const capTheme = capitalize(themeType);
-  const headerColorKey = `hideOnScrollHeaderBackground${capTheme}` as ThemeColorType;
-  const scrollViewColorKey = `hideOnScrollScrollViewBackground${capTheme}` as ThemeColorType;
-  const topSafeAreaColorKey = `hideOnScrollTopSafeAreaBackground${capTheme}` as ThemeColorType;
-  const resolvedHeaderBg = useThemeColor(backgroundColor, headerColorKey);
-  const resolvedScrollViewBg = useThemeColor(
-    scrollViewBackgroundColor || {},
-    scrollViewColorKey
-  );
-  const resolvedTopSafeAreaBg = useThemeColor(
-    topSafeAreaBackgroundColor || {},
-    topSafeAreaColorKey
-  );
-  const segmentedControlBg = useThemeColor(
-    {},
-    `segmentedControlBackground${capTheme}` as ThemeColorType
-  );
-
-  // 4) LAYOUT & ANIMATION
-  const insets = useSafeAreaInsets();
-  const scrollViewRef = useRef<ScrollView>(null);
-  const [dynamicHeaderHeight, setDynamicHeaderHeight] = useState(0);
-  const finalHeaderHeight =
-    useFixedHeaderHeight && headerHeight > 0 ? headerHeight : dynamicHeaderHeight;
-  const translateY = useRef(new Animated.Value(0)).current;
-  const isAnimatingRef = useRef(false);
-  const lastScrollY = useRef(0);
-  // We'll also track the last scroll delta (as a proxy for velocity)
-  const lastScrollDelta = useRef(0);
-
-  const MIN_TRANSLATE = -finalHeaderHeight;
-  const MAX_TRANSLATE = 0;
-
-  // For blur
-  const [blurAmount, setBlurAmount] = useState(0);
-  useEffect(() => {
-    if (blurOnSlide) {
-      const id = translateY.addListener(({ value }) => {
-        if (finalHeaderHeight > 0) {
-          const progress = Math.abs(value) / finalHeaderHeight;
-          const newBlur = clamp(progress * maxBlurAmount, 0, maxBlurAmount);
-          setBlurAmount(newBlur);
-        }
-      });
-      return () => translateY.removeListener(id);
-    }
-  }, [blurOnSlide, maxBlurAmount, finalHeaderHeight, translateY]);
-
-  // 5) PARTIAL HIDE => handleScroll
-  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (isAnimatingRef.current || finalHeaderHeight <= 0) return;
-
-    const offsetY = e.nativeEvent.contentOffset.y;
-    // Compute delta (for velocity estimation)
-    const delta = offsetY - lastScrollY.current;
-    lastScrollDelta.current = delta;
-    lastScrollY.current = offsetY;
-
-    // Restrict partial hide to [0..finalHeaderHeight]
-    if (offsetY <= 0) {
-      translateY.setValue(0);
-    } else if (offsetY >= finalHeaderHeight) {
-      translateY.setValue(MIN_TRANSLATE);
-    } else {
-      translateY.setValue(-offsetY);
-    }
-  };
-
-  // 6) SNAP => snap the header and force content offset so they move together
-  function animateHeaderTo(toValue: number, duration: number = 300) {
-    isAnimatingRef.current = true;
-    Animated.timing(translateY, {
-      toValue,
-      duration,
-      useNativeDriver: true,
-    }).start(() => {
-      isAnimatingRef.current = false;
-    });
-  }
-
-  function snapOpen() {
-    animateHeaderTo(0, 300);
-    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-    lastScrollY.current = 0;
-  }
-
-  function snapClosed() {
-    animateHeaderTo(MIN_TRANSLATE, 300);
-    scrollViewRef.current?.scrollTo({ y: finalHeaderHeight, animated: true });
-    lastScrollY.current = finalHeaderHeight;
-  }
-
-  // New finalizeHeader that delays snapping if velocity is high.
-  function finalizeHeader() {
-    if (isAnimatingRef.current || finalHeaderHeight <= 0) return;
-    const offsetY = lastScrollY.current;
-
-    // If offset is already at an extreme, no need to snap.
-    if (offsetY <= 0 || offsetY >= finalHeaderHeight) return;
-
-    // If the last scroll delta is still high (indicating momentum), delay finalizing.
-    const velocityThreshold = 2; // Adjust threshold as needed.
-    if (Math.abs(lastScrollDelta.current) > velocityThreshold) {
-      // Wait a bit to let momentum decay, then try finalizing again.
-      setTimeout(finalizeHeader, 100);
-      return;
-    }
-
-    // Otherwise, pick a half threshold to decide snapping.
-    const half = finalHeaderHeight / 2;
-    if (offsetY < half) {
-      snapOpen();
-    } else {
-      snapClosed();
-    }
-  }
-
-  const handleScrollBeginDrag = () => {};
-  const handleScrollEndDrag = () => finalizeHeader();
-  const handleMomentumScrollBegin = () => {};
-  const handleMomentumScrollEnd = () => finalizeHeader();
-
-  // 7) REFRESH
-  const maybeRefreshControl =
-    isRefreshable && onRefresh ? (
-      <RefreshControl
-        refreshing={!!refreshing}
-        onRefresh={onRefresh}
-        progressViewOffset={finalHeaderHeight}
-        {...Platform.select({
-          android: {
-            progressBackgroundColor: resolvedScrollViewBg,
-            colors: [resolvedScrollViewBg],
-          },
-          ios: {
-            tintColor: resolvedScrollViewBg,
-          },
-        })}
-      />
-    ) : undefined;
-
-  // 8) RENDERERS
-  function renderHeaderAndTabs() {
+  function renderLibHeader() {
     return (
       <View
-        style={styles.headerAndTabsBlock}
-        onLayout={(evt) => {
-          if (!useFixedHeaderHeight) {
-            const measuredH = evt.nativeEvent.layout.height;
-            if (measuredH !== dynamicHeaderHeight) {
-              setDynamicHeaderHeight(measuredH);
-            }
-          }
+        style={styles.libHeaderContainer}
+        onLayout={(e) => {
+          const h = e.nativeEvent.layout.height;
+          if (h !== libHeaderHeight) setLibHeaderHeight(h);
         }}
       >
         <LibHeader
@@ -352,23 +317,37 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
           borderColor={borderColor}
           borderWidth={borderWidth}
           headerStyle={[{ backgroundColor: resolvedHeaderBg }, headerStyle]}
-          headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton />}
+          headerLeft={
+            renderLeft ? renderLeft() : <ThemedHeaderBackButton />
+          }
           headerCenter={renderCenter?.()}
           headerRight={renderRight?.()}
         />
+      </View>
+    );
+  }
+
+  function renderPinnedTabs() {
+    return (
+      <View
+        style={[
+          styles.pinnedTabsContainer,
+          { backgroundColor: resolvedHeaderBg },
+        ]}
+        onLayout={(e) => {
+          const th = e.nativeEvent.layout.height;
+          if (th !== tabsHeight) setTabsHeight(th);
+        }}
+      >
         <View
-          style={[
-            styles.segmentedControlContainer,
-            {
-              backgroundColor: resolvedHeaderBg,
-              marginTop: headerSegmentedControlMarginTop,
-              marginBottom: headerSegmentedControlMarginBottom,
-              paddingTop: headerSegmentedControlPaddingTop,
-              paddingBottom: headerSegmentedControlPaddingBottom,
-              paddingLeft: headerSegmentedControlPaddingLeft,
-              paddingRight: headerSegmentedControlPaddingRight,
-            },
-          ]}
+          style={{
+            marginTop: headerSegmentedControlMarginTop,
+            marginBottom: headerSegmentedControlMarginBottom,
+            paddingTop: headerSegmentedControlPaddingTop,
+            paddingBottom: headerSegmentedControlPaddingBottom,
+            paddingLeft: headerSegmentedControlPaddingLeft,
+            paddingRight: headerSegmentedControlPaddingRight,
+          }}
         >
           <ThemedSegmentedControl
             {...segmentedControlProps}
@@ -378,11 +357,15 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
             themeType={finalSegmentedThemeType}
             animatedSwitch={finalAnimatedSwitch}
             selectedIndicator={finalSelectedIndicator}
+            style={[
+              styles.segmentedControl,
+              segmentedControlProps.style,
+              { backgroundColor: "transparent" },
+            ]}
             padding={{
               color: { light: segmentedControlBg, dark: segmentedControlBg },
               internal: segmentedControlProps.padding?.internal ?? 0,
             }}
-            style={[styles.segmentedControl, segmentedControlProps.style]}
           />
         </View>
       </View>
@@ -391,6 +374,8 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
 
   const effectiveTabIndex =
     finalSelectedIndex < tabs.length ? finalSelectedIndex : 0;
+
+  const insets = useSafeAreaInsets();
   const insetsTop = insets.top;
 
   return (
@@ -405,17 +390,12 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
             { backgroundColor: resolvedTopSafeAreaBg, height: insetsTop },
           ]}
         />
+
         <View style={styles.flexOne}>
           <Animated.View
             style={[
               styles.animatedHeaderContainer,
-              {
-                transform: [{ translateY }],
-                height:
-                  useFixedHeaderHeight && headerHeight > 0
-                    ? headerHeight
-                    : undefined,
-              },
+              { transform: [{ translateY: headerOffset }] },
             ]}
           >
             {blurOnSlide ? (
@@ -426,20 +406,19 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
                   blurAmount={blurAmount}
                   reducedTransparencyFallbackColor={resolvedHeaderBg}
                 />
-                {renderHeaderAndTabs()}
+                {renderLibHeader()}
               </View>
             ) : (
-              renderHeaderAndTabs()
+              renderLibHeader()
             )}
+            {renderPinnedTabs()}
           </Animated.View>
+
           <ScrollView
-            ref={scrollViewRef}
             style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
             contentContainerStyle={{
-              paddingTop:
-                useFixedHeaderHeight && headerHeight > 0
-                  ? headerHeight
-                  : dynamicHeaderHeight,
+              // so the top of the scroll content accounts for the pinned area
+              paddingTop: libHeaderHeight + tabsHeight,
               paddingBottom: BOTTOM_FOOTER_HEIGHT,
             }}
             scrollEventThrottle={16}
@@ -451,7 +430,7 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
             onMomentumScrollEnd={handleMomentumScrollEnd}
             refreshControl={maybeRefreshControl}
           >
-            {tabs[effectiveTabIndex]?.content}
+            {tabs[effectiveTabIndex].content}
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -459,6 +438,9 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
   );
 }
 
+/**
+ * STYLES
+ */
 const { width } = Dimensions.get("window");
 const styles = StyleSheet.create({
   fullScreenContainer: {
@@ -468,23 +450,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   topSafeArea: {
-    zIndex: 1000,
+    zIndex: 9999,
   },
   flexOne: {
     flex: 1,
   },
   animatedHeaderContainer: {
     position: "absolute",
+    top: 0,
     left: 0,
     width,
     zIndex: 999,
   },
-  headerAndTabsBlock: {
+  libHeaderContainer: {},
+  pinnedTabsContainer: {
     flexDirection: "column",
-  },
-  segmentedControlContainer: {
-    alignItems: "center",
-    justifyContent: "center",
   },
   segmentedControl: {
     alignSelf: "center",
@@ -494,4 +474,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ThemedNonStaticHeaderNonStaticTabbedTop;
+export default ThemedNonStaticHeaderStaticTabbed2;

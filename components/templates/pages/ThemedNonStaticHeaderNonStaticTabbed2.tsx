@@ -71,7 +71,7 @@ export interface LocalHeaderProps {
   headerSegmentedControlPaddingRight?: number;
 }
 
-export interface ThemedNonStaticHeaderNonStaticTabbedProps {
+export interface ThemedNonStaticHeaderNonStaticTabbed2Props {
   themeType?: "primary" | "secondary" | "tertiary";
   backgroundColor?: { light?: string; dark?: string };
   scrollViewBackgroundColor?: { light?: string; dark?: string };
@@ -101,8 +101,8 @@ function clamp(value: number, min: number, max: number) {
 
 const DEFAULT_MAX_BLUR = 20;
 
-export function ThemedNonStaticHeaderNonStaticTabbed(
-  props: ThemedNonStaticHeaderNonStaticTabbedProps
+export function ThemedNonStaticHeaderNonStaticTabbed2(
+  props: ThemedNonStaticHeaderNonStaticTabbed2Props
 ) {
   const {
     themeType = "primary",
@@ -175,7 +175,10 @@ export function ThemedNonStaticHeaderNonStaticTabbed(
   const [blurAmount, setBlurAmount] = useState(0);
   const [lastScrollY, setLastScrollY] = useState(0);
   const isUserDragging = useRef(false);
+
   const lastScrollDelta = useRef(0);
+
+  // *** CHANGED: Remove isAnimatingRef and the finalizeHeaderAndScroll approach
 
   useEffect(() => {
     if (blurOnSlide) {
@@ -193,11 +196,10 @@ export function ThemedNonStaticHeaderNonStaticTabbed(
   const MIN_TRANSLATE = headerMeasuredHeight ? -headerMeasuredHeight : 0;
   const MAX_TRANSLATE = 0;
 
-  // Updated animateHeaderTo to accept a dynamic duration parameter.
-  const animateHeaderTo = (toValue: number, duration: number = 300) => {
+  const animateHeaderTo = (toValue: number) => {
     Animated.timing(headerOffset, {
       toValue,
-      duration,
+      duration: 300,
       useNativeDriver: true,
     }).start(() => {
       currentHeaderTranslateRef.current = toValue;
@@ -208,30 +210,20 @@ export function ThemedNonStaticHeaderNonStaticTabbed(
     if (!headerMeasuredHeight) {
       return;
     }
-    const offsetY = e.nativeEvent.contentOffset.y;
-    // Edge case: When at the very top, header & segmented control must always be visible.
-    if (offsetY <= 0) {
-      if (currentHeaderTranslateRef.current !== MAX_TRANSLATE) {
-        animateHeaderTo(MAX_TRANSLATE, 200);
-        currentHeaderTranslateRef.current = MAX_TRANSLATE;
-      }
-      setLastScrollY(offsetY);
-      return;
-    }
     if (!isUserDragging.current) {
-      setLastScrollY(offsetY);
+      setLastScrollY(e.nativeEvent.contentOffset.y);
       return;
     }
+
+    const offsetY = e.nativeEvent.contentOffset.y;
     const delta = offsetY - lastScrollY;
-    // When swiping down (finger moves from bottom to top), update header proportionally.
-    if (delta > 0) {
-      const newTranslate = currentHeaderTranslateRef.current - delta;
-      const clamped = clamp(newTranslate, MIN_TRANSLATE, MAX_TRANSLATE);
-      currentHeaderTranslateRef.current = clamped;
-      headerOffset.setValue(clamped);
-    }
-    // For upward swipe (delta < 0), do not update header in real time.
     lastScrollDelta.current = delta;
+
+    const newTranslate = currentHeaderTranslateRef.current - delta;
+    const clamped = clamp(newTranslate, MIN_TRANSLATE, MAX_TRANSLATE);
+
+    headerOffset.setValue(clamped);
+    currentHeaderTranslateRef.current = clamped;
     setLastScrollY(offsetY);
   };
 
@@ -241,14 +233,13 @@ export function ThemedNonStaticHeaderNonStaticTabbed(
 
   const handleScrollEndDrag = () => {
     isUserDragging.current = false;
+    // *** CHANGED: Instead of finalizeHeaderAndScroll, just snap the header offset
     if (lastScrollDelta.current > 0) {
-      // User scrolled down – hide header.
-      animateHeaderTo(MIN_TRANSLATE, 300);
+      // user scrolled up => hide
+      animateHeaderTo(MIN_TRANSLATE);
     } else if (lastScrollDelta.current < 0) {
-      // User scrolled up – reveal header.
-      const absDelta = Math.abs(lastScrollDelta.current);
-      const duration = Math.max(100, 300 - absDelta * 15);
-      animateHeaderTo(MAX_TRANSLATE, duration);
+      // user scrolled down => show
+      animateHeaderTo(MAX_TRANSLATE);
     }
   };
 
@@ -258,11 +249,9 @@ export function ThemedNonStaticHeaderNonStaticTabbed(
 
   const handleMomentumScrollEnd = () => {
     if (lastScrollDelta.current > 0) {
-      animateHeaderTo(MIN_TRANSLATE, 300);
+      animateHeaderTo(MIN_TRANSLATE);
     } else if (lastScrollDelta.current < 0) {
-      const absDelta = Math.abs(lastScrollDelta.current);
-      const duration = Math.max(100, 300 - absDelta * 15);
-      animateHeaderTo(MAX_TRANSLATE, duration);
+      animateHeaderTo(MAX_TRANSLATE);
     }
   };
 
@@ -318,7 +307,10 @@ export function ThemedNonStaticHeaderNonStaticTabbed(
           initialBorderColor={initialBorderColor}
           borderColor={borderColor}
           borderWidth={borderWidth}
-          headerStyle={[{ backgroundColor: resolvedHeaderBg }, headerStyle]}
+          headerStyle={[
+            { backgroundColor: resolvedHeaderBg },
+            headerStyle,
+          ]}
           headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton />}
           headerCenter={renderCenter?.()}
           headerRight={renderRight?.()}
@@ -363,7 +355,10 @@ export function ThemedNonStaticHeaderNonStaticTabbed(
   return (
     <View style={styles.fullScreenContainer}>
       <SafeAreaView
-        style={[styles.container, { backgroundColor: resolvedScrollViewBg }]}
+        style={[
+          styles.container,
+          { backgroundColor: resolvedScrollViewBg },
+        ]}
         edges={["left", "right", "bottom"]}
       >
         <View
@@ -376,7 +371,9 @@ export function ThemedNonStaticHeaderNonStaticTabbed(
           <Animated.View
             style={[
               styles.animatedHeaderContainer,
-              { transform: [{ translateY: headerOffset }] },
+              {
+                transform: [{ translateY: headerOffset }],
+              },
             ]}
           >
             {blurOnSlide ? (
@@ -396,7 +393,10 @@ export function ThemedNonStaticHeaderNonStaticTabbed(
 
           <ScrollView
             ref={scrollViewRef}
-            style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
+            style={[
+              styles.scrollView,
+              { backgroundColor: resolvedScrollViewBg },
+            ]}
             contentContainerStyle={{
               paddingTop: headerMeasuredHeight,
               paddingBottom: BOTTOM_FOOTER_HEIGHT,

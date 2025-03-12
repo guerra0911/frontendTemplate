@@ -17,7 +17,7 @@ import {
 import ThemedHeaderBackButton from "../headers/ThemedHeaderBackButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { router } from "expo-router";
-import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
+import { BOTTOM_FOOTER_HEIGHT, DEFAULT_HEADER_HEIGHT } from "@/constants/Layouts";
 
 type FlatListWithHeadersExtendedProps<T> = React.ComponentProps<
   typeof FlatListWithHeaders<T>
@@ -67,9 +67,7 @@ const HeaderSurface: React.FC<
     blurViewProps?: Partial<React.ComponentProps<typeof BlurView>>;
   }
 > = ({ showNavBar, themeType, backgroundColor = {}, blurViewProps }) => {
-  const colorKey = `invertedBackground${capitalize(
-    themeType
-  )}` as ThemeColorType;
+  const colorKey = `invertedBackground${capitalize(themeType)}` as ThemeColorType;
   const resolvedBg = useThemeColor(backgroundColor, colorKey);
 
   return (
@@ -119,8 +117,9 @@ export function ThemedInverted<T>(props: ThemedInvertedProps<T>) {
       <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} />
     ) : undefined;
 
+  // Since the list is inverted, we use paddingTop to account for the bottom tab bar.
   const mergedContentContainerStyle = [
-    { paddingBottom: BOTTOM_FOOTER_HEIGHT },
+    { paddingTop: BOTTOM_FOOTER_HEIGHT },
     contentContainerStyle,
   ];
 
@@ -138,6 +137,7 @@ export function ThemedInverted<T>(props: ThemedInvertedProps<T>) {
         )
       }
       headerCenter={renderCenter?.()}
+      headerCenterFadesIn={false}
       headerRight={renderRight?.()}
       SurfaceComponent={(sProps) => (
         <HeaderSurface
@@ -159,6 +159,9 @@ export function ThemedInverted<T>(props: ThemedInvertedProps<T>) {
       refreshControl={maybeRefreshControl}
       style={[styles.container, style]}
       contentContainerStyle={mergedContentContainerStyle}
+      // Use ListFooterComponent to add spacing at the top of the visual list,
+      // ensuring the header does not block the first message.
+      ListFooterComponent={<View style={{ height: DEFAULT_HEADER_HEIGHT }} />}
       {...listProps}
     />
   );

@@ -1,5 +1,3 @@
-// app/components/screens/ThemedNonStaticHeaderTop.tsx
-
 import React, { useRef, useState, useEffect, ReactNode } from "react";
 import {
   View,
@@ -26,12 +24,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedHeaderBackButton from "../headers/ThemedHeaderBackButton";
 import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
 
-/**
- * ----------------------------------------------------------------------------
- * TYPES
- * ----------------------------------------------------------------------------
- */
-
+// Retained ThemeColorType definition:
 type ThemeColorType =
   | "hideOnScrollHeaderBackgroundPrimary"
   | "hideOnScrollHeaderBackgroundSecondary"
@@ -82,21 +75,6 @@ export interface ThemedNonStaticHeaderTopProps {
   maxBlurAmount?: number;
 }
 
-/**
- * ----------------------------------------------------------------------------
- * COMPONENT
- * ----------------------------------------------------------------------------
- * 
- * Behavior:
- * 1) As the user scrolls from offsetY=0..headerHeight, we do partial hide (translateY= -offsetY).
- * 2) If offsetY>=headerHeight => fully hidden (translateY= -headerHeight).
- *    If offsetY<=0 => fully shown (translateY=0).
- * 3) On release, if offsetY in [0, headerHeight), we snap to either 0 or headerHeight,
- *    shifting the content offset so it doesn't reveal/hide behind the header.
- * 4) We ignore scroll offset changes while the snap animation is running,
- *    ensuring a smooth, non-choppy final animation.
- * 5) Refresh logic, theming, etc. remains the same.
- */
 const DEFAULT_HEADER_HEIGHT = 60;
 const DEFAULT_MAX_BLUR = 20;
 
@@ -148,15 +126,15 @@ export function ThemedNonStaticHeaderTop(props: ThemedNonStaticHeaderTopProps) {
   const insets = useSafeAreaInsets();
   const showNavBar = useSharedValue(1);
 
-  // We'll maintain an Animated.Value for the header’s translation:
-  //  0 => fully visible
-  // -headerHeight => fully hidden
+  // Animated translation: 0 => fully visible, -headerHeight => fully hidden.
   const translateY = useRef(new Animated.Value(0)).current;
   const lastScrollY = useRef(0);
+  // Track last scroll delta (velocity proxy)
+  const lastScrollDelta = useRef(0);
   const scrollViewRef = useRef<ScrollView>(null);
 
   // For snapping logic & animation control
-  const isAnimatingRef = useRef(false); // to ignore scroll updates mid-animation
+  const isAnimatingRef = useRef(false); // ignore updates during snap animation
   const MIN_TRANSLATE = -headerHeight;
   const MAX_TRANSLATE = 0;
 
@@ -165,7 +143,6 @@ export function ThemedNonStaticHeaderTop(props: ThemedNonStaticHeaderTopProps) {
   useEffect(() => {
     if (blurOnSlide) {
       const listenerId = translateY.addListener(({ value }) => {
-        // value from 0 => -headerHeight
         const progress = Math.abs(value) / headerHeight;
         const newBlur = clamp(progress * maxBlurAmount, 0, maxBlurAmount);
         setBlurAmount(newBlur);
@@ -174,39 +151,36 @@ export function ThemedNonStaticHeaderTop(props: ThemedNonStaticHeaderTopProps) {
     }
   }, [blurOnSlide, maxBlurAmount, translateY, headerHeight]);
 
-  // Partial hide logic => called on scroll
+  // Partial hide: update translation as user scrolls.
   function handleScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
-    if (isAnimatingRef.current) {
-      // If we’re in the middle of a snap animation, ignore further updates
-      return;
-    }
-
+    if (isAnimatingRef.current) return;
     const offsetY = e.nativeEvent.contentOffset.y;
+    // Compute delta (velocity proxy)
+    const delta = offsetY - lastScrollY.current;
+    lastScrollDelta.current = delta;
     lastScrollY.current = offsetY;
 
     if (offsetY <= 0) {
-      // fully shown
       translateY.setValue(0);
     } else if (offsetY >= headerHeight) {
-      // fully hidden
       translateY.setValue(MIN_TRANSLATE);
     } else {
-      // partial => translate = -offsetY
       translateY.setValue(-offsetY);
     }
   }
 
-  // On release => if offsetY in [0, headerHeight), snap fully open or closed
+  // Finalize header snap: if momentum (delta) is high (>2 px), delay snapping.
   function finalizeHeader() {
     if (!scrollViewRef.current || isAnimatingRef.current) return;
-
     const offsetY = lastScrollY.current;
-    if (offsetY <= 0 || offsetY >= headerHeight) {
-      // already in final position
+    if (offsetY <= 0 || offsetY >= headerHeight) return;
+
+    const velocityThreshold = 2; // threshold of 2 pixels
+    if (Math.abs(lastScrollDelta.current) > velocityThreshold) {
+      setTimeout(finalizeHeader, 100);
       return;
     }
 
-    // We pick a half threshold
     const half = headerHeight / 2;
     if (offsetY < half) {
       snapOpen();
@@ -241,13 +215,16 @@ export function ThemedNonStaticHeaderTop(props: ThemedNonStaticHeaderTopProps) {
     lastScrollY.current = headerHeight;
   }
 
-  // Refresh
+  const handleScrollBeginDrag = () => {};
+  const handleScrollEndDrag = () => finalizeHeader();
+  const handleMomentumScrollBegin = () => {};
+  const handleMomentumScrollEnd = () => finalizeHeader();
+
   const maybeRefreshControl =
     isRefreshable && onRefresh ? (
       <RefreshControl
         refreshing={!!refreshing}
         onRefresh={onRefresh}
-        // place spinner below the header
         progressViewOffset={headerHeight}
         {...Platform.select({
           android: {
@@ -261,7 +238,6 @@ export function ThemedNonStaticHeaderTop(props: ThemedNonStaticHeaderTopProps) {
       />
     ) : undefined;
 
-  // Render header
   const renderHeader = () => (
     <LibHeader
       showNavBar={showNavBar}
@@ -280,19 +256,6 @@ export function ThemedNonStaticHeaderTop(props: ThemedNonStaticHeaderTopProps) {
     />
   );
 
-  // Scroll callbacks
-  const handleScrollBeginDrag = () => {};
-  const handleScrollEndDrag = () => {
-    finalizeHeader();
-  };
-  const handleMomentumScrollBegin = () => {};
-  const handleMomentumScrollEnd = () => {
-    finalizeHeader();
-  };
-
-  // layout
-  const insetsTop = useSafeAreaInsets().top;
-
   return (
     <View style={styles.fullScreenContainer}>
       <SafeAreaView
@@ -302,16 +265,14 @@ export function ThemedNonStaticHeaderTop(props: ThemedNonStaticHeaderTopProps) {
         <View
           style={[
             styles.topSafeArea,
-            { backgroundColor: resolvedTopSafeAreaBg, height: insetsTop },
+            { backgroundColor: resolvedTopSafeAreaBg, height: useSafeAreaInsets().top },
           ]}
         />
         <View style={styles.flexOne}>
           <Animated.View
             style={[
               styles.headerContainer,
-              {
-                transform: [{ translateY }],
-              },
+              { transform: [{ translateY }] },
             ]}
           >
             {blurOnSlide ? (
@@ -353,11 +314,6 @@ export function ThemedNonStaticHeaderTop(props: ThemedNonStaticHeaderTopProps) {
   );
 }
 
-/**
- * ----------------------------------------------------------------------------
- * STYLES
- * ----------------------------------------------------------------------------
- */
 const { width } = Dimensions.get("window");
 const styles = StyleSheet.create({
   fullScreenContainer: {

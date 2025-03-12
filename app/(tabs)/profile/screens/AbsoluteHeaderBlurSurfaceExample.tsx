@@ -8,8 +8,10 @@ export default function AbsoluteHeaderBlurSurfaceExample() {
   return (
     <ThemedAbsoluteHeaderBlurSurface
       // You can pass props like themeType="secondary", etc.
+      headerFadeInThreshold={0.7}
       headerProps={{
         renderCenter: () => <Text style={{ fontSize: 16, fontWeight: "bold" }}>Blur Surface</Text>,
+        borderWidth: 0,
       }}
       largeHeaderProps={{
         renderLargeHeader: (scrollY, showNavBar) => (

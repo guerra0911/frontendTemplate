@@ -74,21 +74,28 @@ export interface ThemedAbsoluteHeaderBlurSurfaceProps
   onRefresh?: () => void;
 
   children?: ReactNode;
+
+  // Add the headerFadeInThreshold prop to control when the header should blur in
+  headerFadeInThreshold?: number;
 }
 
-const HeaderSurface: React.FC<SurfaceComponentProps & {
-  themeType: "primary" | "secondary" | "tertiary";
-  backgroundColor?: { light?: string; dark?: string };
-  fadingViewProps?: Partial<React.ComponentProps<typeof FadingView>>;
-  blurViewProps?: Partial<React.ComponentProps<typeof BlurView>>;
-}> = ({
+const HeaderSurface: React.FC<
+  SurfaceComponentProps & {
+    themeType: "primary" | "secondary" | "tertiary";
+    backgroundColor?: { light?: string; dark?: string };
+    fadingViewProps?: Partial<React.ComponentProps<typeof FadingView>>;
+    blurViewProps?: Partial<React.ComponentProps<typeof BlurView>>;
+  }
+> = ({
   showNavBar,
   themeType,
   backgroundColor = {},
   fadingViewProps = {},
   blurViewProps = {},
 }) => {
-  const colorKey = `absoluteHeaderBlurSurfaceBackground${capitalize(themeType)}` as ThemeColorType;
+  const colorKey = `absoluteHeaderBlurSurfaceBackground${capitalize(
+    themeType
+  )}` as ThemeColorType;
   const resolvedBgColor = useThemeColor(backgroundColor, colorKey);
 
   return (
@@ -125,15 +132,13 @@ export function ThemedAbsoluteHeaderBlurSurface(props: ThemedAbsoluteHeaderBlurS
     isRefreshable,
     refreshing,
     onRefresh,
+    // Extract headerFadeInThreshold with a default of 1
+    headerFadeInThreshold = 1,
     ...scrollProps
   } = props;
 
   const insets = useSafeAreaInsets();
-  const {
-    fadingViewProps,
-    blurViewProps,
-    ...restSurfaceProps
-  } = surfaceProps || {};
+  const { fadingViewProps, blurViewProps, ...restSurfaceProps } = surfaceProps || {};
 
   const {
     renderLeft,
@@ -165,17 +170,19 @@ export function ThemedAbsoluteHeaderBlurSurface(props: ThemedAbsoluteHeaderBlurS
   ) : undefined;
 
   const mergedContentContainerStyle = [
-      { paddingBottom: BOTTOM_FOOTER_HEIGHT },
-      contentContainerStyle,
-    ];
-    
+    { paddingBottom: BOTTOM_FOOTER_HEIGHT },
+    contentContainerStyle,
+  ];
+
   const HeaderComponent = ({ showNavBar }: { showNavBar: any }) => {
     return (
       <LibHeader
         showNavBar={showNavBar}
         noBottomBorder={noBottomBorder}
         headerStyle={[{ height: 44 + insets.top }, headerStyle]}
-        headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton onPress={() => router.back()} />}
+        headerLeft={
+          renderLeft ? renderLeft() : <ThemedHeaderBackButton onPress={() => router.back()} />
+        }
         headerLeftStyle={headerLeftStyle}
         headerLeftFadesIn={headerLeftFadesIn}
         headerCenter={renderCenter?.()}
@@ -207,7 +214,9 @@ export function ThemedAbsoluteHeaderBlurSurface(props: ThemedAbsoluteHeaderBlurS
     return (
       <LibLargeHeader headerStyle={largeHeaderStyle}>
         {enableScaling ? (
-          <ScalingView scrollY={scrollY}>{renderLargeHeader(scrollY, showNavBar)}</ScalingView>
+          <ScalingView scrollY={scrollY}>
+            {renderLargeHeader(scrollY, showNavBar)}
+          </ScalingView>
         ) : (
           renderLargeHeader(scrollY, showNavBar)
         )}
@@ -218,6 +227,8 @@ export function ThemedAbsoluteHeaderBlurSurface(props: ThemedAbsoluteHeaderBlurS
   return (
     <ScrollViewWithHeaders
       absoluteHeader
+      // Pass headerFadeInThreshold so the blur effect starts earlier (or later) as desired
+      headerFadeInThreshold={headerFadeInThreshold}
       HeaderComponent={HeaderComponent}
       LargeHeaderComponent={LargeHeaderComponent}
       refreshControl={maybeRefreshControl}

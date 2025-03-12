@@ -16,6 +16,7 @@ export default function ArbitraryYTransitionHeaderExample() {
 
   return (
     <ThemedArbitraryYTransitionHeader
+      headerFadeInThreshold={0.7}  // Added threshold here
       headerProps={{
         renderCenter: () => <Text style={{ fontSize: 16 }}>Arbitrary Y Header</Text>,
       }}

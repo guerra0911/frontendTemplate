@@ -39,7 +39,7 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-export interface ThemedNonStaticHeaderProps {
+export interface ThemedNonStaticHeader2Props {
   headerStyle?: StyleProp<ViewStyle>;
   noBottomBorder?: boolean;
   ignoreTopSafeArea?: boolean;
@@ -65,7 +65,7 @@ export interface ThemedNonStaticHeaderProps {
 const DEFAULT_HEADER_HEIGHT = 60;
 const DEFAULT_MAX_BLUR = 20;
 
-export function ThemedNonStaticHeader(props: ThemedNonStaticHeaderProps) {
+export function ThemedNonStaticHeader2(props: ThemedNonStaticHeader2Props) {
   const {
     headerStyle,
     noBottomBorder,
@@ -164,40 +164,29 @@ export function ThemedNonStaticHeader(props: ThemedNonStaticHeaderProps) {
     }
   }, [initialized, headerHeight, insets.top, headerOffset]);
 
-  // Modified animateHeaderTo to allow dynamic duration
-  const animateHeaderTo = (newVal: number, duration: number = 300) => {
+  const animateHeaderTo = (newVal: number) => {
     Animated.timing(headerOffset, {
       toValue: newVal,
-      duration,
+      duration: 300, // Smooth transition duration
       useNativeDriver: true,
     }).start();
   };
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = e.nativeEvent.contentOffset.y;
-    // Edge case: When at the very top, header must always be visible.
-    if (offsetY <= 0) {
-      if (currentHeaderTranslateRef.current !== MAX_TRANSLATE) {
-        animateHeaderTo(MAX_TRANSLATE, 200);
-        currentHeaderTranslateRef.current = MAX_TRANSLATE;
-      }
-      setLastScrollY(offsetY);
-      return;
-    }
     if (!isUserDragging.current) {
       setLastScrollY(offsetY);
       return;
     }
     const delta = offsetY - lastScrollY;
-    // When swiping down (finger moves from bottom to top), update header proportionally.
-    if (delta > 0) {
-      const newTranslate = currentHeaderTranslateRef.current - delta;
-      const clamped = clamp(newTranslate, MIN_TRANSLATE, MAX_TRANSLATE);
-      currentHeaderTranslateRef.current = clamped;
-      headerOffset.setValue(clamped);
-    }
-    // For upward swipe (delta < 0), do not update header in real time.
-    lastScrollDelta.current = delta;
+    lastScrollDelta.current = delta; // Track the last delta
+
+    const newTranslate = currentHeaderTranslateRef.current - delta;
+    const clamped = clamp(newTranslate, MIN_TRANSLATE, MAX_TRANSLATE);
+
+    currentHeaderTranslateRef.current = clamped;
+    headerOffset.setValue(clamped); // Directly set the value without animation
+
     setLastScrollY(offsetY);
   };
 
@@ -207,15 +196,15 @@ export function ThemedNonStaticHeader(props: ThemedNonStaticHeaderProps) {
 
   const handleScrollEndDrag = () => {
     isUserDragging.current = false;
+
+    // Decide to animate to final position based on last delta
     if (lastScrollDelta.current > 0) {
-      // User scrolled down – hide header.
-      animateHeaderTo(MIN_TRANSLATE, 300);
+      // User scrolled up - hide header
+      animateHeaderTo(MIN_TRANSLATE);
       currentHeaderTranslateRef.current = MIN_TRANSLATE;
     } else if (lastScrollDelta.current < 0) {
-      // User scrolled up – reveal header.
-      const absDelta = Math.abs(lastScrollDelta.current);
-      const duration = Math.max(100, 300 - absDelta * 15);
-      animateHeaderTo(MAX_TRANSLATE, duration);
+      // User scrolled down - show header
+      animateHeaderTo(MAX_TRANSLATE);
       currentHeaderTranslateRef.current = MAX_TRANSLATE;
     }
   };
@@ -226,12 +215,10 @@ export function ThemedNonStaticHeader(props: ThemedNonStaticHeaderProps) {
 
   const handleMomentumScrollEnd = () => {
     if (lastScrollDelta.current > 0) {
-      animateHeaderTo(MIN_TRANSLATE, 300);
+      animateHeaderTo(MIN_TRANSLATE);
       currentHeaderTranslateRef.current = MIN_TRANSLATE;
     } else if (lastScrollDelta.current < 0) {
-      const absDelta = Math.abs(lastScrollDelta.current);
-      const duration = Math.max(100, 300 - absDelta * 15);
-      animateHeaderTo(MAX_TRANSLATE, duration);
+      animateHeaderTo(MAX_TRANSLATE);
       currentHeaderTranslateRef.current = MAX_TRANSLATE;
     }
   };
@@ -252,6 +239,7 @@ export function ThemedNonStaticHeader(props: ThemedNonStaticHeaderProps) {
         refreshing={!!refreshing}
         onRefresh={onRefresh}
         progressViewOffset={headerBottom - 56}
+        // Added platform-specific props
         {...Platform.select({
           android: {
             progressBackgroundColor: resolvedScrollViewBg,
@@ -277,7 +265,9 @@ export function ThemedNonStaticHeader(props: ThemedNonStaticHeaderProps) {
         headerStyle,
       ]}
       headerLeftStyle={{ marginLeft: 0, paddingLeft: 0 }}
-      headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton />}
+      headerLeft={
+        renderLeft ? renderLeft() : <ThemedHeaderBackButton />
+      }
       headerCenter={renderCenter?.()}
       headerRight={renderRight?.()}
     />
@@ -295,6 +285,7 @@ export function ThemedNonStaticHeader(props: ThemedNonStaticHeaderProps) {
             { backgroundColor: resolvedTopSafeAreaBg, height: insets.top },
           ]}
         />
+
         <View style={{ flex: 1 }}>
           <Animated.View
             onLayout={(e) => {
@@ -318,7 +309,7 @@ export function ThemedNonStaticHeader(props: ThemedNonStaticHeaderProps) {
                 <BlurView
                   style={StyleSheet.absoluteFill}
                   blurType={Platform.select({ ios: "light", android: "light" })}
-                  blurAmount={blurAmount}
+                  blurAmount={blurAmount} // Now a number
                   reducedTransparencyFallbackColor={resolvedBgColor}
                 />
                 {renderHeader()}
@@ -327,6 +318,7 @@ export function ThemedNonStaticHeader(props: ThemedNonStaticHeaderProps) {
               renderHeader()
             )}
           </Animated.View>
+
           <ScrollView
             style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
             contentContainerStyle={{
@@ -357,8 +349,10 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    // backgroundColor is now dynamically set via resolvedScrollViewBg
   },
   topSafeArea: {
+    // backgroundColor is now dynamically set via resolvedTopSafeAreaBg
     zIndex: 1000,
   },
   headerContainer: {
