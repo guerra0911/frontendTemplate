@@ -118,6 +118,34 @@ export default function ProfileScreen() {
           style={{ marginVertical: 8 }}
         />
         <ThemedButton
+          title="No Header"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/NoHeaderExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="No Header Static Tabbed"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/NoHeaderStaticTabbedExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="No Header Non Static Tabbed"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/NoHeaderNonStaticTabbedExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
+          title="No Header Non Static Tabbed Top"
+          onPress={() =>
+            router.push("/(tabs)/profile/screens/NoHeaderNonStaticTabbedTopExample")
+          }
+          style={{ marginVertical: 8 }}
+        />
+        <ThemedButton
           title="Spotify Example"
           onPress={() =>
             router.push("/(tabs)/profile/screens/SpotifyExample")
