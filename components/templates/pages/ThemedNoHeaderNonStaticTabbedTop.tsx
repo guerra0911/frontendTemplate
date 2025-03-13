@@ -74,6 +74,8 @@ export interface ThemedNoHeaderNonStaticTabbedTopProps {
   blurOnSlide?: boolean;
   /** Maximum blur amount. @default 20 */
   maxBlurAmount?: number;
+  // New: Option to enable horizontal scrolling for segmented control tabs.
+  scrollableTabs?: boolean;
 }
 
 const DEFAULT_HEADER_HEIGHT = 60;
@@ -89,7 +91,9 @@ const DEFAULT_MAX_BLUR = 20;
  * When scrolling up, it remains hidden until you reach the very top,
  * at which point it smoothly slides into view.
  */
-export function ThemedNoHeaderNonStaticTabbedTop(props: ThemedNoHeaderNonStaticTabbedTopProps) {
+export function ThemedNoHeaderNonStaticTabbedTop(
+  props: ThemedNoHeaderNonStaticTabbedTopProps
+) {
   const {
     headerStyle,
     noBottomBorder,
@@ -109,6 +113,7 @@ export function ThemedNoHeaderNonStaticTabbedTop(props: ThemedNoHeaderNonStaticT
     headerHeight = DEFAULT_HEADER_HEIGHT,
     blurOnSlide = false,
     maxBlurAmount = DEFAULT_MAX_BLUR,
+    scrollableTabs = false, // New prop defaulting to false
   } = props;
 
   // Resolve theming colors.
@@ -238,13 +243,29 @@ export function ThemedNoHeaderNonStaticTabbedTop(props: ThemedNoHeaderNonStaticT
   // Render the segmented control header.
   const renderHeader = () => (
     <View style={[styles.segmentedHeader, { backgroundColor: resolvedBgColor, height: headerHeight }, headerStyle]}>
-      <ThemedSegmentedControl
-        values={tabs.map((tab) => tab.title)}
-        selectedIndex={activeIndex}
-        onChange={setActiveIndex}
-        style={[styles.segmentedControl, segmentedControlProps.style, { backgroundColor: "transparent" }]}
-        {...segmentedControlProps}
-      />
+      {scrollableTabs ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <ThemedSegmentedControl
+            values={tabs.map((tab) => tab.title)}
+            selectedIndex={activeIndex}
+            onChange={setActiveIndex}
+            style={[styles.segmentedControl, segmentedControlProps.style, { backgroundColor: "transparent" }]}
+            {...segmentedControlProps}
+          />
+        </ScrollView>
+      ) : (
+        <ThemedSegmentedControl
+          values={tabs.map((tab) => tab.title)}
+          selectedIndex={activeIndex}
+          onChange={setActiveIndex}
+          style={[styles.segmentedControl, segmentedControlProps.style, { backgroundColor: "transparent" }]}
+          {...segmentedControlProps}
+        />
+      )}
     </View>
   );
 
@@ -310,7 +331,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     position: "absolute",
     left: 0,
-    width: width,
+    width,
     zIndex: 999,
     justifyContent: "center",
   },

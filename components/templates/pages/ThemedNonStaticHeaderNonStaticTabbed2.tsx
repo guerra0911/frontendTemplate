@@ -85,6 +85,8 @@ export interface ThemedNonStaticHeaderNonStaticTabbed2Props {
   segmentedControlProps?: Partial<ThemedSegmentedControlProps>;
   headerProps?: Partial<LocalHeaderProps>;
   initialHeaderOffset?: number;
+  // New: Option to enable horizontal scrolling for the segmented control tabs.
+  scrollableTabs?: boolean;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,6 +120,7 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
     segmentedControlProps = {},
     headerProps = {},
     initialHeaderOffset = 0,
+    scrollableTabs = false, // New prop with default false
   } = props;
 
   const {
@@ -140,8 +143,7 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
 
   const [activeIndexState, setActiveIndexState] = useState(0);
 
-  const capitalizedThemeType =
-    themeType.charAt(0).toUpperCase() + themeType.slice(1);
+  const capitalizedThemeType = themeType.charAt(0).toUpperCase() + themeType.slice(1);
 
   const headerColorKey = `hideOnScrollHeaderBackground${capitalizedThemeType}` as ThemeColorType;
   const scrollViewColorKey = `hideOnScrollScrollViewBackground${capitalizedThemeType}` as ThemeColorType;
@@ -167,9 +169,7 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
   const insets = useSafeAreaInsets();
   const [headerMeasuredHeight, setHeaderMeasuredHeight] = useState(0);
 
-  const headerOffset = useRef(
-    new Animated.Value(initialHeaderOffset)
-  ).current;
+  const headerOffset = useRef(new Animated.Value(initialHeaderOffset)).current;
   const currentHeaderTranslateRef = useRef(initialHeaderOffset);
 
   const [blurAmount, setBlurAmount] = useState(0);
@@ -177,8 +177,6 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
   const isUserDragging = useRef(false);
 
   const lastScrollDelta = useRef(0);
-
-  // *** CHANGED: Remove isAnimatingRef and the finalizeHeaderAndScroll approach
 
   useEffect(() => {
     if (blurOnSlide) {
@@ -233,13 +231,12 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
 
   const handleScrollEndDrag = () => {
     isUserDragging.current = false;
-    // *** CHANGED: Instead of finalizeHeaderAndScroll, just snap the header offset
     if (lastScrollDelta.current > 0) {
-      // user scrolled up => hide
       animateHeaderTo(MIN_TRANSLATE);
+      currentHeaderTranslateRef.current = MIN_TRANSLATE;
     } else if (lastScrollDelta.current < 0) {
-      // user scrolled down => show
       animateHeaderTo(MAX_TRANSLATE);
+      currentHeaderTranslateRef.current = MAX_TRANSLATE;
     }
   };
 
@@ -250,8 +247,10 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
   const handleMomentumScrollEnd = () => {
     if (lastScrollDelta.current > 0) {
       animateHeaderTo(MIN_TRANSLATE);
+      currentHeaderTranslateRef.current = MIN_TRANSLATE;
     } else if (lastScrollDelta.current < 0) {
       animateHeaderTo(MAX_TRANSLATE);
+      currentHeaderTranslateRef.current = MAX_TRANSLATE;
     }
   };
 
@@ -307,10 +306,7 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
           initialBorderColor={initialBorderColor}
           borderColor={borderColor}
           borderWidth={borderWidth}
-          headerStyle={[
-            { backgroundColor: resolvedHeaderBg },
-            headerStyle,
-          ]}
+          headerStyle={[{ backgroundColor: resolvedHeaderBg }, headerStyle]}
           headerLeft={renderLeft ? renderLeft() : <ThemedHeaderBackButton />}
           headerCenter={renderCenter?.()}
           headerRight={renderRight?.()}
@@ -329,21 +325,49 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
             },
           ]}
         >
-          <ThemedSegmentedControl
-            {...mergedSegmentedProps}
-            values={finalValues}
-            selectedIndex={finalSelectedIndex}
-            onChange={finalOnChange}
-            padding={{
-              color: { light: segmentedControlBg, dark: segmentedControlBg },
-              internal: mergedSegmentedProps.padding?.internal ?? 0,
-            }}
-            style={[
-              styles.segmentedControl,
-              mergedSegmentedProps.style,
-              { backgroundColor: "transparent" },
-            ]}
-          />
+          {scrollableTabs ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: "flex-start",
+                alignItems: "center",
+              }}
+            >
+              <ThemedSegmentedControl
+                {...mergedSegmentedProps}
+                values={finalValues}
+                selectedIndex={finalSelectedIndex}
+                onChange={finalOnChange}
+                padding={{
+                  color: { light: segmentedControlBg, dark: segmentedControlBg },
+                  internal: mergedSegmentedProps.padding?.internal ?? 0,
+                }}
+                style={[
+                  styles.segmentedControl,
+                  mergedSegmentedProps.style,
+                  { backgroundColor: "transparent" },
+                ]}
+              />
+            </ScrollView>
+          ) : (
+            <ThemedSegmentedControl
+              {...mergedSegmentedProps}
+              values={finalValues}
+              selectedIndex={finalSelectedIndex}
+              onChange={finalOnChange}
+              padding={{
+                color: { light: segmentedControlBg, dark: segmentedControlBg },
+                internal: mergedSegmentedProps.padding?.internal ?? 0,
+              }}
+              style={[
+                styles.segmentedControl,
+                mergedSegmentedProps.style,
+                { backgroundColor: "transparent" },
+              ]}
+            />
+          )}
         </View>
       </View>
     );
@@ -355,10 +379,7 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
   return (
     <View style={styles.fullScreenContainer}>
       <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: resolvedScrollViewBg },
-        ]}
+        style={[styles.container, { backgroundColor: resolvedScrollViewBg }]}
         edges={["left", "right", "bottom"]}
       >
         <View
@@ -371,9 +392,7 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
           <Animated.View
             style={[
               styles.animatedHeaderContainer,
-              {
-                transform: [{ translateY: headerOffset }],
-              },
+              { transform: [{ translateY: headerOffset }] },
             ]}
           >
             {blurOnSlide ? (
@@ -393,10 +412,7 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
 
           <ScrollView
             ref={scrollViewRef}
-            style={[
-              styles.scrollView,
-              { backgroundColor: resolvedScrollViewBg },
-            ]}
+            style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
             contentContainerStyle={{
               paddingTop: headerMeasuredHeight,
               paddingBottom: BOTTOM_FOOTER_HEIGHT,
@@ -454,3 +470,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export default ThemedNonStaticHeaderNonStaticTabbed2;

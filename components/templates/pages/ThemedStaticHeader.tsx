@@ -12,6 +12,7 @@ import ThemedHeaderBackButton from "../headers/ThemedHeaderBackButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { router } from "expo-router";
 import { BOTTOM_FOOTER_HEIGHT } from "@/constants/Layouts";
+import { BlurView } from "expo-blur";
 
 type ScrollViewWithHeadersProps = React.ComponentProps<typeof ScrollViewWithHeaders>;
 
@@ -25,16 +26,17 @@ interface LocalHeaderProps {
   renderLeft?: () => ReactNode;
   renderCenter?: () => ReactNode;
   renderRight?: () => ReactNode;
+  // Optional: if provided, wraps the header in a BlurView with the given intensity.
+  blurAmount?: number;
 }
 
-/** Color keys from ThemedStaticHeaderColors */
 type ThemeColorType =
   | "staticHeaderBackgroundPrimary"
   | "staticHeaderBackgroundSecondary"
   | "staticHeaderBackgroundTertiary"
   | "scrollViewBackgroundPrimary"
   | "scrollViewBackgroundSecondary"
-  | "scrollViewBackgroundTertiary"; // Added tertiary
+  | "scrollViewBackgroundTertiary";
 
 function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -45,7 +47,7 @@ export interface ThemedStaticHeaderProps
     ScrollViewWithHeadersProps,
     "HeaderComponent" | "LargeHeaderComponent" | "children" | "refreshControl"
   > {
-  themeType?: "primary" | "secondary" | "tertiary"; // Included tertiary
+  themeType?: "primary" | "secondary" | "tertiary";
   backgroundColor?: { light?: string; dark?: string };
 
   headerProps?: Partial<LocalHeaderProps>;
@@ -54,7 +56,7 @@ export interface ThemedStaticHeaderProps
   refreshing?: boolean;
   onRefresh?: () => void;
 
-  scrollViewBackgroundColor?: { light?: string; dark?: string }; // Override prop
+  scrollViewBackgroundColor?: { light?: string; dark?: string };
 
   children?: ReactNode;
 }
@@ -64,7 +66,7 @@ export function ThemedStaticHeader(props: ThemedStaticHeaderProps) {
     themeType = "primary",
     backgroundColor = {},
     headerProps = {},
-    scrollViewBackgroundColor, // Destructure override prop
+    scrollViewBackgroundColor,
     style,
     contentContainerStyle,
     isRefreshable,
@@ -73,7 +75,6 @@ export function ThemedStaticHeader(props: ThemedStaticHeaderProps) {
     ...scrollProps
   } = props;
 
-  // A pinned header is always visible => showNavBar = 1
   const showNavBar = useSharedValue(1);
 
   const colorKey = `staticHeaderBackground${capitalize(themeType)}` as ThemeColorType;
@@ -89,9 +90,9 @@ export function ThemedStaticHeader(props: ThemedStaticHeaderProps) {
     renderLeft,
     renderCenter,
     renderRight,
+    blurAmount,
   } = headerProps;
 
-  // Retrieve the scroll view background color
   const defaultScrollViewColorKey = `scrollViewBackground${capitalize(themeType)}` as ThemeColorType;
   const resolvedScrollViewBg = useThemeColor(
     scrollViewBackgroundColor || {},
@@ -103,9 +104,9 @@ export function ThemedStaticHeader(props: ThemedStaticHeaderProps) {
       <RefreshControl
         refreshing={!!refreshing}
         onRefresh={onRefresh}
-        tintColor={resolvedScrollViewBg} // iOS: Spinner color
-        colors={[resolvedScrollViewBg]} // Android: Spinner colors
-        progressBackgroundColor={Platform.OS === "android" ? resolvedScrollViewBg : undefined} // Android: Background color
+        tintColor={resolvedScrollViewBg}
+        colors={[resolvedScrollViewBg]}
+        progressBackgroundColor={Platform.OS === "android" ? resolvedScrollViewBg : undefined}
       />
     ) : undefined;
 
@@ -116,12 +117,12 @@ export function ThemedStaticHeader(props: ThemedStaticHeaderProps) {
 
   const mergedScrollViewStyle = [
     styles.container,
-    { backgroundColor: resolvedScrollViewBg }, // Set background color on ScrollView
+    { backgroundColor: resolvedScrollViewBg },
     style,
   ];
 
   const HeaderComponent = ({ showNavBar: _unused }: { showNavBar: any }) => {
-    return (
+    const headerContent = (
       <LibHeader
         showNavBar={showNavBar}
         noBottomBorder={noBottomBorder}
@@ -141,13 +142,20 @@ export function ThemedStaticHeader(props: ThemedStaticHeaderProps) {
         headerRight={renderRight?.()}
       />
     );
+    return blurAmount ? (
+      <BlurView intensity={blurAmount} style={styles.blurContainer}>
+        {headerContent}
+      </BlurView>
+    ) : (
+      headerContent
+    );
   };
 
   return (
     <ScrollViewWithHeaders
       HeaderComponent={HeaderComponent}
       refreshControl={maybeRefreshControl}
-      style={mergedScrollViewStyle} // Apply mergedScrollViewStyle
+      style={mergedScrollViewStyle}
       contentContainerStyle={mergedContentContainerStyle}
       {...scrollProps}
     />
@@ -157,6 +165,11 @@ export function ThemedStaticHeader(props: ThemedStaticHeaderProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // No backgroundColor here, it's set dynamically
+  },
+  blurContainer: {
+    // Ensure the BlurView does not clip header content.
+    overflow: "visible",
   },
 });
+
+export default ThemedStaticHeader;

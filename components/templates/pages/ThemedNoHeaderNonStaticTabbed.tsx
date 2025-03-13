@@ -67,6 +67,8 @@ export interface ThemedNoHeaderNonStaticTabbedProps {
   headerHeight?: number;
   blurOnSlide?: boolean;
   maxBlurAmount?: number;
+  // New: Option to enable horizontal scrolling for segmented control tabs.
+  scrollableTabs?: boolean;
 }
 
 const DEFAULT_HEADER_HEIGHT = 60;
@@ -101,6 +103,7 @@ export function ThemedNoHeaderNonStaticTabbed(props: ThemedNoHeaderNonStaticTabb
     headerHeight = DEFAULT_HEADER_HEIGHT,
     blurOnSlide = false,
     maxBlurAmount = DEFAULT_MAX_BLUR,
+    scrollableTabs = false, // New prop, defaults to false
   } = props;
 
   // Resolve theming colors
@@ -261,13 +264,33 @@ export function ThemedNoHeaderNonStaticTabbed(props: ThemedNoHeaderNonStaticTabb
   // Render the segmented control header.
   const renderHeader = () => (
     <View style={[styles.segmentedHeader, { backgroundColor: resolvedBgColor, height: headerHeight }, headerStyle]}>
-      <ThemedSegmentedControl
-        values={tabs.map(tab => tab.title)}
-        selectedIndex={activeIndex}
-        onChange={setActiveIndex}
-        style={[styles.segmentedControl, segmentedControlProps.style, { backgroundColor: "transparent" }]}
-        {...segmentedControlProps}
-      />
+      {scrollableTabs ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-start", alignItems: "center" }}
+        >
+          <ThemedSegmentedControl
+            values={tabs.map(tab => tab.title)}
+            selectedIndex={activeIndex}
+            onChange={setActiveIndex}
+            style={[
+              styles.segmentedControl,
+              segmentedControlProps.style,
+              { backgroundColor: "transparent" },
+            ]}
+            {...segmentedControlProps}
+          />
+        </ScrollView>
+      ) : (
+        <ThemedSegmentedControl
+          values={tabs.map(tab => tab.title)}
+          selectedIndex={activeIndex}
+          onChange={setActiveIndex}
+          style={[styles.segmentedControl, segmentedControlProps.style, { backgroundColor: "transparent" }]}
+          {...segmentedControlProps}
+        />
+      )}
     </View>
   );
 
@@ -285,10 +308,7 @@ export function ThemedNoHeaderNonStaticTabbed(props: ThemedNoHeaderNonStaticTabb
                 layoutCalculated.current = true;
               }
             }}
-            style={[
-              styles.headerContainer,
-              { height: headerHeight, transform: [{ translateY: headerOffset }] },
-            ]}
+            style={[styles.headerContainer, { height: headerHeight, transform: [{ translateY: headerOffset }] }]}
           >
             {blurOnSlide ? (
               <View style={StyleSheet.absoluteFill}>
@@ -341,7 +361,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     position: "absolute",
     left: 0,
-    width: width,
+    width,
     zIndex: 999,
     justifyContent: "center",
   },

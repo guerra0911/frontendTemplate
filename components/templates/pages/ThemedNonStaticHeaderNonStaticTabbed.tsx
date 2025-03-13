@@ -85,6 +85,8 @@ export interface ThemedNonStaticHeaderNonStaticTabbedProps {
   segmentedControlProps?: Partial<ThemedSegmentedControlProps>;
   headerProps?: Partial<LocalHeaderProps>;
   initialHeaderOffset?: number;
+  // New: Option to enable horizontal scrolling for segmented control tabs.
+  scrollableTabs?: boolean;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,6 +120,7 @@ export function ThemedNonStaticHeaderNonStaticTabbed(
     segmentedControlProps = {},
     headerProps = {},
     initialHeaderOffset = 0,
+    scrollableTabs = false, // New prop defaulting to false
   } = props;
 
   const {
@@ -337,21 +340,45 @@ export function ThemedNonStaticHeaderNonStaticTabbed(
             },
           ]}
         >
-          <ThemedSegmentedControl
-            {...mergedSegmentedProps}
-            values={finalValues}
-            selectedIndex={finalSelectedIndex}
-            onChange={finalOnChange}
-            padding={{
-              color: { light: segmentedControlBg, dark: segmentedControlBg },
-              internal: mergedSegmentedProps.padding?.internal ?? 0,
-            }}
-            style={[
-              styles.segmentedControl,
-              mergedSegmentedProps.style,
-              { backgroundColor: "transparent" },
-            ]}
-          />
+          {scrollableTabs ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-start" }}
+            >
+              <ThemedSegmentedControl
+                {...mergedSegmentedProps}
+                values={finalValues}
+                selectedIndex={finalSelectedIndex}
+                onChange={finalOnChange}
+                padding={{
+                  color: { light: segmentedControlBg, dark: segmentedControlBg },
+                  internal: mergedSegmentedProps.padding?.internal ?? 0,
+                }}
+                style={[
+                  styles.segmentedControl,
+                  mergedSegmentedProps.style,
+                  { backgroundColor: "transparent", alignSelf: "flex-start" },
+                ]}
+              />
+            </ScrollView>
+          ) : (
+            <ThemedSegmentedControl
+              {...mergedSegmentedProps}
+              values={finalValues}
+              selectedIndex={finalSelectedIndex}
+              onChange={finalOnChange}
+              padding={{
+                color: { light: segmentedControlBg, dark: segmentedControlBg },
+                internal: mergedSegmentedProps.padding?.internal ?? 0,
+              }}
+              style={[
+                styles.segmentedControl,
+                mergedSegmentedProps.style,
+                { backgroundColor: "transparent" },
+              ]}
+            />
+          )}
         </View>
       </View>
     );
@@ -454,3 +481,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export default ThemedNonStaticHeaderNonStaticTabbed;

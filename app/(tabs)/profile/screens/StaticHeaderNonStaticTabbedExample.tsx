@@ -13,35 +13,105 @@ const StaticHeaderNonStaticTabbedExample = () => {
   };
 
   const tabs = [
-    {
-      title: "First Tab",
-      content: (
-        <ScrollView>
-          <View style={styles.tabContent}>
-            {[...Array(20)].map((_, i) => (
-              <Text key={i} style={styles.item}>
-                Item {i + 1} - First Tab
-              </Text>
-            ))}
-          </View>
-        </ScrollView>
-      ),
-    },
-    {
-      title: "Second Tab",
-      content: (
-        <ScrollView>
-          <View style={styles.tabContent}>
-            {[...Array(20)].map((_, i) => (
-              <Text key={i} style={styles.item}>
-                Item {i + 1} - Second Tab
-              </Text>
-            ))}
-          </View>
-        </ScrollView>
-      ),
-    },
-  ];
+      {
+        title: "First Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - First Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+      {
+        title: "Second Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - Second Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+      {
+        title: "Third Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - Third Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+      {
+        title: "Fourth Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - Fourth Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+      {
+        title: "Fifth Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - Fifth Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+      {
+        title: "Sixth Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - Sixth Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+      {
+        title: "Seventh Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - Seventh Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+    ];
 
   return (
     <ThemedStaticHeaderNonStaticTabbed
@@ -49,6 +119,7 @@ const StaticHeaderNonStaticTabbedExample = () => {
       isRefreshable
       refreshing={refreshing}
       onRefresh={onRefresh}
+      scrollableTabs
       headerProps={{
         renderCenter: () => (
           <Text style={styles.headerTitle}>Example Header</Text>
@@ -70,6 +141,7 @@ const StaticHeaderNonStaticTabbedExample = () => {
       segmentedControlProps={{
         themeType: "secondary",
         customHeight: 50,
+        customWidth: 800,
         selectedIndicator: {
           useUnderline: true,
           underlineThickness: 4,

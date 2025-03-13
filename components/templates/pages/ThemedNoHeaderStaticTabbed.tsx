@@ -6,6 +6,7 @@ import {
   RefreshControl,
   Platform,
   View,
+  ScrollView,
 } from "react-native";
 import { ScrollViewWithHeaders } from "@codeherence/react-native-header";
 import { useSharedValue } from "react-native-reanimated";
@@ -60,6 +61,8 @@ export interface ThemedNoHeaderStaticTabbedProps
   segmentedControlProps?: Partial<ThemedSegmentedControlProps>;
   /** The height of the segmented control container in px */
   headerHeight?: number;
+  // New: Option to enable horizontal scrolling for segmented control tabs.
+  scrollableTabs?: boolean;
 }
 
 /**
@@ -85,6 +88,7 @@ export function ThemedNoHeaderStaticTabbed(props: ThemedNoHeaderStaticTabbedProp
     headerHeight = 50,
     style,
     contentContainerStyle,
+    scrollableTabs = false, // New prop with default false
     ...scrollProps
   } = props;
 
@@ -139,13 +143,41 @@ export function ThemedNoHeaderStaticTabbed(props: ThemedNoHeaderStaticTabbedProp
   const HeaderComponent = () => {
     return (
       <View style={[styles.headerContainer, { backgroundColor: resolvedBg, height: headerHeight }]}>
-        <ThemedSegmentedControl
-          values={tabs.map((tab) => tab.title)}
-          selectedIndex={activeIndex}
-          onChange={setActiveIndex}
-          style={[styles.segmentedControl, segmentedControlProps.style, { backgroundColor: "transparent" }]}
-          {...segmentedControlProps}
-        />
+        {scrollableTabs ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              flexGrow: 1,
+              justifyContent: "flex-start",
+              alignItems: "center",
+            }}
+          >
+            <ThemedSegmentedControl
+              values={tabs.map((tab) => tab.title)}
+              selectedIndex={activeIndex}
+              onChange={setActiveIndex}
+              style={[
+                styles.segmentedControl,
+                segmentedControlProps.style,
+                { backgroundColor: "transparent" },
+              ]}
+              {...segmentedControlProps}
+            />
+          </ScrollView>
+        ) : (
+          <ThemedSegmentedControl
+            values={tabs.map((tab) => tab.title)}
+            selectedIndex={activeIndex}
+            onChange={setActiveIndex}
+            style={[
+              styles.segmentedControl,
+              segmentedControlProps.style,
+              { backgroundColor: "transparent" },
+            ]}
+            {...segmentedControlProps}
+          />
+        )}
       </View>
     );
   };

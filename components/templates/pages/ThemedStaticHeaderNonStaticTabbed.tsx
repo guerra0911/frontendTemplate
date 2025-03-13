@@ -9,6 +9,8 @@ import {
   Platform,
   View,
   useColorScheme,
+  ScrollView,
+  FlexAlignType, // Added for horizontal scrolling of tabs
 } from "react-native";
 import {
   Header as LibHeader,
@@ -98,6 +100,8 @@ export interface ThemedStaticHeaderNonStaticTabbedProps
   segmentedControlProps?: Partial<ThemedSegmentedControlProps>;
   // Additional custom styling for the segmented control container, if desired.
   segmentedControlContainerStyle?: StyleProp<ViewStyle>;
+  // New: option to enable horizontal scrolling for segmented control tabs
+  scrollableTabs?: boolean;
 }
 
 export function ThemedStaticHeaderNonStaticTabbed(
@@ -116,10 +120,11 @@ export function ThemedStaticHeaderNonStaticTabbed(
     tabs,
     segmentedControlProps = {},
     segmentedControlContainerStyle,
+    scrollableTabs = false, // New prop with default value false
     ...scrollProps
   } = props;
 
-  // Destructure headerProps and add default values for new margin props:
+  // Destructure headerProps with default margin values
   const {
     noBottomBorder = false,
     headerContainerBorderBottomWidth = 1,
@@ -206,7 +211,7 @@ export function ThemedStaticHeaderNonStaticTabbed(
     style,
   ];
 
-  // HeaderComponent now only renders the static top header (LibHeader)
+  // HeaderComponent renders the static top header (LibHeader)
   const HeaderComponent = ({ showNavBar: _unused }: { showNavBar: any }) => {
     return (
       <View
@@ -249,8 +254,15 @@ export function ThemedStaticHeaderNonStaticTabbed(
     );
   };
 
-  // The segmented control is rendered as the first element in the scroll view content.
-  // Now we apply both marginTop and marginBottom using our new props.
+  // Build segmented control style; if scrollable, force left alignment
+  const segmentedControlStyle = [
+    styles.segmentedControl,
+    segmentedControlProps.style,
+    { backgroundColor: "transparent" },
+    scrollableTabs && { alignSelf: "flex-start" as FlexAlignType },
+  ];
+
+  // Render the segmented control as the first element in the scroll view content.
   return (
     <ScrollViewWithHeaders
       HeaderComponent={HeaderComponent}
@@ -269,21 +281,37 @@ export function ThemedStaticHeaderNonStaticTabbed(
           segmentedControlContainerStyle,
         ]}
       >
-        <ThemedSegmentedControl
-          values={tabs.map((tab) => tab.title)}
-          selectedIndex={activeIndex}
-          onChange={setActiveIndex}
-          style={[
-            styles.segmentedControl,
-            segmentedControlProps.style,
-            { backgroundColor: "transparent" },
-          ]}
-          padding={{
-            color: { light: segmentedControlBg, dark: segmentedControlBg },
-            internal: segmentedControlProps.padding?.internal ?? 0,
-          }}
-          {...segmentedControlProps}
-        />
+        {scrollableTabs ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-start" }}
+          >
+            <ThemedSegmentedControl
+              values={tabs.map((tab) => tab.title)}
+              selectedIndex={activeIndex}
+              onChange={setActiveIndex}
+              style={segmentedControlStyle}
+              padding={{
+                color: { light: segmentedControlBg, dark: segmentedControlBg },
+                internal: segmentedControlProps.padding?.internal ?? 0,
+              }}
+              {...segmentedControlProps}
+            />
+          </ScrollView>
+        ) : (
+          <ThemedSegmentedControl
+            values={tabs.map((tab) => tab.title)}
+            selectedIndex={activeIndex}
+            onChange={setActiveIndex}
+            style={segmentedControlStyle}
+            padding={{
+              color: { light: segmentedControlBg, dark: segmentedControlBg },
+              internal: segmentedControlProps.padding?.internal ?? 0,
+            }}
+            {...segmentedControlProps}
+          />
+        )}
       </View>
       {tabs[activeIndex].content}
     </ScrollViewWithHeaders>

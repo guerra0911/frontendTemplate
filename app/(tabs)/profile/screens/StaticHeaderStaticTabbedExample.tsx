@@ -41,6 +41,76 @@ const StaticHeaderStaticTabbedExample = () => {
         </ScrollView>
       ),
     },
+    {
+      title: "Third Tab",
+      content: (
+        <ScrollView>
+          <View style={styles.tabContent}>
+            {[...Array(20)].map((_, i) => (
+              <Text key={i} style={styles.item}>
+                Item {i + 1} - Third Tab
+              </Text>
+            ))}
+          </View>
+        </ScrollView>
+      ),
+    },
+    {
+      title: "Fourth Tab",
+      content: (
+        <ScrollView>
+          <View style={styles.tabContent}>
+            {[...Array(20)].map((_, i) => (
+              <Text key={i} style={styles.item}>
+                Item {i + 1} - Fourth Tab
+              </Text>
+            ))}
+          </View>
+        </ScrollView>
+      ),
+    },
+    {
+      title: "Fifth Tab",
+      content: (
+        <ScrollView>
+          <View style={styles.tabContent}>
+            {[...Array(20)].map((_, i) => (
+              <Text key={i} style={styles.item}>
+                Item {i + 1} - Fifth Tab
+              </Text>
+            ))}
+          </View>
+        </ScrollView>
+      ),
+    },
+    {
+      title: "Sixth Tab",
+      content: (
+        <ScrollView>
+          <View style={styles.tabContent}>
+            {[...Array(20)].map((_, i) => (
+              <Text key={i} style={styles.item}>
+                Item {i + 1} - Sixth Tab
+              </Text>
+            ))}
+          </View>
+        </ScrollView>
+      ),
+    },
+    {
+      title: "Seventh Tab",
+      content: (
+        <ScrollView>
+          <View style={styles.tabContent}>
+            {[...Array(20)].map((_, i) => (
+              <Text key={i} style={styles.item}>
+                Item {i + 1} - Seventh Tab
+              </Text>
+            ))}
+          </View>
+        </ScrollView>
+      ),
+    },
   ];
 
   return (
@@ -49,6 +119,7 @@ const StaticHeaderStaticTabbedExample = () => {
       isRefreshable
       refreshing={refreshing}
       onRefresh={onRefresh}
+      scrollableTabs
       headerProps={{
         renderCenter: () => (
           <Text style={styles.headerTitle}>Example Header</Text>
@@ -69,6 +140,7 @@ const StaticHeaderStaticTabbedExample = () => {
       segmentedControlProps={{
         themeType: "secondary",
         customHeight: 50,
+        customWidth: 800,
         selectedIndicator: {
           useUnderline: true,
           underlineThickness: 4,
@@ -76,6 +148,7 @@ const StaticHeaderStaticTabbedExample = () => {
         style: {
           paddingVertical: 0,
           marginBottom: 0,
+          paddingHorizontal: 10,
         },
         animatedSwitch: true,
       }}

@@ -9,6 +9,8 @@ import {
   Platform,
   View,
   useColorScheme,
+  ScrollView,
+  FlexAlignType, // <-- Added for horizontal scrolling
 } from "react-native";
 import {
   Header as LibHeader,
@@ -94,6 +96,8 @@ export interface ThemedStaticHeaderStaticTabbedProps
   scrollViewBackgroundColor?: { light?: string; dark?: string };
   tabs: Tab[];
   segmentedControlProps?: Partial<ThemedSegmentedControlProps>;
+  // New: option to enable horizontal scrolling for segmented control tabs
+  scrollableTabs?: boolean;
 }
 
 export function ThemedStaticHeaderStaticTabbed(props: ThemedStaticHeaderStaticTabbedProps) {
@@ -109,6 +113,7 @@ export function ThemedStaticHeaderStaticTabbed(props: ThemedStaticHeaderStaticTa
     onRefresh,
     tabs,
     segmentedControlProps = {},
+    scrollableTabs = false, // <-- new prop with default false
     ...scrollProps
   } = props;
 
@@ -197,6 +202,14 @@ export function ThemedStaticHeaderStaticTabbed(props: ThemedStaticHeaderStaticTa
   ];
 
   const HeaderComponent = ({ showNavBar: _unused }: { showNavBar: any }) => {
+    // Build segmented control style; if scrollable, force left alignment
+    const segmentedControlStyle = [
+      styles.segmentedControl,
+      segmentedControlProps.style,
+      { backgroundColor: "transparent" },
+      scrollableTabs && { alignSelf: "flex-start" as FlexAlignType },
+    ];
+
     return (
       <View
         style={[
@@ -240,37 +253,60 @@ export function ThemedStaticHeaderStaticTabbed(props: ThemedStaticHeaderStaticTa
             { marginBottom: headerSegmentedControlMarginBottom },
           ]}
         >
-          <ThemedSegmentedControl
-            values={tabs.map((tab) => tab.title)}
-            selectedIndex={activeIndex}
-            onChange={setActiveIndex}
-            style={[
-              styles.segmentedControl,
-              segmentedControlProps.style,
-              { backgroundColor: "transparent" },
-            ]}
-            padding={{
-              color: { light: segmentedControlBg, dark: segmentedControlBg },
-              internal: segmentedControlProps.padding?.internal ?? 0,
-            }}
-            
-            {...segmentedControlProps}
-          />
+          {scrollableTabs ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-start" }}
+            >
+              <ThemedSegmentedControl
+                values={tabs.map((tab) => tab.title)}
+                selectedIndex={activeIndex}
+                onChange={setActiveIndex}
+                style={segmentedControlStyle}
+                padding={{
+                  color: { light: segmentedControlBg, dark: segmentedControlBg },
+                  internal: segmentedControlProps.padding?.internal ?? 0,
+                }}
+                {...segmentedControlProps}
+              />
+            </ScrollView>
+          ) : (
+            <ThemedSegmentedControl
+              values={tabs.map((tab) => tab.title)}
+              selectedIndex={activeIndex}
+              onChange={setActiveIndex}
+              style={segmentedControlStyle}
+              padding={{
+                color: { light: segmentedControlBg, dark: segmentedControlBg },
+                internal: segmentedControlProps.padding?.internal ?? 0,
+              }}
+              {...segmentedControlProps}
+            />
+          )}
         </View>
       </View>
     );
   };
 
+  // Render each tab with its own ScrollViewWithHeaders,
+  // but only display the active tab.
   return (
-    <ScrollViewWithHeaders
-      HeaderComponent={HeaderComponent}
-      refreshControl={maybeRefreshControl}
-      style={mergedScrollViewStyle}
-      contentContainerStyle={mergedContentContainerStyle}
-      {...scrollProps}
-    >
-      {tabs[activeIndex].content}
-    </ScrollViewWithHeaders>
+    <>
+      {tabs.map((tab, index) => (
+        <View key={index} style={{ flex: 1, display: index === activeIndex ? "flex" : "none" }}>
+          <ScrollViewWithHeaders
+            HeaderComponent={HeaderComponent}
+            refreshControl={maybeRefreshControl}
+            style={mergedScrollViewStyle}
+            contentContainerStyle={mergedContentContainerStyle}
+            {...scrollProps}
+          >
+            {tab.content}
+          </ScrollViewWithHeaders>
+        </View>
+      ))}
+    </>
   );
 }
 

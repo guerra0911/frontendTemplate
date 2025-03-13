@@ -6,7 +6,7 @@
  */
 const ThemedScrollContainerColors = {
   light: {
-    scrollContainerBackgroundPrimary: "#ffffff",
+    scrollContainerBackgroundPrimary: "#99317f",
     scrollContainerBackgroundSecondary: "#f8f8f8",
     scrollContainerBackgroundTertiary: "#f0f0f0",
     topSafeAreaBackgroundPrimary: "#ffffff",

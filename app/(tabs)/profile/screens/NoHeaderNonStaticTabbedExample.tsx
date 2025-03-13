@@ -46,6 +46,91 @@ export default function NoHeaderNonStaticTabbedExample() {
         </View>
       ),
     },
+    {
+      title: "Tab Three",
+      content: (
+        <View>
+          <View style={[styles.placeholder, { backgroundColor: "#C5CAE9" }]}>
+            <ThemedText style={{ textAlign: "center" }}>
+              The segmented control hides or shows on scroll (Tab Three)
+            </ThemedText>
+          </View>
+          {Array.from({ length: 30 }).map((_, i) => (
+            <View key={i} style={styles.listItem}>
+              <ThemedText>Item #{i + 1} - Tab Three</ThemedText>
+            </View>
+          ))}
+        </View>
+      ),
+    },
+    {
+      title: "Tab Four",
+      content: (
+        <View>
+          <View style={[styles.placeholder, { backgroundColor: "#C5CAE9" }]}>
+            <ThemedText style={{ textAlign: "center" }}>
+              The segmented control hides or shows on scroll (Tab Four)
+            </ThemedText>
+          </View>
+          {Array.from({ length: 30 }).map((_, i) => (
+            <View key={i} style={styles.listItem}>
+              <ThemedText>Item #{i + 1} - Tab Four</ThemedText>
+            </View>
+          ))}
+        </View>
+      ),
+    },
+    {
+      title: "Tab Five",
+      content: (
+        <View>
+          <View style={[styles.placeholder, { backgroundColor: "#C5CAE9" }]}>
+            <ThemedText style={{ textAlign: "center" }}>
+              The segmented control hides or shows on scroll (Tab Five)
+            </ThemedText>
+          </View>
+          {Array.from({ length: 30 }).map((_, i) => (
+            <View key={i} style={styles.listItem}>
+              <ThemedText>Item #{i + 1} - Tab Five</ThemedText>
+            </View>
+          ))}
+        </View>
+      ),
+    },
+    {
+      title: "Tab Six",
+      content: (
+        <View>
+          <View style={[styles.placeholder, { backgroundColor: "#C5CAE9" }]}>
+            <ThemedText style={{ textAlign: "center" }}>
+              The segmented control hides or shows on scroll (Tab Six)
+            </ThemedText>
+          </View>
+          {Array.from({ length: 30 }).map((_, i) => (
+            <View key={i} style={styles.listItem}>
+              <ThemedText>Item #{i + 1} - Tab Six</ThemedText>
+            </View>
+          ))}
+        </View>
+      ),
+    },
+    {
+      title: "Tab Seven",
+      content: (
+        <View>
+          <View style={[styles.placeholder, { backgroundColor: "#C5CAE9" }]}>
+            <ThemedText style={{ textAlign: "center" }}>
+              The segmented control hides or shows on scroll (Tab Seven)
+            </ThemedText>
+          </View>
+          {Array.from({ length: 30 }).map((_, i) => (
+            <View key={i} style={styles.listItem}>
+              <ThemedText>Item #{i + 1} - Tab Seven</ThemedText>
+            </View>
+          ))}
+        </View>
+      ),
+    },
   ];
 
   return (
@@ -53,12 +138,13 @@ export default function NoHeaderNonStaticTabbedExample() {
       themeType="primary"
       headerHeight={60}
       isRefreshable
+      scrollableTabs
       refreshing={refreshing}
       onRefresh={onRefresh}
       headerStyle={{ backgroundColor: "#6200ea" }}
       scrollViewBackgroundColor={{ light: "#E1BEE7", dark: "#333" }}
       topSafeAreaBackgroundColor={{ light: "#BA68C8", dark: "#222" }}
-      segmentedControlProps={{ animatedSwitch: true }}
+      segmentedControlProps={{ animatedSwitch: true, customWidth: 800 }}
       tabs={tabs}
     />
   );

@@ -11,6 +11,7 @@ import {
   Platform,
   StyleProp,
   ViewStyle,
+  FlexAlignType,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { BlurView } from "@react-native-community/blur";
@@ -91,6 +92,8 @@ export interface ThemedNonStaticHeaderStaticTabbedProps {
   segmentedControlProps?: Partial<ThemedSegmentedControlProps>;
   headerProps?: Partial<LocalHeaderProps>;
   initialHeaderOffset?: number;
+  // New: Option to enable horizontal scrolling for the segmented control tabs.
+  scrollableTabs?: boolean;
 }
 
 /**
@@ -120,6 +123,7 @@ export function ThemedNonStaticHeaderStaticTabbed(
     segmentedControlProps = {},
     headerProps = {},
     initialHeaderOffset = 0,
+    scrollableTabs = false, // New prop defaulting to false
   } = props;
 
   const {
@@ -142,8 +146,7 @@ export function ThemedNonStaticHeaderStaticTabbed(
 
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const capitalizedThemeType =
-    themeType.charAt(0).toUpperCase() + themeType.slice(1);
+  const capitalizedThemeType = themeType.charAt(0).toUpperCase() + themeType.slice(1);
   const headerColorKey = `hideOnScrollHeaderBackground${capitalizedThemeType}` as ThemeColorType;
   const scrollViewColorKey = `hideOnScrollScrollViewBackground${capitalizedThemeType}` as ThemeColorType;
   const topSafeAreaColorKey = `hideOnScrollTopSafeAreaBackground${capitalizedThemeType}` as ThemeColorType;
@@ -170,9 +173,7 @@ export function ThemedNonStaticHeaderStaticTabbed(
   const [tabsHeight, setTabsHeight] = useState(0);
 
   // Animate the sliding of the LibHeader (the pinned tabs will always be visible)
-  const headerOffset = useRef(
-    new Animated.Value(initialHeaderOffset)
-  ).current;
+  const headerOffset = useRef(new Animated.Value(initialHeaderOffset)).current;
   const currentHeaderTranslateRef = useRef(initialHeaderOffset);
 
   const [blurAmount, setBlurAmount] = useState(0);
@@ -310,6 +311,14 @@ export function ThemedNonStaticHeaderStaticTabbed(
     segmentedControlProps.selectedIndex ?? activeTabIndex;
   const finalOnChange = segmentedControlProps.onChange ?? setActiveTabIndex;
 
+  // Define segmented control style; if scrollable, force left alignment.
+  const segmentedControlStyle = [
+    styles.segmentedControl,
+    segmentedControlProps.style,
+    { backgroundColor: "transparent" },
+    scrollableTabs && { alignSelf: "flex-start" as FlexAlignType },
+  ];
+
   function renderLibHeader() {
     return (
       <View
@@ -357,24 +366,43 @@ export function ThemedNonStaticHeaderStaticTabbed(
             paddingRight: headerSegmentedControlPaddingRight,
           }}
         >
-          <ThemedSegmentedControl
-            {...segmentedControlProps}
-            values={finalValues}
-            selectedIndex={finalSelectedIndex}
-            onChange={finalOnChange}
-            themeType={finalSegmentedThemeType}
-            animatedSwitch={finalAnimatedSwitch}
-            selectedIndicator={finalSelectedIndicator}
-            style={[
-              styles.segmentedControl,
-              segmentedControlProps.style,
-              { backgroundColor: "transparent" },
-            ]}
-            padding={{
-              color: { light: segmentedControlBg, dark: segmentedControlBg },
-              internal: segmentedControlProps.padding?.internal ?? 0,
-            }}
-          />
+          {scrollableTabs ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-start" }}
+            >
+              <ThemedSegmentedControl
+                {...segmentedControlProps}
+                values={finalValues}
+                selectedIndex={finalSelectedIndex}
+                onChange={finalOnChange}
+                themeType={finalSegmentedThemeType}
+                animatedSwitch={finalAnimatedSwitch}
+                selectedIndicator={finalSelectedIndicator}
+                style={segmentedControlStyle}
+                padding={{
+                  color: { light: segmentedControlBg, dark: segmentedControlBg },
+                  internal: segmentedControlProps.padding?.internal ?? 0,
+                }}
+              />
+            </ScrollView>
+          ) : (
+            <ThemedSegmentedControl
+              {...segmentedControlProps}
+              values={finalValues}
+              selectedIndex={finalSelectedIndex}
+              onChange={finalOnChange}
+              themeType={finalSegmentedThemeType}
+              animatedSwitch={finalAnimatedSwitch}
+              selectedIndicator={finalSelectedIndicator}
+              style={segmentedControlStyle}
+              padding={{
+                color: { light: segmentedControlBg, dark: segmentedControlBg },
+                internal: segmentedControlProps.padding?.internal ?? 0,
+              }}
+            />
+          )}
         </View>
       </View>
     );

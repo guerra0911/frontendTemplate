@@ -17,35 +17,105 @@ export default function NonStaticHeaderNonStaticTabbedExample() {
   };
 
   const tabs = [
-    {
-      title: "First Tab",
-      content: (
-        <ScrollView>
-          <View style={styles.tabContent}>
-            {Array.from({ length: 50 }).map((_, i) => (
-              <Text key={i} style={styles.item}>
-                Item {i + 1} - First Tab
-              </Text>
-            ))}
-          </View>
-        </ScrollView>
-      ),
-    },
-    {
-      title: "Second Tab",
-      content: (
-        <ScrollView>
-          <View style={styles.tabContent}>
-            {Array.from({ length: 50 }).map((_, i) => (
-              <Text key={i} style={styles.item}>
-                Item {i + 1} - Second Tab
-              </Text>
-            ))}
-          </View>
-        </ScrollView>
-      ),
-    },
-  ];
+        {
+          title: "First Tab",
+          content: (
+            <ScrollView>
+              <View style={styles.tabContent}>
+                {[...Array(20)].map((_, i) => (
+                  <Text key={i} style={styles.item}>
+                    Item {i + 1} - First Tab
+                  </Text>
+                ))}
+              </View>
+            </ScrollView>
+          ),
+        },
+        {
+          title: "Second Tab",
+          content: (
+            <ScrollView>
+              <View style={styles.tabContent}>
+                {[...Array(20)].map((_, i) => (
+                  <Text key={i} style={styles.item}>
+                    Item {i + 1} - Second Tab
+                  </Text>
+                ))}
+              </View>
+            </ScrollView>
+          ),
+        },
+        {
+          title: "Third Tab",
+          content: (
+            <ScrollView>
+              <View style={styles.tabContent}>
+                {[...Array(20)].map((_, i) => (
+                  <Text key={i} style={styles.item}>
+                    Item {i + 1} - Third Tab
+                  </Text>
+                ))}
+              </View>
+            </ScrollView>
+          ),
+        },
+        {
+          title: "Fourth Tab",
+          content: (
+            <ScrollView>
+              <View style={styles.tabContent}>
+                {[...Array(20)].map((_, i) => (
+                  <Text key={i} style={styles.item}>
+                    Item {i + 1} - Fourth Tab
+                  </Text>
+                ))}
+              </View>
+            </ScrollView>
+          ),
+        },
+        {
+          title: "Fifth Tab",
+          content: (
+            <ScrollView>
+              <View style={styles.tabContent}>
+                {[...Array(20)].map((_, i) => (
+                  <Text key={i} style={styles.item}>
+                    Item {i + 1} - Fifth Tab
+                  </Text>
+                ))}
+              </View>
+            </ScrollView>
+          ),
+        },
+        {
+          title: "Sixth Tab",
+          content: (
+            <ScrollView>
+              <View style={styles.tabContent}>
+                {[...Array(20)].map((_, i) => (
+                  <Text key={i} style={styles.item}>
+                    Item {i + 1} - Sixth Tab
+                  </Text>
+                ))}
+              </View>
+            </ScrollView>
+          ),
+        },
+        {
+          title: "Seventh Tab",
+          content: (
+            <ScrollView>
+              <View style={styles.tabContent}>
+                {[...Array(20)].map((_, i) => (
+                  <Text key={i} style={styles.item}>
+                    Item {i + 1} - Seventh Tab
+                  </Text>
+                ))}
+              </View>
+            </ScrollView>
+          ),
+        },
+      ];
 
   return (
     <ThemedNonStaticHeaderNonStaticTabbed
@@ -54,6 +124,7 @@ export default function NonStaticHeaderNonStaticTabbedExample() {
       refreshing={refreshing}
       onRefresh={onRefresh}
       blurOnSlide={false}
+      scrollableTabs
       headerProps={{
         // By default noBottomBorder=true, so no border
         // If you want to re-enable it: noBottomBorder: false
@@ -71,6 +142,7 @@ export default function NonStaticHeaderNonStaticTabbedExample() {
         },
         animatedSwitch: true,
         customHeight: 50,
+        customWidth: 800,
       }}
       tabs={tabs}
       // background overrides

@@ -98,6 +98,9 @@ export interface ThemedNonStaticHeaderNonStaticTabbedTopProps {
    * if false => measure if it's 0.
    */
   useFixedHeaderHeight?: boolean;
+
+  // New: Option to enable horizontal scrolling for segmented control tabs.
+  scrollableTabs?: boolean;
 }
 
 /**
@@ -145,6 +148,7 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
     headerProps = {},
     headerHeight = 0,
     useFixedHeaderHeight = false,
+    scrollableTabs = false, // New prop defaulting to false
   } = props;
 
   // 1) LOCAL HEADER PROPS
@@ -370,20 +374,51 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
             },
           ]}
         >
-          <ThemedSegmentedControl
-            {...segmentedControlProps}
-            values={finalValues}
-            selectedIndex={finalSelectedIndex}
-            onChange={finalOnChange}
-            themeType={finalSegmentedThemeType}
-            animatedSwitch={finalAnimatedSwitch}
-            selectedIndicator={finalSelectedIndicator}
-            padding={{
-              color: { light: segmentedControlBg, dark: segmentedControlBg },
-              internal: segmentedControlProps.padding?.internal ?? 0,
-            }}
-            style={[styles.segmentedControl, segmentedControlProps.style]}
-          />
+          {scrollableTabs ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-start" }}
+            >
+              <ThemedSegmentedControl
+                {...segmentedControlProps}
+                values={finalValues}
+                selectedIndex={finalSelectedIndex}
+                onChange={finalOnChange}
+                themeType={finalSegmentedThemeType}
+                animatedSwitch={finalAnimatedSwitch}
+                selectedIndicator={finalSelectedIndicator}
+                padding={{
+                  color: { light: segmentedControlBg, dark: segmentedControlBg },
+                  internal: segmentedControlProps.padding?.internal ?? 0,
+                }}
+                style={[
+                  styles.segmentedControl,
+                  segmentedControlProps.style,
+                  { backgroundColor: "transparent", alignSelf: "flex-start" },
+                ]}
+              />
+            </ScrollView>
+          ) : (
+            <ThemedSegmentedControl
+              {...segmentedControlProps}
+              values={finalValues}
+              selectedIndex={finalSelectedIndex}
+              onChange={finalOnChange}
+              themeType={finalSegmentedThemeType}
+              animatedSwitch={finalAnimatedSwitch}
+              selectedIndicator={finalSelectedIndicator}
+              padding={{
+                color: { light: segmentedControlBg, dark: segmentedControlBg },
+                internal: segmentedControlProps.padding?.internal ?? 0,
+              }}
+              style={[
+                styles.segmentedControl,
+                segmentedControlProps.style,
+                { backgroundColor: "transparent" },
+              ]}
+            />
+          )}
         </View>
       </View>
     );
@@ -411,10 +446,7 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
               styles.animatedHeaderContainer,
               {
                 transform: [{ translateY }],
-                height:
-                  useFixedHeaderHeight && headerHeight > 0
-                    ? headerHeight
-                    : undefined,
+                height: useFixedHeaderHeight && headerHeight > 0 ? headerHeight : undefined,
               },
             ]}
           >
@@ -436,10 +468,7 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
             ref={scrollViewRef}
             style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
             contentContainerStyle={{
-              paddingTop:
-                useFixedHeaderHeight && headerHeight > 0
-                  ? headerHeight
-                  : dynamicHeaderHeight,
+              paddingTop: useFixedHeaderHeight && headerHeight > 0 ? headerHeight : dynamicHeaderHeight,
               paddingBottom: BOTTOM_FOOTER_HEIGHT,
             }}
             scrollEventThrottle={16}

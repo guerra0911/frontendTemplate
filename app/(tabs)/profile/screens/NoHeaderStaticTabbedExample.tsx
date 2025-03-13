@@ -11,46 +11,118 @@ export default function NoHeaderStaticTabbedExample() {
   };
 
   const tabs = [
-    {
-      title: "Tab One",
-      content: (
-        <ScrollView>
-          <View style={styles.tabContent}>
-            {[...Array(20)].map((_, i) => (
-              <Text key={i} style={styles.item}>
-                Item {i + 1} - Tab One
-              </Text>
-            ))}
-          </View>
-        </ScrollView>
-      ),
-    },
-    {
-      title: "Tab Two",
-      content: (
-        <ScrollView>
-          <View style={styles.tabContent}>
-            {[...Array(20)].map((_, i) => (
-              <Text key={i} style={styles.item}>
-                Item {i + 1} - Tab Two
-              </Text>
-            ))}
-          </View>
-        </ScrollView>
-      ),
-    },
-  ];
+      {
+        title: "First Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - First Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+      {
+        title: "Second Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - Second Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+      {
+        title: "Third Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - Third Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+      {
+        title: "Fourth Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - Fourth Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+      {
+        title: "Fifth Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - Fifth Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+      {
+        title: "Sixth Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - Sixth Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+      {
+        title: "Seventh Tab",
+        content: (
+          <ScrollView>
+            <View style={styles.tabContent}>
+              {[...Array(20)].map((_, i) => (
+                <Text key={i} style={styles.item}>
+                  Item {i + 1} - Seventh Tab
+                </Text>
+              ))}
+            </View>
+          </ScrollView>
+        ),
+      },
+    ];
 
   return (
     <ThemedNoHeaderStaticTabbed
       tabs={tabs}
       isRefreshable
+      scrollableTabs
       refreshing={refreshing}
       onRefresh={onRefresh}
       headerHeight={60}
       segmentedControlProps={{
         themeType: "primary",
         animatedSwitch: true,
+        customWidth: 800,
       }}
       scrollViewBackgroundColor={{ light: "#f5f5f5", dark: "#222" }}
       backgroundColor={{ light: "#ffffff", dark: "#333" }}
