@@ -54,14 +54,6 @@ export default function HomeScreen() {
 
   return (
     <>
-      {/** 1) Render our custom header with no back button because this is a tab root */}
-      <ThemedCustomHeader
-        title="Mobile App Template"
-        showBackButton={false}
-        rightIcon="finger-print"
-        onRightPress={() => router.push("/(tabs)/home/HomeDetail")}
-      />
-
       {/** 2) Use your existing parallax scroll container */}
       <ThemedParallaxScrollContainer
         headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}

@@ -75,7 +75,7 @@ export default function MyObjectsTab() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
     padding: 10,
   },
   card: {

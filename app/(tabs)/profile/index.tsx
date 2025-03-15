@@ -2,12 +2,11 @@
 
 import React, { useCallback, useState } from "react";
 import { useRouter } from "expo-router";
-import { Pressable, View } from "react-native";
+import { Pressable, View, Text } from "react-native";
 
-import { ThemedText } from "@/components/templates/typography/ThemedText";
-import ThemedPage from "@/components/templates/pages/ThemedPage";
-import { IconSymbol } from "@/components/ui/IconSymbol";
+import ThemedStaticHeader from "@/components/templates/pages/ThemedStaticHeader";
 import ThemedButton from "@/components/templates/buttons/ThemedButton";
+import { IconSymbol } from "@/components/ui/IconSymbol";
 
 export default function ProfileScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -21,46 +20,59 @@ export default function ProfileScreen() {
   }, []);
 
   return (
-    <ThemedPage
-      title="@username"
-      showBackButton={false}
-      leftElement={
-        <ThemedButton
-          onPress={() => router.push("/settings")}
-          icons={{
-            iconName: "heart",
-            iconLibrary: "FontAwesome",
-            iconPosition: "right", // Icon on the right
-            iconSize: 20,
-          }}
-          background={{
-            light: "transparent",
-            dark: "transparent",
-          }}
-          themeType="primary" // ThemeType can still be used for text/icon colors if needed
-        />
-      }
-      rightElement={
-        <Pressable onPress={() => {}} style={{ padding: 8 }}>
-          {/* Could be an avatar... for now let's do a symbol */}
-          <IconSymbol name="person.fill" size={28} color="#000" />
-        </Pressable>
-      }
-      scrollable
+    <ThemedStaticHeader
       themeType="primary"
-      refreshable
-      onRefresh={onRefresh}
+      // Modern minimalistic background colors for header and scroll view:
+      backgroundColor={{
+        light: "#F8F9FA", // very light gray
+        dark: "#1C1C1E",  // near-black for dark mode
+      }}
+      scrollViewBackgroundColor={{
+        light: "#FFFFFF", // white for a clean look
+        dark: "#000000",  // black for dark mode
+      }}
+      // Overall container style:
+      style={{ flex: 1 }}
+      contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+      isRefreshable
       refreshing={refreshing}
-      isSticky={true}
-      refreshIndicatorPosition="above" // NEW PROP
+      onRefresh={onRefresh}
+      headerProps={{
+        // Hide the back button by rendering nothing on the left:
+        renderLeft: () => null,
+        // Center title with a modern, bold text style:
+        renderCenter: () => (
+          <Text style={{ fontSize: 18, fontWeight: "600", color: "#333" }}>
+            Pages & Screens
+          </Text>
+        ),
+        // Optional: simple right element (for example, an icon button)
+        renderRight: () => (
+          <Pressable onPress={() => router.push("/settings")} style={{ padding: 8 }}>
+            <IconSymbol name="gearshape" size={24} color="#333" />
+          </Pressable>
+        ),
+        // Minimalistic header style:
+        headerStyle: {
+          height: 110,
+          width: "100%",
+          paddingVertical: 10,
+          backgroundColor: "transparent", // let the backgroundColor prop control it
+          justifyContent: "center",
+          alignItems: "center",
+        },
+        // Remove bottom border for a flat look:
+        noBottomBorder: true,
+        // Apply a slight blur for a modern touch:
+        blurAmount: 20,
+      }}
     >
-      <ThemedText>Profile</ThemedText>
-      <ThemedText type="default">
-        Keep transparent backgrounds for these components so the theme
-        background remains.
-      </ThemedText>
+      <Text style={{ marginBottom: 10, fontSize: 16, marginTop: 15 }}>Profile</Text>
+      <Text style={{ marginBottom: 20, fontSize: 14 }}>
+        Keep transparent backgrounds for these components so the theme background remains.
+      </Text>
 
-      <View style={{ marginBottom: 16, paddingBottom: 100}}>
+      <View style={{ marginBottom: 16 }}>
         <ThemedButton
           title="Static Header"
           onPress={() =>
@@ -152,62 +164,25 @@ export default function ProfileScreen() {
           }
           style={{ marginVertical: 8 }}
         />
-        {/* <ThemedButton
-          title="Dynamic Tabs"
-          onPress={() =>
-            router.push("/(tabs)/profile/screens/DynamicTabExample")
-          }
-          style={{ marginVertical: 8 }}
-        /> */}
         <ThemedButton
           title="Absolute Header Blur Surface"
           onPress={() =>
-            router.push(
-              "/(tabs)/profile/screens/AbsoluteHeaderBlurSurfaceExample"
-            )
+            router.push("/(tabs)/profile/screens/AbsoluteHeaderBlurSurfaceExample")
           }
           style={{ marginVertical: 8 }}
         />
         <ThemedButton
           title="Arbitrary Y Transition Header"
           onPress={() =>
-            router.push(
-              "/(tabs)/profile/screens/ArbitraryYTransitionHeaderExample"
-            )
+            router.push("/(tabs)/profile/screens/ArbitraryYTransitionHeaderExample")
           }
           style={{ marginVertical: 8 }}
         />
-        {/* <ThemedButton
-          title="Custom Worklet"
-          onPress={() =>
-            router.push("/(tabs)/profile/screens/CustomWorkletExample")
-          }
-          style={{ marginVertical: 8 }}
-        /> */}
-        {/* <ThemedButton
-          title="FlashList"
-          onPress={() =>
-            router.push("/(tabs)/profile/screens/FlashListExample")
-          }
-          style={{ marginVertical: 8 }}
-        /> */}
-        {/* <ThemedButton
-          title="FlatList"
-          onPress={() => router.push("/(tabs)/profile/screens/FlatListExample")}
-          style={{ marginVertical: 8 }}
-        /> */}
         <ThemedButton
           title="Inverted"
           onPress={() => router.push("/(tabs)/profile/screens/InvertedExample")}
           style={{ marginVertical: 8 }}
         />
-        {/* <ThemedButton
-          title="Masonry FlashList"
-          onPress={() =>
-            router.push("/(tabs)/profile/screens/MasonryFlashListExample")
-          }
-          style={{ marginVertical: 8 }}
-        /> */}
         <ThemedButton
           title="SectionList"
           onPress={() =>
@@ -215,20 +190,7 @@ export default function ProfileScreen() {
           }
           style={{ marginVertical: 8 }}
         />
-        {/* <ThemedButton
-          title="Simple"
-          onPress={() => router.push("/(tabs)/profile/screens/SimpleExample")}
-          style={{ marginVertical: 8 }}
-        /> */}
-        {/* <ThemedButton
-          title="Surface Component"
-          onPress={() =>
-            router.push("/(tabs)/profile/screens/SurfaceComponentExample")
-          }
-          style={{ marginVertical: 8 }}
-        /> */}
-        
       </View>
-    </ThemedPage>
+    </ThemedStaticHeader>
   );
 }
