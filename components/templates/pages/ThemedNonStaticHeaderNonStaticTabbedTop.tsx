@@ -1,3 +1,5 @@
+// app/components/screens/ThemedNonStaticHeaderNonStaticTabbedTop.tsx
+
 import React, { ReactNode, useRef, useState, useEffect } from "react";
 import {
   View,
@@ -11,6 +13,7 @@ import {
   Platform,
   StyleProp,
   ViewStyle,
+  StyleSheet as RNStyleSheet,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { BlurView } from "@react-native-community/blur";
@@ -220,7 +223,6 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
   const translateY = useRef(new Animated.Value(0)).current;
   const isAnimatingRef = useRef(false);
   const lastScrollY = useRef(0);
-  // We'll also track the last scroll delta (as a proxy for velocity)
   const lastScrollDelta = useRef(0);
 
   const MIN_TRANSLATE = -finalHeaderHeight;
@@ -246,12 +248,10 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
     if (isAnimatingRef.current || finalHeaderHeight <= 0) return;
 
     const offsetY = e.nativeEvent.contentOffset.y;
-    // Compute delta (for velocity estimation)
     const delta = offsetY - lastScrollY.current;
     lastScrollDelta.current = delta;
     lastScrollY.current = offsetY;
 
-    // Restrict partial hide to [0..finalHeaderHeight]
     if (offsetY <= 0) {
       translateY.setValue(0);
     } else if (offsetY >= finalHeaderHeight) {
@@ -261,7 +261,7 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
     }
   };
 
-  // 6) SNAP => snap the header and force content offset so they move together
+  // 6) SNAP
   function animateHeaderTo(toValue: number, duration: number = 300) {
     isAnimatingRef.current = true;
     Animated.timing(translateY, {
@@ -285,23 +285,17 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
     lastScrollY.current = finalHeaderHeight;
   }
 
-  // New finalizeHeader that delays snapping if velocity is high.
   function finalizeHeader() {
     if (isAnimatingRef.current || finalHeaderHeight <= 0) return;
     const offsetY = lastScrollY.current;
-
-    // If offset is already at an extreme, no need to snap.
     if (offsetY <= 0 || offsetY >= finalHeaderHeight) return;
 
-    // If the last scroll delta is still high (indicating momentum), delay finalizing.
-    const velocityThreshold = 2; // Adjust threshold as needed.
+    const velocityThreshold = 2;
     if (Math.abs(lastScrollDelta.current) > velocityThreshold) {
-      // Wait a bit to let momentum decay, then try finalizing again.
       setTimeout(finalizeHeader, 100);
       return;
     }
 
-    // Otherwise, pick a half threshold to decide snapping.
     const half = finalHeaderHeight / 2;
     if (offsetY < half) {
       snapOpen();
@@ -451,9 +445,9 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
             ]}
           >
             {blurOnSlide ? (
-              <View style={StyleSheet.absoluteFill}>
+              <View style={RNStyleSheet.absoluteFill}>
                 <BlurView
-                  style={StyleSheet.absoluteFill}
+                  style={RNStyleSheet.absoluteFill}
                   blurType={Platform.select({ ios: "light", android: "light" })}
                   blurAmount={blurAmount}
                   reducedTransparencyFallbackColor={resolvedHeaderBg}
@@ -464,24 +458,28 @@ export function ThemedNonStaticHeaderNonStaticTabbedTop(
               renderHeaderAndTabs()
             )}
           </Animated.View>
-          <ScrollView
-            ref={scrollViewRef}
-            style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
-            contentContainerStyle={{
-              paddingTop: useFixedHeaderHeight && headerHeight > 0 ? headerHeight : dynamicHeaderHeight,
-              paddingBottom: BOTTOM_FOOTER_HEIGHT,
-            }}
-            scrollEventThrottle={16}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleScroll}
-            onScrollBeginDrag={handleScrollBeginDrag}
-            onScrollEndDrag={handleScrollEndDrag}
-            onMomentumScrollBegin={handleMomentumScrollBegin}
-            onMomentumScrollEnd={handleMomentumScrollEnd}
-            refreshControl={maybeRefreshControl}
-          >
-            {tabs[effectiveTabIndex]?.content}
-          </ScrollView>
+          {tabs.map((tab, index) => (
+            <View key={index} style={{ flex: 1, display: index === effectiveTabIndex ? "flex" : "none" }}>
+              <ScrollView
+                ref={index === effectiveTabIndex ? scrollViewRef : null}
+                style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
+                contentContainerStyle={{
+                  paddingTop: useFixedHeaderHeight && headerHeight > 0 ? headerHeight : dynamicHeaderHeight,
+                  paddingBottom: BOTTOM_FOOTER_HEIGHT,
+                }}
+                scrollEventThrottle={16}
+                showsVerticalScrollIndicator={false}
+                onScroll={handleScroll}
+                onScrollBeginDrag={handleScrollBeginDrag}
+                onScrollEndDrag={handleScrollEndDrag}
+                onMomentumScrollBegin={handleMomentumScrollBegin}
+                onMomentumScrollEnd={handleMomentumScrollEnd}
+                refreshControl={maybeRefreshControl}
+              >
+                {tab.content}
+              </ScrollView>
+            </View>
+          ))}
         </View>
       </SafeAreaView>
     </View>

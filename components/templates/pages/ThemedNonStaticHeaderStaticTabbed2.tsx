@@ -1,3 +1,5 @@
+// app/components/screens/ThemedNonStaticHeaderStaticTabbed2.tsx
+
 import React, { ReactNode, useState, useRef, useEffect } from "react";
 import {
   View,
@@ -145,7 +147,7 @@ export function ThemedNonStaticHeaderStaticTabbed2(
     headerSegmentedControlPaddingRight = 0,
   } = headerProps;
 
-  const [activeIndexState, setActiveIndexState] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const capitalizedThemeType = themeType.charAt(0).toUpperCase() + themeType.slice(1);
@@ -181,7 +183,6 @@ export function ThemedNonStaticHeaderStaticTabbed2(
   const [blurAmount, setBlurAmount] = useState(0);
   const [lastScrollY, setLastScrollY] = useState(0);
   const isUserDragging = useRef(false);
-
   const lastScrollDelta = useRef(0);
 
   useEffect(() => {
@@ -219,10 +220,8 @@ export function ThemedNonStaticHeaderStaticTabbed2(
     const offsetY = e.nativeEvent.contentOffset.y;
     const delta = offsetY - lastScrollY;
     lastScrollDelta.current = delta;
-
     const newTranslate = currentHeaderTranslateRef.current - delta;
     const clamped = clamp(newTranslate, MIN_TRANSLATE, MAX_TRANSLATE);
-
     headerOffset.setValue(clamped);
     currentHeaderTranslateRef.current = clamped;
     setLastScrollY(offsetY);
@@ -257,7 +256,7 @@ export function ThemedNonStaticHeaderStaticTabbed2(
     }
   };
 
-  // The pinned area is the tabs portion => always visible at top after LibHeader slides up
+  // Total top block is the sum of the LibHeader and pinned tabs heights.
   const totalTopBlock = libHeaderHeight + tabsHeight;
 
   const maybeRefreshControl =
@@ -292,7 +291,6 @@ export function ThemedNonStaticHeaderStaticTabbed2(
       ? segmentedControlProps.animatedSwitch
       : true;
   const finalSegmentedThemeType = segmentedControlProps.themeType || themeType;
-  const [activeIndex, setActiveIndex] = useState(0);
 
   const finalValues =
     segmentedControlProps.values ?? tabs.map((tab) => tab.title);
@@ -403,7 +401,6 @@ export function ThemedNonStaticHeaderStaticTabbed2(
 
   const effectiveTabIndex =
     finalSelectedIndex < tabs.length ? finalSelectedIndex : 0;
-
   const insets = useSafeAreaInsets();
   const insetsTop = insets.top;
 
@@ -441,25 +438,31 @@ export function ThemedNonStaticHeaderStaticTabbed2(
             )}
             {renderPinnedTabs()}
           </Animated.View>
-
-          <ScrollView
-            ref={scrollViewRef}
-            style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
-            contentContainerStyle={{
-              paddingTop: libHeaderHeight + tabsHeight,
-              paddingBottom: BOTTOM_FOOTER_HEIGHT,
-            }}
-            scrollEventThrottle={16}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleScroll}
-            onScrollBeginDrag={handleScrollBeginDrag}
-            onScrollEndDrag={handleScrollEndDrag}
-            onMomentumScrollBegin={handleMomentumScrollBegin}
-            onMomentumScrollEnd={handleMomentumScrollEnd}
-            refreshControl={maybeRefreshControl}
-          >
-            {tabs[effectiveTabIndex].content}
-          </ScrollView>
+          {tabs.map((tab, index) => (
+            <View
+              key={index}
+              style={{ flex: 1, display: index === effectiveTabIndex ? "flex" : "none" }}
+            >
+              <ScrollView
+                ref={index === effectiveTabIndex ? scrollViewRef : null}
+                style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
+                contentContainerStyle={{
+                  paddingTop: libHeaderHeight + tabsHeight,
+                  paddingBottom: BOTTOM_FOOTER_HEIGHT,
+                }}
+                scrollEventThrottle={16}
+                showsVerticalScrollIndicator={false}
+                onScroll={handleScroll}
+                onScrollBeginDrag={handleScrollBeginDrag}
+                onScrollEndDrag={handleScrollEndDrag}
+                onMomentumScrollBegin={handleMomentumScrollBegin}
+                onMomentumScrollEnd={handleMomentumScrollEnd}
+                refreshControl={maybeRefreshControl}
+              >
+                {tab.content}
+              </ScrollView>
+            </View>
+          ))}
         </View>
       </SafeAreaView>
     </View>

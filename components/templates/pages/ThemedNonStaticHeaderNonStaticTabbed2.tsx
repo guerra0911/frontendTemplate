@@ -1,3 +1,5 @@
+// app/components/screens/ThemedNonStaticHeaderNonStaticTabbed2.tsx
+
 import React, { ReactNode, useState, useRef, useEffect } from "react";
 import {
   View,
@@ -175,7 +177,6 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
   const [blurAmount, setBlurAmount] = useState(0);
   const [lastScrollY, setLastScrollY] = useState(0);
   const isUserDragging = useRef(false);
-
   const lastScrollDelta = useRef(0);
 
   useEffect(() => {
@@ -409,25 +410,33 @@ export function ThemedNonStaticHeaderNonStaticTabbed2(
               renderLibHeaderAndTabs()
             )}
           </Animated.View>
-
-          <ScrollView
-            ref={scrollViewRef}
-            style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
-            contentContainerStyle={{
-              paddingTop: headerMeasuredHeight,
-              paddingBottom: BOTTOM_FOOTER_HEIGHT,
-            }}
-            scrollEventThrottle={16}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleScroll}
-            onScrollBeginDrag={handleScrollBeginDrag}
-            onScrollEndDrag={handleScrollEndDrag}
-            onMomentumScrollBegin={handleMomentumScrollBegin}
-            onMomentumScrollEnd={handleMomentumScrollEnd}
-            refreshControl={maybeRefreshControl}
-          >
-            {tabs[effectiveTabIndex].content}
-          </ScrollView>
+          <>
+            {tabs.map((tab, index) => (
+              <View
+                key={index}
+                style={{ flex: 1, display: index === effectiveTabIndex ? "flex" : "none" }}
+              >
+                <ScrollView
+                  ref={index === effectiveTabIndex ? scrollViewRef : null}
+                  style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
+                  contentContainerStyle={{
+                    paddingTop: headerMeasuredHeight,
+                    paddingBottom: BOTTOM_FOOTER_HEIGHT,
+                  }}
+                  scrollEventThrottle={16}
+                  showsVerticalScrollIndicator={false}
+                  onScroll={handleScroll}
+                  onScrollBeginDrag={handleScrollBeginDrag}
+                  onScrollEndDrag={handleScrollEndDrag}
+                  onMomentumScrollBegin={handleMomentumScrollBegin}
+                  onMomentumScrollEnd={handleMomentumScrollEnd}
+                  refreshControl={maybeRefreshControl}
+                >
+                  {tab.content}
+                </ScrollView>
+              </View>
+            ))}
+          </>
         </View>
       </SafeAreaView>
     </View>

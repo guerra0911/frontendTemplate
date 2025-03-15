@@ -10,7 +10,7 @@ import {
   View,
   useColorScheme,
   ScrollView,
-  FlexAlignType, // Added for horizontal scrolling of tabs
+  FlexAlignType,
 } from "react-native";
 import {
   Header as LibHeader,
@@ -52,9 +52,8 @@ interface LocalHeaderProps {
   headerContainerMarginLeft?: number;
   headerContainerMarginRight?: number;
 
-  // New: spacing between segmented control and bottom border of header container
+  // Spacing between segmented control and header container borders
   headerSegmentedControlMarginBottom?: number;
-  // New: spacing between segmented control and top border of header container
   headerSegmentedControlMarginTop?: number;
 }
 
@@ -100,7 +99,7 @@ export interface ThemedStaticHeaderNonStaticTabbedProps
   segmentedControlProps?: Partial<ThemedSegmentedControlProps>;
   // Additional custom styling for the segmented control container, if desired.
   segmentedControlContainerStyle?: StyleProp<ViewStyle>;
-  // New: option to enable horizontal scrolling for segmented control tabs
+  // Option to enable horizontal scrolling for segmented control tabs
   scrollableTabs?: boolean;
 }
 
@@ -120,11 +119,10 @@ export function ThemedStaticHeaderNonStaticTabbed(
     tabs,
     segmentedControlProps = {},
     segmentedControlContainerStyle,
-    scrollableTabs = false, // New prop with default value false
+    scrollableTabs = false,
     ...scrollProps
   } = props;
 
-  // Destructure headerProps with default margin values
   const {
     noBottomBorder = false,
     headerContainerBorderBottomWidth = 1,
@@ -152,7 +150,6 @@ export function ThemedStaticHeaderNonStaticTabbed(
   const [activeIndex, setActiveIndex] = useState(0);
   const showNavBar = useSharedValue(1);
 
-  // Resolve header background using our theme keys
   const colorKey = `staticHeaderBackground${capitalize(themeType)}` as ThemeColorType;
   const resolvedBg = useThemeColor(backgroundColor, colorKey);
 
@@ -211,7 +208,7 @@ export function ThemedStaticHeaderNonStaticTabbed(
     style,
   ];
 
-  // HeaderComponent renders the static top header (LibHeader)
+  // HeaderComponent renders the header (LibHeader) that scrolls with content
   const HeaderComponent = ({ showNavBar: _unused }: { showNavBar: any }) => {
     return (
       <View
@@ -262,59 +259,65 @@ export function ThemedStaticHeaderNonStaticTabbed(
     scrollableTabs && { alignSelf: "flex-start" as FlexAlignType },
   ];
 
-  // Render the segmented control as the first element in the scroll view content.
+  // Render separate scroll containers for each tab so that each maintains its own scroll state.
   return (
-    <ScrollViewWithHeaders
-      HeaderComponent={HeaderComponent}
-      refreshControl={maybeRefreshControl}
-      style={mergedScrollViewStyle}
-      contentContainerStyle={mergedContentContainerStyle}
-      {...scrollProps}
-    >
-      <View
-        style={[
-          styles.segmentedControlContainer,
-          {
-            marginTop: headerSegmentedControlMarginTop,
-            marginBottom: headerSegmentedControlMarginBottom,
-          },
-          segmentedControlContainerStyle,
-        ]}
-      >
-        {scrollableTabs ? (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-start" }}
+    <>
+      {tabs.map((tab, index) => (
+        <View key={index} style={{ flex: 1, display: index === activeIndex ? "flex" : "none" }}>
+          <ScrollViewWithHeaders
+            HeaderComponent={HeaderComponent}
+            refreshControl={maybeRefreshControl}
+            style={mergedScrollViewStyle}
+            contentContainerStyle={mergedContentContainerStyle}
+            {...scrollProps}
           >
-            <ThemedSegmentedControl
-              values={tabs.map((tab) => tab.title)}
-              selectedIndex={activeIndex}
-              onChange={setActiveIndex}
-              style={segmentedControlStyle}
-              padding={{
-                color: { light: segmentedControlBg, dark: segmentedControlBg },
-                internal: segmentedControlProps.padding?.internal ?? 0,
-              }}
-              {...segmentedControlProps}
-            />
-          </ScrollView>
-        ) : (
-          <ThemedSegmentedControl
-            values={tabs.map((tab) => tab.title)}
-            selectedIndex={activeIndex}
-            onChange={setActiveIndex}
-            style={segmentedControlStyle}
-            padding={{
-              color: { light: segmentedControlBg, dark: segmentedControlBg },
-              internal: segmentedControlProps.padding?.internal ?? 0,
-            }}
-            {...segmentedControlProps}
-          />
-        )}
-      </View>
-      {tabs[activeIndex].content}
-    </ScrollViewWithHeaders>
+            <View
+              style={[
+                styles.segmentedControlContainer,
+                {
+                  marginTop: headerSegmentedControlMarginTop,
+                  marginBottom: headerSegmentedControlMarginBottom,
+                },
+                segmentedControlContainerStyle,
+              ]}
+            >
+              {scrollableTabs ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-start" }}
+                >
+                  <ThemedSegmentedControl
+                    values={tabs.map((tab) => tab.title)}
+                    selectedIndex={activeIndex}
+                    onChange={setActiveIndex}
+                    style={segmentedControlStyle}
+                    padding={{
+                      color: { light: segmentedControlBg, dark: segmentedControlBg },
+                      internal: segmentedControlProps.padding?.internal ?? 0,
+                    }}
+                    {...segmentedControlProps}
+                  />
+                </ScrollView>
+              ) : (
+                <ThemedSegmentedControl
+                  values={tabs.map((tab) => tab.title)}
+                  selectedIndex={activeIndex}
+                  onChange={setActiveIndex}
+                  style={segmentedControlStyle}
+                  padding={{
+                    color: { light: segmentedControlBg, dark: segmentedControlBg },
+                    internal: segmentedControlProps.padding?.internal ?? 0,
+                  }}
+                  {...segmentedControlProps}
+                />
+              )}
+            </View>
+            {tab.content}
+          </ScrollViewWithHeaders>
+        </View>
+      ))}
+    </>
   );
 }
 

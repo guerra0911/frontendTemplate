@@ -1,3 +1,5 @@
+// app/components/screens/ThemedNonStaticHeaderStaticTabbed.tsx
+
 import React, { ReactNode, useState, useRef, useEffect } from "react";
 import {
   View,
@@ -144,7 +146,7 @@ export function ThemedNonStaticHeaderStaticTabbed(
     headerSegmentedControlPaddingRight = 0,
   } = headerProps;
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
 
   const capitalizedThemeType = themeType.charAt(0).toUpperCase() + themeType.slice(1);
   const headerColorKey = `hideOnScrollHeaderBackground${capitalizedThemeType}` as ThemeColorType;
@@ -303,13 +305,14 @@ export function ThemedNonStaticHeaderStaticTabbed(
       ? segmentedControlProps.animatedSwitch
       : true;
   const finalSegmentedThemeType = segmentedControlProps.themeType || themeType;
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const [activeTabIndexState, setActiveTabIndexState] = useState(0);
 
   const finalValues =
     segmentedControlProps.values ?? tabs.map((tab) => tab.title);
   const finalSelectedIndex =
-    segmentedControlProps.selectedIndex ?? activeTabIndex;
-  const finalOnChange = segmentedControlProps.onChange ?? setActiveTabIndex;
+    segmentedControlProps.selectedIndex ?? activeTabIndexState;
+  const finalOnChange =
+    segmentedControlProps.onChange ?? setActiveTabIndexState;
 
   // Define segmented control style; if scrollable, force left alignment.
   const segmentedControlStyle = [
@@ -425,7 +428,6 @@ export function ThemedNonStaticHeaderStaticTabbed(
             { backgroundColor: resolvedTopSafeAreaBg, height: insetsTop },
           ]}
         />
-
         <View style={styles.flexOne}>
           <Animated.View
             style={[
@@ -448,24 +450,32 @@ export function ThemedNonStaticHeaderStaticTabbed(
             )}
             {renderPinnedTabs()}
           </Animated.View>
-
-          <ScrollView
-            style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
-            contentContainerStyle={{
-              paddingTop: libHeaderHeight + tabsHeight,
-              paddingBottom: BOTTOM_FOOTER_HEIGHT,
-            }}
-            scrollEventThrottle={16}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleScroll}
-            onScrollBeginDrag={handleScrollBeginDrag}
-            onScrollEndDrag={handleScrollEndDrag}
-            onMomentumScrollBegin={handleMomentumScrollBegin}
-            onMomentumScrollEnd={handleMomentumScrollEnd}
-            refreshControl={maybeRefreshControl}
-          >
-            {tabs[effectiveTabIndex].content}
-          </ScrollView>
+          <>
+            {tabs.map((tab, index) => (
+              <View
+                key={index}
+                style={{ flex: 1, display: index === effectiveTabIndex ? "flex" : "none" }}
+              >
+                <ScrollView
+                  style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
+                  contentContainerStyle={{
+                    paddingTop: libHeaderHeight + tabsHeight,
+                    paddingBottom: BOTTOM_FOOTER_HEIGHT,
+                  }}
+                  scrollEventThrottle={16}
+                  showsVerticalScrollIndicator={false}
+                  onScroll={handleScroll}
+                  onScrollBeginDrag={handleScrollBeginDrag}
+                  onScrollEndDrag={handleScrollEndDrag}
+                  onMomentumScrollBegin={handleMomentumScrollBegin}
+                  onMomentumScrollEnd={handleMomentumScrollEnd}
+                  refreshControl={maybeRefreshControl}
+                >
+                  {tab.content}
+                </ScrollView>
+              </View>
+            ))}
+          </>
         </View>
       </SafeAreaView>
     </View>

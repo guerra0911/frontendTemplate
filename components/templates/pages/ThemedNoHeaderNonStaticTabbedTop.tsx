@@ -1,3 +1,5 @@
+// app/components/screens/ThemedNoHeaderNonStaticTabbedTop.tsx
+
 import React, { useRef, useState, useEffect, ReactNode } from "react";
 import {
   View,
@@ -122,10 +124,16 @@ export function ThemedNoHeaderNonStaticTabbedTop(
   const resolvedBgColor = useThemeColor(backgroundColor, headerColorKey);
 
   const scrollViewColorKey = `hideOnScrollScrollViewBackground${capitalizedThemeType}` as ThemeColorType;
-  const resolvedScrollViewBg = useThemeColor(scrollViewBackgroundColor || {}, scrollViewColorKey);
+  const resolvedScrollViewBg = useThemeColor(
+    scrollViewBackgroundColor || {},
+    scrollViewColorKey
+  );
 
   const topSafeAreaColorKey = `hideOnScrollTopSafeAreaBackground${capitalizedThemeType}` as ThemeColorType;
-  const resolvedTopSafeAreaBg = useThemeColor(topSafeAreaBackgroundColor || {}, topSafeAreaColorKey);
+  const resolvedTopSafeAreaBg = useThemeColor(
+    topSafeAreaBackgroundColor || {},
+    topSafeAreaColorKey
+  );
 
   const insets = useSafeAreaInsets();
 
@@ -289,25 +297,29 @@ export function ThemedNoHeaderNonStaticTabbedTop(
               renderHeader()
             )}
           </Animated.View>
-
-          <ScrollView
-            ref={scrollViewRef}
-            style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
-            contentContainerStyle={{
-              paddingTop: headerHeight,
-              paddingBottom: BOTTOM_FOOTER_HEIGHT,
-            }}
-            scrollEventThrottle={16}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleScroll}
-            onScrollBeginDrag={handleScrollBeginDrag}
-            onScrollEndDrag={handleScrollEndDrag}
-            onMomentumScrollBegin={handleMomentumScrollBegin}
-            onMomentumScrollEnd={handleMomentumScrollEnd}
-            refreshControl={maybeRefreshControl}
-          >
-            {tabs[activeIndex].content}
-          </ScrollView>
+          {/* Map over tabs so each gets its own ScrollView to maintain independent scroll state */}
+          {tabs.map((tab, index) => (
+            <View key={index} style={{ flex: 1, display: index === activeIndex ? "flex" : "none" }}>
+              <ScrollView
+                ref={index === activeIndex ? scrollViewRef : null}
+                style={[styles.scrollView, { backgroundColor: resolvedScrollViewBg }]}
+                contentContainerStyle={{
+                  paddingTop: headerHeight,
+                  paddingBottom: BOTTOM_FOOTER_HEIGHT,
+                }}
+                scrollEventThrottle={16}
+                showsVerticalScrollIndicator={false}
+                onScroll={handleScroll}
+                onScrollBeginDrag={handleScrollBeginDrag}
+                onScrollEndDrag={handleScrollEndDrag}
+                onMomentumScrollBegin={handleMomentumScrollBegin}
+                onMomentumScrollEnd={handleMomentumScrollEnd}
+                refreshControl={maybeRefreshControl}
+              >
+                {tab.content}
+              </ScrollView>
+            </View>
+          ))}
         </View>
       </SafeAreaView>
     </View>

@@ -1,3 +1,5 @@
+// app/components/screens/ThemedNoHeaderStaticTabbed.tsx
+
 import React, { ReactNode, useState } from "react";
 import {
   StyleSheet,
@@ -65,15 +67,6 @@ export interface ThemedNoHeaderStaticTabbedProps
   scrollableTabs?: boolean;
 }
 
-/**
- * ---------------------------------------------------------------------------
- * COMPONENT: ThemedNoHeaderStaticTabbed
- * ---------------------------------------------------------------------------
- *
- * This component renders a static segmented control (without a header) at the
- * top, positioned below the safe area. It uses theming for background colors
- * (for the scroll container and top safe area) and supports pull-to-refresh.
- */
 export function ThemedNoHeaderStaticTabbed(props: ThemedNoHeaderStaticTabbedProps) {
   const {
     themeType = "primary",
@@ -123,7 +116,9 @@ export function ThemedNoHeaderStaticTabbed(props: ThemedNoHeaderStaticTabbedProp
         onRefresh={onRefresh}
         tintColor={resolvedScrollViewBg}
         colors={[resolvedScrollViewBg]}
-        progressBackgroundColor={Platform.OS === "android" ? resolvedScrollViewBg : undefined}
+        progressBackgroundColor={
+          Platform.OS === "android" ? resolvedScrollViewBg : undefined
+        }
       />
     ) : undefined;
 
@@ -182,18 +177,26 @@ export function ThemedNoHeaderStaticTabbed(props: ThemedNoHeaderStaticTabbedProp
     );
   };
 
+  // Instead of a single ScrollViewWithHeaders rendering the active tab's content,
+  // map over all tabs and render each in its own scroll container.
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: resolvedScrollViewBg }]} edges={["left", "right", "bottom"]}>
       <View style={[styles.topSafeArea, { backgroundColor: resolvedTopSafeAreaBg, height: insets.top }]} />
-      <ScrollViewWithHeaders
-        HeaderComponent={HeaderComponent}
-        refreshControl={maybeRefreshControl}
-        style={mergedScrollViewStyle}
-        contentContainerStyle={mergedContentContainerStyle}
-        {...scrollProps}
-      >
-        {tabs[activeIndex].content}
-      </ScrollViewWithHeaders>
+      <>
+        {tabs.map((tab, index) => (
+          <View key={index} style={{ flex: 1, display: index === activeIndex ? "flex" : "none" }}>
+            <ScrollViewWithHeaders
+              HeaderComponent={HeaderComponent}
+              refreshControl={maybeRefreshControl}
+              style={mergedScrollViewStyle}
+              contentContainerStyle={mergedContentContainerStyle}
+              {...scrollProps}
+            >
+              {tab.content}
+            </ScrollViewWithHeaders>
+          </View>
+        ))}
+      </>
     </SafeAreaView>
   );
 }
